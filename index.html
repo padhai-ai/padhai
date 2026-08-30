@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PadhAI</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    header {
+      background: #4f46e5;
+      color: white;
+      padding: 18px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+    }
+
+    header p {
+      margin-top: 5px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 25px auto;
+      padding: 0 18px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-bottom: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      border: none;
+      padding: 13px 20px;
+      border-radius: 10px;
+      background: #4f46e5;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .subjects {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .subject {
+      background: #eef2ff;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #message {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>📚 PadhAI</h1>
+  <p>Your AI-powered learning platform</p>
+</header>
+
+<div class="container">
+
+  <!-- LOGIN / SIGNUP -->
+  <div class="card" id="auth">
+    <h2>👤 Create Your Account</h2>
+
+    <input id="name" type="text" placeholder="Your name">
+    <input id="email" type="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="createAccount()">Create Account</button>
+
+    <p id="message"></p>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="card hidden" id="dashboard">
+
+    <h2>Welcome to PadhAI 🎓</h2>
+
+    <p id="welcome"></p>
+
+    <br>
+
+    <h2>📚 Subjects</h2>
+
+    <div class="subjects">
+      <div class="subject" onclick="openSubject('Computer Science')">
+        💻 Computer Science
+      </div>
+
+      <div class="subject" onclick="openSubject('Mathematics')">
+        ➗ Mathematics
+      </div>
+
+      <div class="subject" onclick="openSubject('English')">
+        📖 English
+      </div>
+
+      <div class="subject" onclick="openSubject('Science')">
+        🔬 Science
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AI TUTOR -->
+  <div class="card hidden" id="tutor">
+
+    <h2>🤖 PadhAI Tutor</h2>
+
+    <input id="question" type="text"
+      placeholder="Ask your question...">
+
+    <button onclick="askTutor()">Ask PadhAI</button>
+
+    <p id="answer"></p>
+
+  </div>
+
+</div>
+
+<script>
+
+async function createAccount() {
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const message = document.getElementById("message");
+
+  if (!name || !email || !password) {
+    message.textContent = "Please fill all fields.";
+    return;
+  }
+
+  try {
+
+    const response = await fetch("/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        password
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+
+      document.getElementById("auth").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+      document.getElementById("tutor").classList.remove("hidden");
+
+      document.getElementById("welcome").textContent =
+        "Hello " + name + "! Ready to
