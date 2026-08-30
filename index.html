@@ -20,17 +20,16 @@
     header {
       background: #4f46e5;
       color: white;
-      padding: 22px;
       text-align: center;
+      padding: 22px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 30px;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 700px;
       margin: auto;
       padding: 20px;
     }
@@ -45,8 +44,8 @@
 
     input {
       width: 100%;
-      padding: 13px;
-      margin: 8px 0;
+      padding: 14px;
+      margin: 7px 0;
       border: 1px solid #ddd;
       border-radius: 9px;
       font-size: 16px;
@@ -54,19 +53,18 @@
 
     button {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       margin-top: 10px;
       border: 0;
       border-radius: 9px;
       background: #4f46e5;
       color: white;
       font-size: 16px;
-      cursor: pointer;
     }
 
     .secondary {
-      background: #eee;
-      color: #333;
+      background: #e5e7eb;
+      color: #222;
     }
 
     .grid {
@@ -78,32 +76,18 @@
     .feature {
       background: white;
       padding: 22px;
-      border-radius: 16px;
+      border-radius: 15px;
       box-shadow: 0 3px 12px rgba(0,0,0,.08);
-      cursor: pointer;
-    }
-
-    .feature:active {
-      transform: scale(.98);
-    }
-
-    .feature p {
-      color: #666;
     }
 
     .hidden {
       display: none;
     }
 
-    .message {
-      margin-top: 12px;
-      font-weight: bold;
+    #message {
+      margin-top: 15px;
       text-align: center;
-    }
-
-    .profile-row {
-      padding: 12px 0;
-      border-bottom: 1px solid #eee;
+      font-weight: bold;
     }
 
     @media (max-width: 600px) {
@@ -123,12 +107,12 @@
 
 <div class="container">
 
-  <!-- AUTHENTICATION -->
-  <div id="authSection">
+  <!-- LOGIN / SIGNUP -->
+  <div id="auth">
 
     <div class="card">
 
-      <h2 id="authTitle">📝 Create Account</h2>
+      <h2 id="title">📝 Create Account</h2>
 
       <input
         id="name"
@@ -148,24 +132,15 @@
         placeholder="Password"
       >
 
-      <button
-        id="authButton"
-        type="button"
-        onclick="signup()"
-      >
+      <button id="mainButton">
         Create Account
       </button>
 
-      <button
-        class="secondary"
-        type="button"
-        onclick="toggleAuth()"
-        id="toggleButton"
-      >
+      <button id="switchButton" class="secondary">
         Already have an account? Login
       </button>
 
-      <div id="authMessage" class="message"></div>
+      <div id="message"></div>
 
     </div>
 
@@ -173,23 +148,28 @@
 
 
   <!-- DASHBOARD -->
-  <div id="dashboardSection" class="hidden">
+  <div id="dashboard" class="hidden">
 
     <div class="card">
-
-      <h2 id="welcomeTitle">
-        Welcome to PadhAI 👋
-      </h2>
-
-      <p>
-        What would you like to learn today?
-      </p>
-
+      <h2 id="welcome"></h2>
+      <p>What would you like to learn today?</p>
     </div>
-
 
     <div class="grid">
 
-      <!-- AI TUTOR -->
-      <div class="feature" onclick="openTutor()">
-        <h
+      <div class="feature" id="tutor">
+        <h2>🤖 AI Tutor</h2>
+        <p>Ask questions and learn.</p>
+      </div>
+
+      <div class="feature" id="subjects">
+        <h2>📚 Subjects</h2>
+        <p>Explore your subjects.</p>
+      </div>
+
+      <div class="feature" id="quiz">
+        <h2>📝 Quizzes</h2>
+        <p>Test your knowledge.</p>
+      </div>
+
+      <div class="
