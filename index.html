@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PadhAI Dashboard</title>
+  <title>PadhAI</title>
 
   <style>
     * {
@@ -21,15 +21,12 @@
       background: #4f46e5;
       color: white;
       padding: 22px;
+      text-align: center;
     }
 
     header h1 {
       margin: 0;
-      font-size: 28px;
-    }
-
-    header p {
-      margin-bottom: 0;
+      font-size: 30px;
     }
 
     .container {
@@ -38,12 +35,38 @@
       padding: 20px;
     }
 
-    .welcome {
+    .card {
       background: white;
-      padding: 22px;
+      padding: 25px;
       border-radius: 16px;
       margin-bottom: 20px;
       box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 9px;
+      background: #4f46e5;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .secondary {
+      background: #eee;
+      color: #333;
     }
 
     .grid {
@@ -52,24 +75,35 @@
       gap: 15px;
     }
 
-    .card {
+    .feature {
       background: white;
-      padding: 25px;
+      padding: 22px;
       border-radius: 16px;
       box-shadow: 0 3px 12px rgba(0,0,0,.08);
       cursor: pointer;
     }
 
-    .card:active {
-      transform: scale(0.97);
+    .feature:active {
+      transform: scale(.98);
     }
 
-    .card h2 {
-      margin-top: 0;
-    }
-
-    .card p {
+    .feature p {
       color: #666;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      margin-top: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .profile-row {
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
     }
 
     @media (max-width: 600px) {
@@ -89,86 +123,73 @@
 
 <div class="container">
 
-  <div class="welcome">
-    <h2 id="welcomeTitle">Welcome to PadhAI 👋</h2>
-    <p>What would you like to learn today?</p>
+  <!-- AUTHENTICATION -->
+  <div id="authSection">
+
+    <div class="card">
+
+      <h2 id="authTitle">📝 Create Account</h2>
+
+      <input
+        id="name"
+        type="text"
+        placeholder="Your name"
+      >
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+      >
+
+      <button
+        id="authButton"
+        type="button"
+        onclick="signup()"
+      >
+        Create Account
+      </button>
+
+      <button
+        class="secondary"
+        type="button"
+        onclick="toggleAuth()"
+        id="toggleButton"
+      >
+        Already have an account? Login
+      </button>
+
+      <div id="authMessage" class="message"></div>
+
+    </div>
+
   </div>
 
-  <div class="grid">
 
-    <div class="card" onclick="openTutor()">
-      <h2>🤖 AI Tutor</h2>
-      <p>Ask questions and learn with your AI tutor.</p>
+  <!-- DASHBOARD -->
+  <div id="dashboardSection" class="hidden">
+
+    <div class="card">
+
+      <h2 id="welcomeTitle">
+        Welcome to PadhAI 👋
+      </h2>
+
+      <p>
+        What would you like to learn today?
+      </p>
+
     </div>
 
-    <div class="card" onclick="openSubjects()">
-      <h2>📚 Subjects</h2>
-      <p>Explore your subjects and learning materials.</p>
-    </div>
 
-    <div class="card" onclick="openQuiz()">
-      <h2>📝 Quizzes</h2>
-      <p>Test your knowledge and improve your score.</p>
-    </div>
+    <div class="grid">
 
-    <div class="card" onclick="openProgress()">
-      <h2>📊 Progress</h2>
-      <p>Track your learning progress.</p>
-    </div>
-
-    <div class="card" onclick="openProfile()">
-      <h2>👤 Profile</h2>
-      <p>View your account information.</p>
-    </div>
-
-    <div class="card" onclick="logout()">
-      <h2>🚪 Logout</h2>
-      <p>Sign out of your PadhAI account.</p>
-    </div>
-
-  </div>
-
-</div>
-
-<script>
-
-function openTutor() {
-  alert("AI Tutor coming next 🤖");
-}
-
-function openSubjects() {
-  alert("Subjects section coming next 📚");
-}
-
-function openQuiz() {
-  alert("Quiz section coming next 📝");
-}
-
-function openProgress() {
-  alert("Progress section coming next 📊");
-}
-
-function openProfile() {
-  const name = localStorage.getItem("padhai_name");
-  const email = localStorage.getItem("padhai_email");
-
-  alert(
-    "👤 Profile\n\n" +
-    "Name: " + (name || "Not available") + "\n" +
-    "Email: " + (email || "Not available") + "\n\n" +
-    "🎓 PadhAI Student"
-  );
-}
-
-function logout() {
-  if (confirm("Are you sure you want to logout?")) {
-    localStorage.removeItem("padhai_name");
-    localStorage.removeItem("padhai_email");
-    window.location.reload();
-  }
-}
-
-</script>
-
-</body>
-</html>
+      <!-- AI TUTOR -->
+      <div class="feature" onclick="openTutor()">
+        <h
