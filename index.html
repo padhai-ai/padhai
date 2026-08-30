@@ -58,7 +58,6 @@
       border-radius: 16px;
       box-shadow: 0 3px 12px rgba(0,0,0,.08);
       cursor: pointer;
-      transition: transform 0.15s;
     }
 
     .card:active {
@@ -91,43 +90,37 @@
 <div class="container">
 
   <div class="welcome">
-    <h2>Welcome back, Joshua! 👋</h2>
+    <h2 id="welcomeTitle">Welcome to PadhAI 👋</h2>
     <p>What would you like to learn today?</p>
   </div>
 
   <div class="grid">
 
-    <!-- AI TUTOR -->
     <div class="card" onclick="openTutor()">
       <h2>🤖 AI Tutor</h2>
       <p>Ask questions and learn with your AI tutor.</p>
     </div>
 
-    <!-- SUBJECTS -->
     <div class="card" onclick="openSubjects()">
       <h2>📚 Subjects</h2>
       <p>Explore your subjects and learning materials.</p>
     </div>
 
-    <!-- QUIZZES -->
     <div class="card" onclick="openQuiz()">
       <h2>📝 Quizzes</h2>
       <p>Test your knowledge and improve your score.</p>
     </div>
 
-    <!-- PROGRESS -->
     <div class="card" onclick="openProgress()">
       <h2>📊 Progress</h2>
       <p>Track your learning progress.</p>
     </div>
 
-    <!-- PROFILE -->
     <div class="card" onclick="openProfile()">
       <h2>👤 Profile</h2>
-      <p>View and manage your account.</p>
+      <p>View your account information.</p>
     </div>
 
-    <!-- LOGOUT -->
     <div class="card" onclick="logout()">
       <h2>🚪 Logout</h2>
       <p>Sign out of your PadhAI account.</p>
@@ -156,23 +149,22 @@ function openProgress() {
 }
 
 function openProfile() {
-  const profile = `
-    👤 Profile
+  const name = localStorage.getItem("padhai_name");
+  const email = localStorage.getItem("padhai_email");
 
-    Name: Joshua Govias
-    Email: Your registered email
-
-    🎓 PadhAI Student
-
-    Your learning progress will appear here soon.
-  `;
-
-  alert(profile);
+  alert(
+    "👤 Profile\n\n" +
+    "Name: " + (name || "Not available") + "\n" +
+    "Email: " + (email || "Not available") + "\n\n" +
+    "🎓 PadhAI Student"
+  );
 }
 
 function logout() {
   if (confirm("Are you sure you want to logout?")) {
-    window.location.href = "/";
+    localStorage.removeItem("padhai_name");
+    localStorage.removeItem("padhai_email");
+    window.location.reload();
   }
 }
 
