@@ -6,14 +6,9 @@
   <title>PadhAI</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-
     body {
+      margin: 0;
+      font-family: Arial, sans-serif;
       background: #f5f7fb;
       color: #222;
     }
@@ -21,83 +16,51 @@
     header {
       background: #4f46e5;
       color: white;
-      padding: 18px 20px;
       text-align: center;
-    }
-
-    header h1 {
-      font-size: 28px;
-    }
-
-    header p {
-      margin-top: 5px;
-      opacity: 0.9;
+      padding: 25px;
     }
 
     .container {
-      max-width: 900px;
-      margin: 25px auto;
-      padding: 0 18px;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
     }
 
     .card {
       background: white;
-      padding: 22px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    }
-
-    h2 {
-      margin-bottom: 15px;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,.08);
     }
 
     input {
       width: 100%;
       padding: 13px;
       margin: 8px 0;
+      box-sizing: border-box;
       border: 1px solid #ddd;
-      border-radius: 10px;
+      border-radius: 8px;
       font-size: 16px;
     }
 
     button {
-      border: none;
-      padding: 13px 20px;
-      border-radius: 10px;
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 8px;
       background: #4f46e5;
       color: white;
       font-size: 16px;
-      cursor: pointer;
-      margin-top: 8px;
     }
 
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .subjects {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-    }
-
-    .subject {
-      background: #eef2ff;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      cursor: pointer;
+    #message {
+      margin-top: 15px;
       font-weight: bold;
     }
 
     .hidden {
       display: none;
-    }
-
-    #message {
-      margin-top: 12px;
-      font-weight: bold;
     }
   </style>
 </head>
@@ -111,69 +74,28 @@
 
 <div class="container">
 
-  <!-- LOGIN / SIGNUP -->
   <div class="card" id="auth">
-    <h2>👤 Create Your Account</h2>
+    <h2>Create Account</h2>
 
     <input id="name" type="text" placeholder="Your name">
     <input id="email" type="email" placeholder="Email">
     <input id="password" type="password" placeholder="Password">
 
-    <button type="button" onclick="createAccount()">Create Account</button>
+    <button id="signupButton" type="button">Create Account</button>
 
-    <p id="message"></p>
+    <div id="message"></div>
   </div>
 
-  <!-- DASHBOARD -->
   <div class="card hidden" id="dashboard">
-
     <h2>Welcome to PadhAI 🎓</h2>
-
     <p id="welcome"></p>
-
-    <br>
-
-    <h2>📚 Subjects</h2>
-
-    <div class="subjects">
-      <div class="subject" onclick="openSubject('Computer Science')">
-        💻 Computer Science
-      </div>
-
-      <div class="subject" onclick="openSubject('Mathematics')">
-        ➗ Mathematics
-      </div>
-
-      <div class="subject" onclick="openSubject('English')">
-        📖 English
-      </div>
-
-      <div class="subject" onclick="openSubject('Science')">
-        🔬 Science
-      </div>
-    </div>
-
-  </div>
-
-  <!-- AI TUTOR -->
-  <div class="card hidden" id="tutor">
-
-    <h2>🤖 PadhAI Tutor</h2>
-
-    <input id="question" type="text"
-      placeholder="Ask your question...">
-
-    <button onclick="askTutor()">Ask PadhAI</button>
-
-    <p id="answer"></p>
-
   </div>
 
 </div>
 
 <script>
+document.getElementById("signupButton").addEventListener("click", async function () {
 
-async function createAccount() {
   const name = document.getElementById("name").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
@@ -188,35 +110,45 @@ async function createAccount() {
   message.textContent = "Creating account...";
 
   try {
+
     const response = await fetch("/api/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        name,
-        email,
-        password
+        name: name,
+        email: email,
+        password: password
       })
     });
 
     const data = await response.json();
 
     if (data.success) {
+
       document.getElementById("auth").classList.add("hidden");
       document.getElementById("dashboard").classList.remove("hidden");
-      document.getElementById("tutor").classList.remove("hidden");
 
       document.getElementById("welcome").textContent =
-        "Hello " + name + "! Ready to learn? 🚀";
+        "Hello " + name + "! Your account has been created. 🚀";
 
-      message.textContent = "";
     } else {
-      message.textContent = data.error || "Could not create account.";
+
+      message.textContent =
+        data.error || "Could not create account.";
+
     }
 
   } catch (error) {
+
     console.error(error);
     message.textContent = "Server connection error.";
+
   }
-}
+
+});
+</script>
+
+</body>
+</html>
