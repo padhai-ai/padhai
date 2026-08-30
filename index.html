@@ -25,6 +25,11 @@
 
     header h1 {
       margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin-bottom: 0;
     }
 
     .container {
@@ -38,6 +43,7 @@
       padding: 22px;
       border-radius: 16px;
       margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.08);
     }
 
     .grid {
@@ -52,6 +58,11 @@
       border-radius: 16px;
       box-shadow: 0 3px 12px rgba(0,0,0,.08);
       cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .card:active {
+      transform: scale(0.97);
     }
 
     .card h2 {
@@ -86,24 +97,40 @@
 
   <div class="grid">
 
+    <!-- AI TUTOR -->
     <div class="card" onclick="openTutor()">
       <h2>🤖 AI Tutor</h2>
       <p>Ask questions and learn with your AI tutor.</p>
     </div>
 
+    <!-- SUBJECTS -->
     <div class="card" onclick="openSubjects()">
       <h2>📚 Subjects</h2>
       <p>Explore your subjects and learning materials.</p>
     </div>
 
+    <!-- QUIZZES -->
     <div class="card" onclick="openQuiz()">
       <h2>📝 Quizzes</h2>
       <p>Test your knowledge and improve your score.</p>
     </div>
 
+    <!-- PROGRESS -->
     <div class="card" onclick="openProgress()">
       <h2>📊 Progress</h2>
       <p>Track your learning progress.</p>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="card" onclick="openProfile()">
+      <h2>👤 Profile</h2>
+      <p>View and manage your account.</p>
+    </div>
+
+    <!-- LOGOUT -->
+    <div class="card" onclick="logout()">
+      <h2>🚪 Logout</h2>
+      <p>Sign out of your PadhAI account.</p>
     </div>
 
   </div>
@@ -111,6 +138,7 @@
 </div>
 
 <script>
+
 function openTutor() {
   alert("AI Tutor coming next 🤖");
 }
@@ -126,6 +154,17 @@ function openQuiz() {
 function openProgress() {
   alert("Progress section coming next 📊");
 }
+
+function openProfile() {
+  alert("Profile section coming next 👤");
+}
+
+function logout() {
+  if (confirm("Are you sure you want to logout?")) {
+    window.location.href = "/";
+  }
+}
+
 </script>
 
 </body>
