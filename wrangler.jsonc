@@ -1,7 +1,7 @@
 {
   "name": "padhai",
   "main": "src/index.js",
-  "compatibility_date": "2026-08-30",
+  "compatibility_date": "2026-08-27",
   "d1_databases": [
     {
       "binding": "DB",
