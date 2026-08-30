@@ -174,9 +174,8 @@
 <script>
 
 async function createAccount() {
-
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
 
   const message = document.getElementById("message");
@@ -186,8 +185,9 @@ async function createAccount() {
     return;
   }
 
-  try {
+  message.textContent = "Creating account...";
 
+  try {
     const response = await fetch("/api/signup", {
       method: "POST",
       headers: {
@@ -203,10 +203,20 @@ async function createAccount() {
     const data = await response.json();
 
     if (data.success) {
-
       document.getElementById("auth").classList.add("hidden");
       document.getElementById("dashboard").classList.remove("hidden");
       document.getElementById("tutor").classList.remove("hidden");
 
       document.getElementById("welcome").textContent =
-        "Hello " + name + "! Ready to
+        "Hello " + name + "! Ready to learn? 🚀";
+
+      message.textContent = "";
+    } else {
+      message.textContent = data.error || "Could not create account.";
+    }
+
+  } catch (error) {
+    console.error(error);
+    message.textContent = "Server connection error.";
+  }
+}
