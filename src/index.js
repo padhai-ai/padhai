@@ -1,5 +1,3 @@
-import html from "../index.html";
-
 async function hashPassword(password) {
   const data = new TextEncoder().encode(password);
 
@@ -13,14 +11,17 @@ async function hashPassword(password) {
     .join("");
 }
 
+
 export default {
+
   async fetch(request, env) {
 
     const url = new URL(request.url);
 
-    /* =========================
-       SIGNUP
-    ========================= */
+
+    // =========================
+    // SIGNUP
+    // =========================
 
     if (
       url.pathname === "/api/signup" &&
@@ -105,9 +106,9 @@ export default {
     }
 
 
-    /* =========================
-       LOGIN
-    ========================= */
+    // =========================
+    // LOGIN
+    // =========================
 
     if (
       url.pathname === "/api/login" &&
@@ -181,9 +182,9 @@ export default {
     }
 
 
-    /* =========================
-       DATABASE TEST
-    ========================= */
+    // =========================
+    // DATABASE TEST
+    // =========================
 
     if (url.pathname === "/api/test-db") {
 
@@ -201,15 +202,19 @@ export default {
     }
 
 
-    /* =========================
-       WEBSITE
-    ========================= */
+    // =========================
+    // WEBSITE
+    // =========================
 
-    return new Response(html, {
-      headers: {
-        "content-type": "text/html;charset=UTF-8"
-      }
-    });
+    if (env.ASSETS) {
+      return env.ASSETS.fetch(request);
+    }
+
+    return new Response(
+      "PadhAI website assets are not configured.",
+      { status: 500 }
+    );
 
   }
+
 };
