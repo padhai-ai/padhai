@@ -232,7 +232,43 @@
 </div>
 
 
-<script>
+<!-- AI TUTOR -->
+<div id="tutorPage" class="hidden">
+
+  <div class="card">
+
+    <h2>🤖 PadhAI AI Tutor</h2>
+
+    <p>Ask me anything about your studies.</p>
+
+    <div id="chatBox" class="chat-box">
+
+      <div class="ai-message">
+        🤖 Hi! I'm PadhAI Tutor. What would you like to learn?
+      </div>
+
+    </div>
+
+    <textarea
+      id="question"
+      rows="3"
+      placeholder="Type your question here...">
+    </textarea>
+
+    <button type="button" onclick="askTutor()">
+      🤖 Ask PadhAI
+    </button>
+
+    <button
+      type="button"
+      class="secondary"
+      onclick="backDashboardFromTutor()">
+      ← Back to Dashboard
+    </button>
+
+  </div>
+
+</div>
 
 let loginMode = false;
 
