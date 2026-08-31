@@ -2,6 +2,11 @@
   "name": "padhai",
   "main": "src/index.js",
   "compatibility_date": "2026-08-27",
+
+  "assets": {
+    "directory": "."
+  },
+
   "d1_databases": [
     {
       "binding": "DB",
