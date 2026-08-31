@@ -39,15 +39,10 @@ export default {
         const cleanEmail =
           email.toLowerCase().trim();
 
-        const encoder = new TextEncoder();
-
-        const passwordData =
-          encoder.encode(password);
-
         const hashBuffer =
           await crypto.subtle.digest(
             "SHA-256",
-            passwordData
+            new TextEncoder().encode(password)
           );
 
         const passwordHash =
@@ -61,8 +56,8 @@ export default {
           await env.DB
             .prepare(
               `INSERT INTO users
-              (name, email, password_hash)
-              VALUES (?, ?, ?)`
+               (name, email, password_hash)
+               VALUES (?, ?, ?)`
             )
             .bind(
               name.trim(),
@@ -133,15 +128,10 @@ export default {
         const cleanEmail =
           email.toLowerCase().trim();
 
-        const encoder = new TextEncoder();
-
-        const passwordData =
-          encoder.encode(password);
-
         const hashBuffer =
           await crypto.subtle.digest(
             "SHA-256",
-            passwordData
+            new TextEncoder().encode(password)
           );
 
         const passwordHash =
@@ -236,12 +226,9 @@ export default {
           );
         }
 
-        const model =
-          "@cf/meta/llama-3.2-3b-instruct";
-
         const result =
           await env.AI.run(
-            model,
+            "@cf/meta/llama-3.2-3b-instruct",
             {
               messages: [
                 {
@@ -257,7 +244,6 @@ Use examples when useful.
 
 Help students understand instead of simply giving answers.`
                 },
-
                 {
                   role: "user",
                   content: question
@@ -276,7 +262,7 @@ Help students understand instead of simply giving answers.`
       } catch (error) {
 
         console.error(
-          "PadhAI TUTOR ERROR:",
+          "TUTOR ERROR:",
           error
         );
 
@@ -341,50 +327,13 @@ Help students understand instead of simply giving answers.`
           );
         }
 
+        /*
+         * IMPORTANT:
+         * This model supports Cloudflare JSON Mode.
+         */
+
         const model =
-          "@cf/meta/llama-3.2-3b-instruct";
-
-        const prompt = `
-You are PadhAI Quiz Generator.
-
-Create exactly ${count} multiple-choice questions about:
-
-${topic}
-
-RETURN ONLY VALID JSON.
-
-Do not write anything before or after the JSON.
-
-Do not use markdown.
-
-Use exactly this format:
-
-[
-  {
-    "question": "What is photosynthesis?",
-    "options": [
-      "Process by which plants make food",
-      "Process of animal digestion",
-      "Process of blood circulation",
-      "Process of cell division"
-    ],
-    "answer": 0
-  }
-]
-
-RULES:
-
-- Exactly ${count} questions.
-- Every question must have exactly 4 options.
-- answer must be 0, 1, 2, or 3.
-- answer identifies the correct option.
-- Only one option is correct.
-- Questions must be factually correct.
-- Options must be different.
-- No explanations.
-- No markdown.
-- JSON array only.
-`;
+          "@cf/meta/llama-3.1-8b-instruct-fast";
 
         const result =
           await env.AI.run(
@@ -394,135 +343,162 @@ RULES:
                 {
                   role: "system",
                   content:
-                    "You are a JSON-only quiz generator. Return valid JSON and nothing else."
+                    `You are PadhAI Quiz Generator.
+
+Create educational multiple-choice questions.
+
+Always follow the provided JSON schema.
+
+Make questions factually correct.
+
+Create exactly the requested number of questions.`
                 },
 
                 {
                   role: "user",
-                  content: prompt
+                  content:
+                    `Create exactly ${count} multiple-choice questions about ${topic}.`
                 }
-              ]
+              ],
+
+              response_format: {
+                type: "json_schema",
+
+                json_schema: {
+                  type: "object",
+
+                  properties: {
+
+                    questions: {
+                      type: "array",
+
+                      items: {
+                        type: "object",
+
+                        properties: {
+
+                          question: {
+                            type: "string"
+                          },
+
+                          options: {
+                            type: "array",
+
+                            items: {
+                              type: "string"
+                            }
+                          },
+
+                          answer: {
+                            type: "integer"
+                          }
+
+                        },
+
+                        required: [
+                          "question",
+                          "options",
+                          "answer"
+                        ]
+                      }
+                    }
+
+                  },
+
+                  required: [
+                    "questions"
+                  ]
+                }
+              },
+
+              temperature: 0.2,
+
+              max_tokens: 2000
             }
           );
 
-        let raw =
-          result.response || "";
-
-        raw =
-          String(raw).trim();
 
         console.log(
-          "RAW QUIZ RESPONSE:",
-          raw
+          "QUIZ AI RESULT:",
+          JSON.stringify(result)
         );
 
-        // Remove markdown fences
-        raw =
-          raw.replace(
-            /```json/gi,
-            ""
-          );
 
-        raw =
-          raw.replace(
-            /```/g,
-            ""
-          );
+        // ======================================
+        // GET STRUCTURED RESPONSE
+        // ======================================
 
-        raw =
-          raw.trim();
+        let questions =
+          result?.response?.questions;
 
-        // Find the JSON array
-        const firstBracket =
-          raw.indexOf("[");
 
-        const lastBracket =
-          raw.lastIndexOf("]");
+        // ======================================
+        // FALLBACK:
+        // SOME AI RESPONSES MAY RETURN A STRING
+        // ======================================
 
         if (
-          firstBracket === -1 ||
-          lastBracket === -1 ||
-          lastBracket <= firstBracket
+          typeof result?.response === "string"
+        ) {
+
+          try {
+
+            const parsed =
+              JSON.parse(
+                result.response
+              );
+
+            questions =
+              parsed.questions;
+
+          } catch (error) {
+
+            console.error(
+              "STRING JSON PARSE ERROR:",
+              error
+            );
+
+          }
+
+        }
+
+
+        if (
+          !Array.isArray(questions)
         ) {
 
           console.error(
-            "NO JSON ARRAY FOUND:",
-            raw
+            "INVALID STRUCTURED RESPONSE:",
+            JSON.stringify(result)
           );
 
           return Response.json(
             {
               success: false,
               error:
-                "AI did not return quiz data. Please try again."
-            },
-            { status: 500 }
-          );
-        }
-
-        raw =
-          raw.substring(
-            firstBracket,
-            lastBracket + 1
-          );
-
-        let questions;
-
-        try {
-
-          questions =
-            JSON.parse(raw);
-
-        } catch (parseError) {
-
-          console.error(
-            "QUIZ JSON PARSE ERROR:",
-            parseError.message
-          );
-
-          console.error(
-            "QUIZ RAW:",
-            raw
-          );
-
-          return Response.json(
-            {
-              success: false,
-              error:
-                "AI returned invalid quiz data. Please try again."
-            },
-            { status: 500 }
-          );
-        }
-
-        if (!Array.isArray(questions)) {
-
-          return Response.json(
-            {
-              success: false,
-              error:
-                "Invalid quiz format."
+                "AI returned an invalid quiz. Please try again."
             },
             { status: 500 }
           );
 
         }
+
+
+        // ======================================
+        // CLEAN AND VALIDATE
+        // ======================================
 
         const cleanQuestions = [];
 
         for (
-          let i = 0;
-          i < questions.length;
-          i++
+          const q of questions
         ) {
-
-          const q =
-            questions[i];
 
           if (!q) continue;
 
           if (
-            typeof q.question !== "string"
+            typeof q.question !==
+            "string"
           ) {
             continue;
           }
@@ -575,22 +551,18 @@ RULES:
 
           });
 
-          if (
-            cleanQuestions.length >= count
-          ) {
-            break;
-          }
-
         }
 
+
         if (
-          cleanQuestions.length < count
+          cleanQuestions.length <
+          count
         ) {
 
           console.error(
-            "NOT ENOUGH QUESTIONS:",
+            "NOT ENOUGH VALID QUESTIONS:",
             cleanQuestions.length,
-            "needed:",
+            "EXPECTED:",
             count
           );
 
@@ -605,6 +577,7 @@ RULES:
 
         }
 
+
         return Response.json({
 
           success: true,
@@ -612,14 +585,18 @@ RULES:
           topic,
 
           questions:
-            cleanQuestions
+            cleanQuestions.slice(
+              0,
+              count
+            )
 
         });
+
 
       } catch (error) {
 
         console.error(
-          "PadhAI QUIZ ERROR:",
+          "QUIZ ERROR:",
           error
         );
 
@@ -718,7 +695,7 @@ RULES:
       } catch (error) {
 
         console.error(
-          "QUIZ SCORE ERROR:",
+          "SCORE ERROR:",
           error
         );
 
@@ -810,7 +787,7 @@ RULES:
       } catch (error) {
 
         console.error(
-          "QUIZ HISTORY ERROR:",
+          "HISTORY ERROR:",
           error
         );
 
@@ -818,7 +795,10 @@ RULES:
           {
             success: false,
             error:
-              "Could not load quiz history."
+              "Could not load quiz history.",
+            details:
+              error.message ||
+              "Unknown error"
           },
           { status: 500 }
         );
