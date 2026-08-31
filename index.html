@@ -1,1543 +1,953 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PadhAI - AI Tutor</title>
-
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#f5f6fb;
-  color:#202124;
-}
-.hidden{display:none!important}
-
-.header{
-  background:linear-gradient(135deg,#5141e8,#5545f5);
-  color:white;
-  text-align:center;
-  padding:28px 15px;
-}
-.header h1{margin:0;font-size:42px}
-.header p{margin:8px 0 0;font-size:18px}
-
-.container{
-  width:92%;
-  max-width:800px;
-  margin:25px auto;
-}
-
-.card{
-  background:white;
-  border-radius:22px;
-  padding:25px;
-  box-shadow:0 8px 30px rgba(0,0,0,.08);
-}
-
-input,textarea{
-  width:100%;
-  padding:15px;
-  margin:8px 0;
-  border:1px solid #ddd;
-  border-radius:13px;
-  font-size:16px;
-  font-family:inherit;
-}
-
-textarea{
-  min-height:120px;
-  resize:vertical;
-}
-
-button{
-  width:100%;
-  padding:15px;
-  margin-top:9px;
-  border:0;
-  border-radius:13px;
-  font-size:16px;
-  cursor:pointer;
-}
-
-button:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-.primary{background:#5141e8;color:white}
-.secondary{background:#e8e9ed;color:#222}
-.danger{background:#ef101b;color:white}
-
-.message{
-  text-align:center;
-  min-height:22px;
-  margin:12px 0;
-}
-
-.nav{
-  display:flex;
-  gap:8px;
-  margin-bottom:20px;
-}
-
-.nav button{margin:0;flex:1}
-
-.welcome{
-  background:#f0f2ff;
-  border-radius:18px;
-  padding:20px;
-  margin-bottom:18px;
-}
-
-.feature{
-  text-align:left;
-  background:#f8f9fc;
-  padding:20px;
-  margin:12px 0;
-}
-
-.feature h3{
-  margin:0 0 7px;
-  font-size:22px;
-}
-
-.feature p{margin:0;color:#555}
-
-.profile-box{
-  background:#f7f8fc;
-  padding:20px;
-  border-radius:16px;
-  line-height:2;
-  font-size:17px;
-}
-
-/* TUTOR */
-
-.tutor-header{
-  display:flex;
-  align-items:center;
-  gap:14px;
-}
-
-.tutor-icon{
-  width:55px;
-  height:55px;
-  border-radius:50%;
-  background:#5141e8;
-  color:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-size:27px;
-}
-
-.chat{
-  height:400px;
-  overflow-y:auto;
-  background:#f7f8fc;
-  border-radius:18px;
-  padding:15px;
-  margin:15px 0;
-}
-
-.bubble{
-  max-width:85%;
-  padding:13px 16px;
-  border-radius:17px;
-  margin:9px 0;
-  line-height:1.5;
-  white-space:pre-wrap;
-}
-
-.user-bubble{
-  margin-left:auto;
-  background:#5141e8;
-  color:white;
-}
-
-.ai-bubble{
-  background:white;
-  border:1px solid #ddd;
-}
-
-/* STUDY */
-
-.study-intro,
-.quiz-start{
-  background:#f0f2ff;
-  padding:20px;
-  border-radius:18px;
-  margin:18px 0;
-}
-
-.study-levels{
-  display:flex;
-  gap:8px;
-}
-
-.level-button{
-  background:#f8f9fc;
-  border:2px solid #ddd;
-}
-
-.level-button.active{
-  border-color:#5141e8;
-  background:#eeeaff;
-}
-
-.lesson{
-  margin-top:22px;
-}
-
-.lesson-title{
-  font-size:28px;
-}
-
-.lesson-section,
-.example-box,
-.summary-box{
-  padding:20px;
-  border-radius:17px;
-  margin:15px 0;
-}
-
-.lesson-section{background:#f8f9fc}
-.example-box{background:#fff8e7}
-.summary-box{background:#eaf8ef}
-
-.lesson-section h3,
-.example-box h3,
-.summary-box h3{
-  margin-top:0;
-}
-
-.lesson-text{
-  line-height:1.7;
-  white-space:pre-wrap;
-}
-
-.key-points li{
-  margin:10px 0;
-  line-height:1.5;
-}
-
-/* QUIZ */
-
-.quiz-progress{
-  color:#666;
-  margin-bottom:10px;
-}
-
-.quiz-question{
-  font-size:22px;
-  font-weight:bold;
-  line-height:1.4;
-  margin:15px 0;
-}
-
-.option{
-  text-align:left;
-  background:#f8f9fc;
-  border:2px solid #ddd;
-}
-
-.option.selected{
-  border-color:#5141e8;
-  background:#eeeaff;
-}
-
-.quiz-result{
-  text-align:center;
-}
-
-.score-circle{
-  width:130px;
-  height:130px;
-  border-radius:50%;
-  background:#f0f2ff;
-  margin:20px auto;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-}
-
-.score-number{
-  font-size:36px;
-  font-weight:bold;
-  color:#5141e8;
-}
-
-.review{
-  text-align:left;
-  background:#f7f8fc;
-  padding:18px;
-  border-radius:16px;
-}
-
-@media(max-width:600px){
-  .header h1{font-size:34px}
-  .nav button{font-size:13px;padding:13px 5px}
-  .card{padding:20px}
-  .study-levels{flex-direction:column}
-}
-</style>
-</head>
-
-<body>
-
-<div class="header">
-  <h1>📚 PadhAI</h1>
-  <p>Learn smarter. Learn faster.</p>
-</div>
-
-<div class="container">
-
-<!-- AUTH -->
-
-<div id="auth" class="card">
-
-  <h2 id="authTitle">📝 Create Account</h2>
-
-  <input id="name" type="text" placeholder="Your name">
-
-  <input id="email" type="email" placeholder="Email">
-
-  <input id="password" type="password" placeholder="Password">
-
-  <button id="authButton" class="primary" type="button">
-    Create Account
-  </button>
-
-  <button id="switchButton" class="secondary" type="button">
-    Already have an account? Login
-  </button>
-
-  <div id="message" class="message"></div>
-
-</div>
-
-
-<!-- DASHBOARD -->
-
-<div id="dashboard" class="hidden">
-
-<div class="card">
-
-<div class="nav">
-<button id="homeButton" class="primary">🏠 Home</button>
-<button id="profileButton" class="secondary">👤 Profile</button>
-<button id="logoutButton" class="danger">Logout</button>
-</div>
-
-<div class="welcome">
-<h2>Hello <span id="welcomeName"></span>! 👋</h2>
-<p>Welcome to your personal learning space.</p>
-</div>
-
-<button id="tutorFeature" class="feature">
-<h3>🤖 AI Tutor</h3>
-<p>Ask questions and learn concepts step by step.</p>
-</button>
-
-<button id="studyFeature" class="feature">
-<h3>📖 Study</h3>
-<p>Generate complete lessons about any topic.</p>
-</button>
-
-<button id="quizFeature" class="feature">
-<h3>📝 Quizzes</h3>
-<p>Test your knowledge with AI-generated quizzes.</p>
-</button>
-
-</div>
-</div>
-
-
-<!-- PROFILE -->
-
-<div id="profile" class="hidden">
-
-<div class="card">
-
-<button id="profileBackButton" class="secondary">
-← Back to Dashboard
-</button>
-
-<h2>👤 My Profile</h2>
-
-<div class="profile-box">
-<strong>Name:</strong>
-<span id="profileName"></span>
-<br>
-<strong>Email:</strong>
-<span id="profileEmail"></span>
-</div>
-
-</div>
-</div>
-
-
-<!-- TUTOR -->
-
-<div id="tutor" class="hidden">
-
-<div class="card">
-
-<button id="tutorBackButton" class="secondary">
-← Back to Dashboard
-</button>
-
-<div class="tutor-header">
-
-<div class="tutor-icon">🤖</div>
-
-<div>
-<h2 style="margin:0">PadhAI Tutor</h2>
-<p>Your personal AI study assistant</p>
-</div>
-
-</div>
-
-<div id="chat" class="chat">
-
-<div class="bubble ai-bubble">
-👋 Hi! I'm PadhAI Tutor.
-
-Ask me anything about your studies and I'll explain it step by step.
-</div>
-
-</div>
-
-<textarea
-id="question"
-placeholder="Ask PadhAI anything..."
-></textarea>
-
-<button id="askButton" class="primary">
-🤖 Ask PadhAI
-</button>
-
-<button id="clearChatButton" class="secondary">
-🧹 Clear Chat
-</button>
-
-<div id="tutorMessage" class="message"></div>
-
-</div>
-</div>
-
-
-<!-- STUDY -->
-
-<div id="study" class="hidden">
-
-<div class="card">
-
-<button id="studyBackButton" class="secondary">
-← Back to Dashboard
-</button>
-
-<h2>📖 PadhAI Study</h2>
-
-<div class="study-intro">
-<h3>🎓 Learn Any Topic</h3>
-<p>
-Enter a subject or topic and PadhAI will create a complete lesson.
-</p>
-</div>
-
-<input
-id="studyTopic"
-placeholder="Example: Photosynthesis, JavaScript, World War 2..."
->
-
-<h3>Choose your level</h3>
-
-<div class="study-levels">
-
-<button id="beginnerButton" class="level-button active">
-🌱 Beginner
-</button>
-
-<button id="intermediateButton" class="level-button">
-📚 Intermediate
-</button>
-
-<button id="advancedButton" class="level-button">
-🧠 Advanced
-</button>
-
-</div>
-
-<button id="studyButton" class="primary">
-🤖 Start Learning
-</button>
-
-<div id="studyMessage" class="message"></div>
-
-<div id="lesson" class="lesson hidden">
-
-<h2 id="lessonTitle" class="lesson-title"></h2>
-
-<div class="lesson-section">
-<h3>🌟 Introduction</h3>
-<div id="lessonIntroduction" class="lesson-text"></div>
-</div>
-
-<div class="lesson-section">
-<h3>📖 Explanation</h3>
-<div id="lessonExplanation" class="lesson-text"></div>
-</div>
-
-<div class="lesson-section">
-<h3>💡 Key Points</h3>
-<ul id="keyPoints" class="key-points"></ul>
-</div>
-
-<div class="example-box">
-<h3>🔎 Example</h3>
-<div id="lessonExample" class="lesson-text"></div>
-</div>
-
-<div class="summary-box">
-<h3>📝 Quick Revision</h3>
-<div id="lessonSummary" class="lesson-text"></div>
-</div>
-
-<button id="anotherStudyButton" class="primary">
-🔄 Learn Another Topic
-</button>
-
-</div>
-
-</div>
-</div>
-
-
-<!-- QUIZ -->
-
-<div id="quiz" class="hidden">
-
-<div class="card">
-
-<button id="quizBackButton" class="secondary">
-← Back to Dashboard
-</button>
-
-<div id="quizStart">
-
-<h2>📝 PadhAI Quiz</h2>
-
-<div class="quiz-start">
-
-<p><strong>Test your knowledge!</strong></p>
-
-<p>Enter any topic below.</p>
-
-<input
-id="quizTopic"
-placeholder="Example: Biology, JavaScript, History..."
->
-
-<button id="generateQuizButton" class="primary">
-🤖 Generate Quiz
-</button>
-
-<div id="quizMessage" class="message"></div>
-
-</div>
-</div>
-
-<div id="quizGame" class="hidden">
-
-<div class="quiz-progress">
-Question <span id="questionNumber">1</span>
-of <span id="totalQuestions">5</span>
-</div>
-
-<div id="quizQuestion" class="quiz-question"></div>
-
-<div id="quizOptions"></div>
-
-<button id="nextQuestionButton" class="primary" disabled>
-Next Question →
-</button>
-
-</div>
-
-<div id="quizResult" class="hidden">
-
-<div class="quiz-result">
-
-<h2>🎉 Quiz Complete!</h2>
-
-<div class="score-circle">
-
-<div id="scoreNumber" class="score-number">
-0/5
-</div>
-
-<div>Score</div>
-
-</div>
-
-<h3 id="resultMessage"></h3>
-
-<div id="quizReview" class="review"></div>
-
-<button id="restartQuizButton" class="primary">
-🔄 Try Another Quiz
-</button>
-
-</div>
-
-</div>
-
-</div>
-</div>
-<script>
-"use strict";
-
-let currentUser = null;
-let quizQuestions = [];
-let currentQuestionIndex = 0;
-let quizScore = 0;
-let selectedAnswer = null;
-let quizTopicValue = "";
-let studyLevel = "beginner";
-
-function $(id){
-  return document.getElementById(id);
-}
-
-/* =========================
-   PAGE CONTROL
-========================= */
-
-function hideAll(){
-  ["auth","dashboard","profile","tutor","study","quiz"].forEach(id=>{
-    const el = $(id);
-    if(el) el.classList.add("hidden");
-  });
-}
-
-function showAuth(){
-  hideAll();
-  $("auth").classList.remove("hidden");
-}
-
-function showDashboard(){
-  if(!currentUser){
-    showAuth();
-    return;
-  }
-
-  hideAll();
-  $("dashboard").classList.remove("hidden");
-  $("welcomeName").textContent = currentUser.name || "Student";
-}
-
-function showProfile(){
-  if(!currentUser){
-    showAuth();
-    return;
-  }
-
-  hideAll();
-  $("profile").classList.remove("hidden");
-
-  $("profileName").textContent = currentUser.name || "";
-  $("profileEmail").textContent = currentUser.email || "";
-}
-
-function openTutor(){
-  if(!currentUser){
-    showAuth();
-    return;
-  }
-
-  hideAll();
-  $("tutor").classList.remove("hidden");
-}
-
-function openStudy(){
-  if(!currentUser){
-    showAuth();
-    return;
-  }
-
-  hideAll();
-  $("study").classList.remove("hidden");
-}
-
-function openQuiz(){
-  if(!currentUser){
-    showAuth();
-    return;
-  }
-
-  hideAll();
-  $("quiz").classList.remove("hidden");
-  resetQuizScreen();
-}
-
-
-/* =========================
-   AUTH
-========================= */
-
-function showLogin(){
-
-  $("authTitle").textContent = "🔐 Login to PadhAI";
-  $("name").classList.add("hidden");
-  $("authButton").textContent = "Login";
-  $("switchButton").textContent =
-    "Don't have an account? Create Account";
-
-  $("message").textContent = "";
-
-  $("authButton").onclick = login;
-  $("switchButton").onclick = showSignup;
-}
-
-function showSignup(){
-
-  $("authTitle").textContent = "📝 Create Account";
-  $("name").classList.remove("hidden");
-  $("authButton").textContent = "Create Account";
-  $("switchButton").textContent =
-    "Already have an account? Login";
-
-  $("message").textContent = "";
-
-  $("authButton").onclick = createAccount;
-  $("switchButton").onclick = showLogin;
-}
-
-
-/* =========================
-   SIGNUP
-========================= */
-
-async function createAccount(){
-
-  const name = $("name").value.trim();
-  const email = $("email").value.trim().toLowerCase();
-  const password = $("password").value;
-
-  const message = $("message");
-  const button = $("authButton");
-
-  if(!name){
-    message.textContent = "Please enter your name.";
-    return;
-  }
-
-  if(!email){
-    message.textContent = "Please enter your email.";
-    return;
-  }
-
-  if(!password){
-    message.textContent = "Please enter a password.";
-    return;
-  }
-
-  if(password.length < 6){
-    message.textContent =
-      "Password must be at least 6 characters.";
-    return;
-  }
-
-  message.textContent = "Creating account...";
-  button.disabled = true;
-
-  try{
-
-    const response = await fetch("/api/signup",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        name,
-        email,
-        password
-      })
-    });
-
-    const text = await response.text();
-
-    let data;
-
-    try{
-      data = JSON.parse(text);
-    }catch{
-      throw new Error(text);
-    }
-
-    if(!response.ok || !data.success){
-      message.textContent =
-        data.error || "Account creation failed.";
-      button.disabled = false;
-      return;
-    }
-
-    currentUser = {
-      id:data.id || null,
-      name:data.name || name,
-      email:data.email || email
-    };
-
-    localStorage.setItem(
-      "padhaiUser",
-      JSON.stringify(currentUser)
-    );
-
-    $("password").value = "";
-    message.textContent = "";
-
-    showDashboard();
-
-  }catch(error){
-
-    console.error("SIGNUP ERROR:",error);
-
-    message.textContent =
-      "Server error. Check your Worker API.";
-
-  }
-
-  button.disabled = false;
-}
-
-
-/* =========================
-   LOGIN
-========================= */
-
-async function login(){
-
-  const email = $("email").value.trim().toLowerCase();
-  const password = $("password").value;
-
-  const message = $("message");
-  const button = $("authButton");
-
-  if(!email){
-    message.textContent = "Enter your email.";
-    return;
-  }
-
-  if(!password){
-    message.textContent = "Enter your password.";
-    return;
-  }
-
-  message.textContent = "Logging in...";
-  button.disabled = true;
-
-  try{
-
-    const response = await fetch("/api/login",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        email,
-        password
-      })
-    });
-
-    const text = await response.text();
-
-    let data;
-
-    try{
-      data = JSON.parse(text);
-    }catch{
-      throw new Error(text);
-    }
-
-    if(!response.ok || !data.success){
-
-      message.textContent =
-        data.error || "Invalid email or password.";
-
-      button.disabled = false;
-      return;
-    }
-
-    currentUser = {
-      id:data.id || null,
-      name:data.name || "Student",
-      email:data.email || email
-    };
-
-    localStorage.setItem(
-      "padhaiUser",
-      JSON.stringify(currentUser)
-    );
-
-    $("password").value = "";
-    message.textContent = "";
-
-    showDashboard();
-
-  }catch(error){
-
-    console.error("LOGIN ERROR:",error);
-
-    message.textContent =
-      "Server error. Check your Worker API.";
-
-  }
-
-  button.disabled = false;
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-function logout(){
-
-  currentUser = null;
-
-  localStorage.removeItem("padhaiUser");
-
-  $("name").value = "";
-  $("email").value = "";
-  $("password").value = "";
-
-  showSignup();
-  showAuth();
-}
-
-
-/* =========================
-   AI TUTOR
-========================= */
-
-async function askTutor(){
-
-  const question = $("question").value.trim();
-  const chat = $("chat");
-  const message = $("tutorMessage");
-  const button = $("askButton");
-
-  if(!question){
-    message.textContent =
-      "Please enter a question.";
-    return;
-  }
-
-  const userBubble =
-    document.createElement("div");
-
-  userBubble.className =
-    "bubble user-bubble";
-
-  userBubble.textContent = question;
-
-  chat.appendChild(userBubble);
-
-  $("question").value = "";
-
-  message.textContent =
-    "PadhAI is thinking...";
-
-  button.disabled = true;
-
-  try{
-
-    const response = await fetch("/api/tutor",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        question
-      })
-    });
-
-    const text = await response.text();
-
-    let data;
-
-    try{
-      data = JSON.parse(text);
-    }catch{
-      throw new Error(text);
-    }
-
-    const aiBubble =
-      document.createElement("div");
-
-    aiBubble.className =
-      "bubble ai-bubble";
-
-    if(!response.ok || !data.success){
-
-      aiBubble.textContent =
-        data.error ||
-        "Sorry, I couldn't answer that.";
-
-    }else{
-
-      aiBubble.textContent =
-        data.answer ||
-        data.response ||
-        "No answer received.";
-
-    }
-
-    chat.appendChild(aiBubble);
-
-    chat.scrollTop = chat.scrollHeight;
-
-    message.textContent = "";
-
-  }catch(error){
-
-    console.error("TUTOR ERROR:",error);
-
-    message.textContent =
-      "Tutor connection error.";
-
-  }
-
-  button.disabled = false;
-}
-
-function clearChat(){
-
-  $("chat").innerHTML = `
-    <div class="bubble ai-bubble">
-👋 Hi! I'm PadhAI Tutor.
-
-Ask me anything about your studies and I'll explain it step by step.
-    </div>
-  `;
-
-  $("tutorMessage").textContent = "";
-}
-
-
-/* =========================
-   STUDY
-========================= */
-
-function selectStudyLevel(level){
-
-  studyLevel = level;
-
-  ["beginner","intermediate","advanced"]
-    .forEach(x=>{
-      $(x+"Button").classList.remove("active");
-    });
-
-  $(level+"Button").classList.add("active");
-}
-
-async function generateStudyLesson(){
-
-  const topic = $("studyTopic").value.trim();
-  const message = $("studyMessage");
-  const button = $("studyButton");
-
-  if(!topic){
-    message.textContent =
-      "Enter a topic first.";
-    return;
-  }
-
-  message.textContent =
-    "Creating your lesson...";
-
-  button.disabled = true;
-
-  try{
-
-    const response = await fetch("/api/study",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        topic,
-        level:studyLevel
-      })
-    });
-
-    const text = await response.text();
-
-    let data;
-
-    try{
-      data = JSON.parse(text);
-    }catch{
-      throw new Error(text);
-    }
-
-    if(!response.ok || !data.success){
-
-      message.textContent =
-        data.error ||
-        "Could not create lesson.";
-
-      button.disabled = false;
-      return;
-    }
-
-    /*
-      IMPORTANT:
-      Your Worker returns:
-      data.lesson.title
-      data.lesson.introduction
-      etc.
-    */
-
-    const lesson = data.lesson || data;
-
-    $("lesson").classList.remove("hidden");
-
-    $("lessonTitle").textContent =
-      lesson.title || topic;
-
-    $("lessonIntroduction").textContent =
-      lesson.introduction || "";
-
-    $("lessonExplanation").textContent =
-      lesson.explanation || "";
-
-    $("lessonExample").textContent =
-      lesson.example || "";
-
-    $("lessonSummary").textContent =
-      lesson.summary || "";
-
-    $("keyPoints").innerHTML = "";
-
-    (lesson.keyPoints || []).forEach(point=>{
-
-      const li =
-        document.createElement("li");
-
-      li.textContent = point;
-
-      $("keyPoints").appendChild(li);
-
-    });
-
-    message.textContent = "";
-
-    window.scrollTo({
-      top:0,
-      behavior:"smooth"
-    });
-
-  }catch(error){
-
-    console.error("STUDY ERROR:",error);
-
-    message.textContent =
-      "Study connection error.";
-
-  }
-
-  button.disabled = false;
-}
-
-function scrollToStudyTop(){
-
-  $("lesson").classList.add("hidden");
-  $("studyTopic").value = "";
-
-  window.scrollTo({
-    top:0,
-    behavior:"smooth"
-  });
-}
-
-
-/* =========================
-   QUIZ
-========================= */
-
-function resetQuizScreen(){
-
-  $("quizStart").classList.remove("hidden");
-  $("quizGame").classList.add("hidden");
-  $("quizResult").classList.add("hidden");
-
-  $("quizMessage").textContent = "";
-}
-
-async function generateQuiz(){
-
-  const topic = $("quizTopic").value.trim();
-  const message = $("quizMessage");
-  const button = $("generateQuizButton");
-
-  if(!topic){
-    message.textContent =
-      "Enter a topic first.";
-    return;
-  }
-
-  message.textContent =
-    "Generating quiz...";
-
-  button.disabled = true;
-
-  try{
-
-    const response = await fetch("/api/quiz",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        topic,
-        count:5
-      })
-    });
-
-    const text = await response.text();
-
-    let data;
-
-    try{
-      data = JSON.parse(text);
-    }catch{
-      throw new Error(text);
-    }
-
-    if(!response.ok || !data.success){
-
-      message.textContent =
-        data.error ||
-        "Could not generate quiz.";
-
-      button.disabled = false;
-      return;
-    }
-
-    quizQuestions =
-      Array.isArray(data.questions)
-        ? data.questions
-        : [];
-
-    if(!quizQuestions.length){
-
-      message.textContent =
-        "No quiz questions received.";
-
-      button.disabled = false;
-      return;
-    }
-
-    quizTopicValue = topic;
-    currentQuestionIndex = 0;
-    quizScore = 0;
-    selectedAnswer = null;
-
-    $("quizStart").classList.add("hidden");
-    $("quizGame").classList.remove("hidden");
-
-    showQuestion();
-
-  }catch(error){
-
-    console.error("QUIZ ERROR:",error);
-
-    message.textContent =
-      "Quiz connection error.";
-
-  }
-
-  button.disabled = false;
-}
-
-function showQuestion(){
-
-  const q =
-    quizQuestions[currentQuestionIndex];
-
-  $("questionNumber").textContent =
-    currentQuestionIndex + 1;
-
-  $("totalQuestions").textContent =
-    quizQuestions.length;
-
-  $("quizQuestion").textContent =
-    q.question || "";
-
-  $("quizOptions").innerHTML = "";
-
-  selectedAnswer = null;
-
-  $("nextQuestionButton").disabled = true;
-
-  (q.options || []).forEach((option,index)=>{
-
-    const button =
-      document.createElement("button");
-
-    button.className = "option";
-    button.type = "button";
-    button.textContent = option;
-
-    button.onclick = ()=>{
-
-      document
-        .querySelectorAll("#quizOptions .option")
-        .forEach(btn=>{
-          btn.classList.remove("selected");
-        });
-
-      button.classList.add("selected");
-
-      selectedAnswer = index;
-
-      $("nextQuestionButton").disabled =
-        false;
-    };
-
-    $("quizOptions").appendChild(button);
-  });
-}
-
-async function nextQuestion(){
-
-  if(selectedAnswer === null) return;
-
-  const q =
-    quizQuestions[currentQuestionIndex];
-
-  if(Number(selectedAnswer) === Number(q.answer)){
-    quizScore++;
-  }
-
-  currentQuestionIndex++;
-
-  if(currentQuestionIndex >= quizQuestions.length){
-
-    await showQuizResult();
-
-  }else{
-
-    showQuestion();
-
-  }
-}
-
-async function showQuizResult(){
-
-  $("quizGame").classList.add("hidden");
-  $("quizResult").classList.remove("hidden");
-
-  $("scoreNumber").textContent =
-    quizScore + "/" + quizQuestions.length;
-
-  if(quizScore === quizQuestions.length){
-
-    $("resultMessage").textContent =
-      "Perfect score! 🎉";
-
-  }else if(
-    quizScore >= quizQuestions.length / 2
-  ){
-
-    $("resultMessage").textContent =
-      "Good job! Keep learning! 💪";
-
-  }else{
-
-    $("resultMessage").textContent =
-      "Keep practicing! 📚";
-
-  }
-
-  $("quizReview").innerHTML =
-    "<strong>Topic:</strong> " +
-    escapeHTML(quizTopicValue) +
-    "<br><br>" +
-    "<strong>Score:</strong> " +
-    quizScore +
-    "/" +
-    quizQuestions.length;
-
-  /* SAVE SCORE */
-
-  if(currentUser && currentUser.id){
-
-    try{
-
-      await fetch("/api/quiz-score",{
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
-        },
-        body:JSON.stringify({
-          userId:currentUser.id,
-          topic:quizTopicValue,
-          score:quizScore,
-          total:quizQuestions.length
-        })
+export default {
+  async fetch(request, env) {
+
+    const url = new URL(request.url);
+
+    // ==========================================
+    // COMMON HELPERS
+    // ==========================================
+
+    function json(data, status = 200) {
+      return new Response(JSON.stringify(data), {
+        status,
+        headers: {
+          "Content-Type": "application/json"
+        }
       });
+    }
 
-    }catch(error){
-
-      console.error(
-        "SAVE SCORE ERROR:",
-        error
+    async function hashPassword(password) {
+      const buffer = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(password)
       );
 
+      return Array.from(new Uint8Array(buffer))
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("");
     }
-  }
-}
 
-function restartQuiz(){
+    async function runAI(prompt, system = "") {
 
-  quizQuestions = [];
-  currentQuestionIndex = 0;
-  quizScore = 0;
-  selectedAnswer = null;
-  quizTopicValue = "";
+      if (!env.AI) {
+        throw new Error("Workers AI binding is missing.");
+      }
 
-  $("quizResult").classList.add("hidden");
-  $("quizGame").classList.add("hidden");
-  $("quizStart").classList.remove("hidden");
+      const result = await env.AI.run(
+        "@cf/meta/llama-3.2-3b-instruct",
+        {
+          messages: [
+            {
+              role: "system",
+              content: system ||
+                "You are PadhAI, a friendly educational AI tutor."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          max_tokens: 1500,
+          temperature: 0.4
+        }
+      );
 
-  $("quizTopic").value = "";
-  $("quizMessage").textContent = "";
-}
+      return result?.response || "";
+    }
 
-function escapeHTML(text){
+    function cleanJSON(text) {
 
-  const div =
-    document.createElement("div");
+      if (typeof text !== "string") {
+        return text;
+      }
 
-  div.textContent = text;
+      let cleaned = text.trim();
 
-  return div.innerHTML;
-}
+      cleaned = cleaned
+        .replace(/```json/gi, "")
+        .replace(/```/g, "")
+        .trim();
 
+      const first = cleaned.indexOf("{");
+      const last = cleaned.lastIndexOf("}");
 
-/* =========================
-   BUTTON CONNECTIONS
-========================= */
+      if (first !== -1 && last !== -1) {
+        cleaned = cleaned.slice(first, last + 1);
+      }
 
-document.addEventListener(
-  "DOMContentLoaded",
-  function(){
-
-    $("authButton").onclick =
-      createAccount;
-
-    $("switchButton").onclick =
-      showLogin;
-
-    $("homeButton").onclick =
-      showDashboard;
-
-    $("profileButton").onclick =
-      showProfile;
-
-    $("logoutButton").onclick =
-      logout;
-
-    $("tutorFeature").onclick =
-      openTutor;
-
-    $("studyFeature").onclick =
-      openStudy;
-
-    $("quizFeature").onclick =
-      openQuiz;
-
-    $("profileBackButton").onclick =
-      showDashboard;
-
-    $("tutorBackButton").onclick =
-      showDashboard;
-
-    $("studyBackButton").onclick =
-      showDashboard;
-
-    $("quizBackButton").onclick =
-      showDashboard;
-
-    $("askButton").onclick =
-      askTutor;
-
-    $("clearChatButton").onclick =
-      clearChat;
-
-    $("beginnerButton").onclick =
-      ()=>selectStudyLevel("beginner");
-
-    $("intermediateButton").onclick =
-      ()=>selectStudyLevel("intermediate");
-
-    $("advancedButton").onclick =
-      ()=>selectStudyLevel("advanced");
-
-    $("studyButton").onclick =
-      generateStudyLesson;
-
-    $("anotherStudyButton").onclick =
-      scrollToStudyTop;
-
-    $("generateQuizButton").onclick =
-      generateQuiz;
-
-    $("nextQuestionButton").onclick =
-      nextQuestion;
-
-    $("restartQuizButton").onclick =
-      restartQuiz;
+      return JSON.parse(cleaned);
+    }
 
 
-    /* LOAD SAVED USER */
+    // ==========================================
+    // SIGNUP
+    // ==========================================
 
-    try{
+    if (
+      url.pathname === "/api/signup" &&
+      request.method === "POST"
+    ) {
 
-      currentUser =
-        JSON.parse(
-          localStorage.getItem(
-            "padhaiUser"
-          ) || "null"
+      try {
+
+        const body = await request.json();
+
+        const name =
+          String(body.name || "").trim();
+
+        const email =
+          String(body.email || "")
+            .trim()
+            .toLowerCase();
+
+        const password =
+          String(body.password || "");
+
+        if (!name || !email || !password) {
+          return json({
+            success: false,
+            error: "All fields are required."
+          }, 400);
+        }
+
+        if (password.length < 6) {
+          return json({
+            success: false,
+            error: "Password must be at least 6 characters."
+          }, 400);
+        }
+
+        const passwordHash =
+          await hashPassword(password);
+
+        const result = await env.DB
+          .prepare(`
+            INSERT INTO users
+            (name, email, password_hash)
+            VALUES (?, ?, ?)
+          `)
+          .bind(
+            name,
+            email,
+            passwordHash
+          )
+          .run();
+
+        return json({
+          success: true,
+          id: result.meta?.last_row_id || null,
+          name,
+          email
+        });
+
+      } catch (error) {
+
+        console.error(
+          "SIGNUP ERROR",
+          error
         );
 
-    }catch{
+        if (
+          String(error.message || "")
+            .toLowerCase()
+            .includes("unique")
+        ) {
+          return json({
+            success: false,
+            error: "Email already registered."
+          }, 409);
+        }
 
-      currentUser = null;
-
+        return json({
+          success: false,
+          error: "Could not create account."
+        }, 500);
+      }
     }
 
-    if(currentUser){
 
-      showDashboard();
+    // ==========================================
+    // LOGIN
+    // ==========================================
 
-    }else{
+    if (
+      url.pathname === "/api/login" &&
+      request.method === "POST"
+    ) {
 
-      showSignup();
-      showAuth();
+      try {
 
+        const body = await request.json();
+
+        const email =
+          String(body.email || "")
+            .trim()
+            .toLowerCase();
+
+        const password =
+          String(body.password || "");
+
+        if (!email || !password) {
+          return json({
+            success: false,
+            error: "Email and password are required."
+          }, 400);
+        }
+
+        const passwordHash =
+          await hashPassword(password);
+
+        const user = await env.DB
+          .prepare(`
+            SELECT id, name, email
+            FROM users
+            WHERE email = ?
+            AND password_hash = ?
+          `)
+          .bind(
+            email,
+            passwordHash
+          )
+          .first();
+
+        if (!user) {
+          return json({
+            success: false,
+            error: "Invalid email or password."
+          }, 401);
+        }
+
+        return json({
+          success: true,
+          id: user.id,
+          name: user.name,
+          email: user.email
+        });
+
+      } catch (error) {
+
+        console.error(
+          "LOGIN ERROR",
+          error
+        );
+
+        return json({
+          success: false,
+          error: "Login failed."
+        }, 500);
+      }
     }
 
+
+    // ==========================================
+    // AI TUTOR
+    // ==========================================
+
+    if (
+      url.pathname === "/api/tutor" &&
+      request.method === "POST"
+    ) {
+
+      try {
+
+        const body =
+          await request.json();
+
+        const question =
+          String(body.question || "").trim();
+
+        if (!question) {
+          return json({
+            success: false,
+            error: "Please enter a question."
+          }, 400);
+        }
+
+        const answer = await runAI(
+          question,
+          `You are PadhAI Tutor.
+
+Help students understand subjects clearly.
+
+Rules:
+- Explain in simple language.
+- Give step-by-step explanations.
+- Give examples when useful.
+- Be friendly.
+- Do not unnecessarily make answers complicated.`
+        );
+
+        return json({
+          success: true,
+          answer:
+            answer ||
+            "I couldn't generate an answer."
+        });
+
+      } catch (error) {
+
+        console.error(
+          "TUTOR ERROR",
+          error
+        );
+
+        return json({
+          success: false,
+          error:
+            "AI Tutor failed: " +
+            String(error.message || "Unknown error")
+        }, 500);
+      }
+    }
+
+
+    // ==========================================
+    // STUDY
+    // ==========================================
+
+    if (
+      url.pathname === "/api/study" &&
+      request.method === "POST"
+    ) {
+
+      try {
+
+        const body =
+          await request.json();
+
+        const topic =
+          String(body.topic || "").trim();
+
+        const level =
+          String(body.level || "beginner").trim();
+
+        if (!topic) {
+          return json({
+            success: false,
+            error: "Please enter a study topic."
+          }, 400);
+        }
+
+        const prompt = `
+Create a study lesson about "${topic}".
+
+Student level: ${level}
+
+IMPORTANT:
+Return ONLY valid JSON.
+Do not use markdown.
+Do not put JSON inside code blocks.
+
+Use exactly this structure:
+
+{
+  "title": "Lesson title",
+  "introduction": "Short introduction",
+  "explanation": "Detailed but easy explanation",
+  "keyPoints": [
+    "Point 1",
+    "Point 2",
+    "Point 3",
+    "Point 4"
+  ],
+  "example": "Simple example",
+  "summary": "Short revision summary"
+}
+
+Make the lesson accurate and student-friendly.
+`;
+
+        const raw =
+          await runAI(
+            prompt,
+            "You are PadhAI Study Teacher. Always return valid JSON only."
+          );
+
+        let study;
+
+        try {
+          study = cleanJSON(raw);
+        } catch (error) {
+
+          console.error(
+            "STUDY JSON PARSE ERROR",
+            raw
+          );
+
+          return json({
+            success: false,
+            error:
+              "AI returned an invalid lesson. Please try again."
+          }, 500);
+        }
+
+        if (
+          !study ||
+          typeof study !== "object"
+        ) {
+          return json({
+            success: false,
+            error: "Invalid lesson received."
+          }, 500);
+        }
+
+        const lesson = {
+
+          title:
+            String(
+              study.title || topic
+            ),
+
+          introduction:
+            String(
+              study.introduction || ""
+            ),
+
+          explanation:
+            String(
+              study.explanation || ""
+            ),
+
+          keyPoints:
+            Array.isArray(study.keyPoints)
+              ? study.keyPoints
+                  .map(x => String(x))
+                  .filter(Boolean)
+              : [],
+
+          example:
+            String(
+              study.example || ""
+            ),
+
+          summary:
+            String(
+              study.summary || ""
+            )
+        };
+
+        if (
+          !lesson.introduction ||
+          !lesson.explanation ||
+          !lesson.summary
+        ) {
+
+          return json({
+            success: false,
+            error:
+              "The lesson was incomplete. Please try again."
+          }, 500);
+        }
+
+        return json({
+          success: true,
+          topic,
+          level,
+
+          // IMPORTANT:
+          // HTML can use either data.lesson
+          // or the fields directly.
+
+          lesson,
+
+          title: lesson.title,
+          introduction: lesson.introduction,
+          explanation: lesson.explanation,
+          keyPoints: lesson.keyPoints,
+          example: lesson.example,
+          summary: lesson.summary
+        });
+
+      } catch (error) {
+
+        console.error(
+          "STUDY ERROR",
+          error
+        );
+
+        return json({
+          success: false,
+          error:
+            "Study generation failed: " +
+            String(error.message || "Unknown error")
+        }, 500);
+      }
+    }
+              // ==========================================
+    // AI QUIZ
+    // ==========================================
+
+    if (
+      url.pathname === "/api/quiz" &&
+      request.method === "POST"
+    ) {
+
+      try {
+
+        const body =
+          await request.json();
+
+        const topic =
+          String(body.topic || "").trim();
+
+        let count =
+          Number(body.count) || 5;
+
+        if (count < 1) count = 1;
+        if (count > 10) count = 10;
+
+        if (!topic) {
+          return json({
+            success: false,
+            error: "Please enter a quiz topic."
+          }, 400);
+        }
+
+        const prompt = `
+Create exactly ${count} multiple-choice questions about "${topic}".
+
+Return ONLY valid JSON.
+
+Use exactly this format:
+
+{
+  "questions": [
+    {
+      "question": "Question text",
+      "options": [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D"
+      ],
+      "answer": 0
+    }
+  ]
+}
+
+Rules:
+- Exactly ${count} questions.
+- Every question must have exactly 4 options.
+- "answer" must be 0, 1, 2, or 3.
+- The answer number represents the correct option.
+- Questions must be educational and accurate.
+- Do not use markdown.
+- Do not add anything outside the JSON.
+`;
+
+        const raw =
+          await runAI(
+            prompt,
+            "You are PadhAI Quiz Generator. Always return valid JSON only."
+          );
+
+        let parsed;
+
+        try {
+
+          parsed = cleanJSON(raw);
+
+        } catch (error) {
+
+          console.error(
+            "QUIZ JSON PARSE ERROR",
+            raw
+          );
+
+          return json({
+            success: false,
+            error:
+              "AI returned an invalid quiz. Please try again."
+          }, 500);
+        }
+
+        let questions =
+          Array.isArray(parsed)
+            ? parsed
+            : parsed?.questions;
+
+        if (!Array.isArray(questions)) {
+
+          return json({
+            success: false,
+            error:
+              "No quiz questions were received."
+          }, 500);
+        }
+
+        const validQuestions = [];
+
+        for (const item of questions) {
+
+          if (!item) continue;
+
+          const question =
+            String(
+              item.question || ""
+            ).trim();
+
+          if (!question) continue;
+
+          if (
+            !Array.isArray(item.options) ||
+            item.options.length < 4
+          ) {
+            continue;
+          }
+
+          const options =
+            item.options
+              .slice(0, 4)
+              .map(x =>
+                String(x || "").trim()
+              );
+
+          if (
+            options.length !== 4 ||
+            options.some(x => !x)
+          ) {
+            continue;
+          }
+
+          const answer =
+            Number(item.answer);
+
+          if (
+            !Number.isInteger(answer) ||
+            answer < 0 ||
+            answer > 3
+          ) {
+            continue;
+          }
+
+          validQuestions.push({
+            question,
+            options,
+            answer
+          });
+
+          if (
+            validQuestions.length >= count
+          ) {
+            break;
+          }
+        }
+
+        if (!validQuestions.length) {
+
+          return json({
+            success: false,
+            error:
+              "PadhAI could not create valid questions. Please try again."
+          }, 500);
+        }
+
+        return json({
+          success: true,
+          topic,
+          questions: validQuestions
+        });
+
+      } catch (error) {
+
+        console.error(
+          "QUIZ ERROR",
+          error
+        );
+
+        return json({
+          success: false,
+          error:
+            "Quiz generation failed: " +
+            String(error.message || "Unknown error")
+        }, 500);
+      }
+    }
+
+
+    // ==========================================
+    // SAVE QUIZ SCORE
+    // ==========================================
+
+    if (
+      url.pathname === "/api/quiz-score" &&
+      request.method === "POST"
+    ) {
+
+      try {
+
+        const body =
+          await request.json();
+
+        const userId =
+          Number(body.userId);
+
+        const topic =
+          String(body.topic || "").trim();
+
+        const score =
+          Number(body.score);
+
+        const total =
+          Number(body.total);
+
+        if (
+          !userId ||
+          !topic ||
+          !Number.isFinite(score) ||
+          !Number.isFinite(total)
+        ) {
+
+          return json({
+            success: false,
+            error:
+              "Invalid quiz score data."
+          }, 400);
+        }
+
+        await env.DB
+          .prepare(`
+            CREATE TABLE IF NOT EXISTS quiz_scores (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL,
+              topic TEXT NOT NULL,
+              score INTEGER NOT NULL,
+              total INTEGER NOT NULL,
+              created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+          `)
+          .run();
+
+        await env.DB
+          .prepare(`
+            INSERT INTO quiz_scores
+            (user_id, topic, score, total)
+            VALUES (?, ?, ?, ?)
+          `)
+          .bind(
+            userId,
+            topic,
+            score,
+            total
+          )
+          .run();
+
+        return json({
+          success: true,
+          message:
+            "Quiz score saved."
+        });
+
+      } catch (error) {
+
+        console.error(
+          "SCORE ERROR",
+          error
+        );
+
+        return json({
+          success: false,
+          error:
+            "Could not save quiz score."
+        }, 500);
+      }
+    }
+
+
+    // ==========================================
+    // QUIZ HISTORY
+    // ==========================================
+
+    if (
+      url.pathname === "/api/quiz-history" &&
+      request.method === "GET"
+    ) {
+
+      try {
+
+        const userId =
+          Number(
+            url.searchParams.get("userId")
+          );
+
+        if (!userId) {
+
+          return json({
+            success: false,
+            error:
+              "User ID is required."
+          }, 400);
+        }
+
+        await env.DB
+          .prepare(`
+            CREATE TABLE IF NOT EXISTS quiz_scores (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL,
+              topic TEXT NOT NULL,
+              score INTEGER NOT NULL,
+              total INTEGER NOT NULL,
+              created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+          `)
+          .run();
+
+        const result =
+          await env.DB
+            .prepare(`
+              SELECT
+                id,
+                topic,
+                score,
+                total,
+                created_at
+              FROM quiz_scores
+              WHERE user_id = ?
+              ORDER BY id DESC
+              LIMIT 20
+            `)
+            .bind(userId)
+            .all();
+
+        return json({
+          success: true,
+          scores:
+            result.results || []
+        });
+
+      } catch (error) {
+
+        console.error(
+          "HISTORY ERROR",
+          error
+        );
+
+        return json({
+          success: false,
+          error:
+            "Could not load quiz history."
+        }, 500);
+      }
+    }
+
+
+    // ==========================================
+    // DATABASE TEST
+    // ==========================================
+
+    if (
+      url.pathname === "/api/test-db"
+    ) {
+
+      try {
+
+        const result =
+          await env.DB
+            .prepare(`
+              SELECT name
+              FROM sqlite_master
+              WHERE type='table'
+              ORDER BY name
+            `)
+            .all();
+
+        return json({
+          success: true,
+          tables:
+            result.results || []
+        });
+
+      } catch (error) {
+
+        return json({
+          success: false,
+          error:
+            String(error.message || error)
+        }, 500);
+      }
+    }
+
+
+    // ==========================================
+    // AI TEST
+    // ==========================================
+
+    if (
+      url.pathname === "/api/test-ai"
+    ) {
+
+      try {
+
+        if (!env.AI) {
+
+          return json({
+            success: false,
+            error:
+              "AI binding is missing."
+          }, 500);
+        }
+
+        const result =
+          await env.AI.run(
+            "@cf/meta/llama-3.2-3b-instruct",
+            {
+              messages: [
+                {
+                  role: "user",
+                  content:
+                    "Say exactly: PadhAI AI is working!"
+                }
+              ]
+            }
+          );
+
+        return json({
+          success: true,
+          response:
+            result?.response || ""
+        });
+
+      } catch (error) {
+
+        console.error(
+          "AI TEST ERROR",
+          error
+        );
+
+        return json({
+          success: false,
+          error:
+            String(error.message || error)
+        }, 500);
+      }
+    }
+
+
+    // ==========================================
+    // WEBSITE
+    // ==========================================
+
+    if (env.ASSETS) {
+
+      return env.ASSETS.fetch(
+        request
+      );
+    }
+
+
+    // ==========================================
+    // FALLBACK
+    // ==========================================
+
+    return new Response(
+      "PadhAI Worker is running.",
+      {
+        status: 200,
+        headers: {
+          "content-type":
+            "text/plain;charset=UTF-8"
+        }
+      }
+    );
   }
-);
-</script>
-
-</body>
-</html>
+};
