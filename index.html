@@ -1,737 +1,1039 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>PadhAI</title>
+<title>PadhAI</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+<style>
 
-    body {
-      background: #f4f6fb;
-      color: #222;
-      min-height: 100vh;
-    }
+* {
+  box-sizing: border-box;
+}
 
-    .header {
-      background: linear-gradient(135deg, #4f46e5, #5b3df5);
-      color: white;
-      text-align: center;
-      padding: 35px 20px;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f6fb;
+  color: #202124;
+}
 
-    .header h1 {
-      font-size: 42px;
-      margin-bottom: 10px;
-    }
+.hidden {
+  display: none !important;
+}
 
-    .header p {
-      font-size: 20px;
-    }
+.header {
+  background: linear-gradient(135deg, #5141e8, #5545f5);
+  color: white;
+  text-align: center;
+  padding: 35px 20px;
+}
 
-    .container {
-      width: 92%;
-      max-width: 650px;
-      margin: 35px auto;
-    }
+.header h1 {
+  margin: 0;
+  font-size: 48px;
+}
 
-    .card {
-      background: white;
-      border-radius: 22px;
-      padding: 35px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    }
+.header p {
+  font-size: 26px;
+  margin: 20px 0 0;
+}
 
-    h2 {
-      margin-bottom: 25px;
-      font-size: 30px;
-    }
+.container {
+  max-width: 700px;
+  margin: 35px auto;
+  padding: 0 20px;
+}
 
-    input {
-      width: 100%;
-      padding: 17px;
-      margin-bottom: 15px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      font-size: 17px;
-      outline: none;
-    }
+.card {
+  background: white;
+  border-radius: 28px;
+  padding: 35px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
 
-    input:focus {
-      border-color: #4f46e5;
-    }
+input {
+  width: 100%;
+  padding: 18px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  font-size: 20px;
+}
 
-    button {
-      width: 100%;
-      padding: 16px;
-      margin-top: 8px;
-      border: none;
-      border-radius: 12px;
-      font-size: 17px;
-      cursor: pointer;
-      background: #5145e5;
-      color: white;
-    }
+button {
+  width: 100%;
+  padding: 18px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 15px;
+  font-size: 20px;
+  cursor: pointer;
+}
 
-    button:hover {
-      opacity: 0.9;
-    }
+.primary {
+  background: #5141e8;
+  color: white;
+}
 
-    .secondary {
-      background: #e8e9ee;
-      color: #222;
-    }
+.secondary {
+  background: #e8e9ed;
+  color: #222;
+}
 
-    .danger {
-      background: #dc2626;
-    }
+.danger {
+  background: #ef101b;
+  color: white;
+}
 
-    .message {
-      margin-top: 15px;
-      text-align: center;
-      font-size: 16px;
-      min-height: 22px;
-    }
+.nav {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
 
-    .hidden {
-      display: none !important;
-    }
+.nav button {
+  flex: 1;
+}
 
-    .nav {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
+.welcome {
+  background: #f0f2ff;
+  border-radius: 25px;
+  padding: 30px;
+  margin-bottom: 25px;
+}
 
-    .nav button {
-      margin: 0;
-      flex: 1;
-    }
+.welcome h2 {
+  font-size: 40px;
+  margin: 0;
+}
 
-    .welcome {
-      background: #f1f3ff;
-      padding: 20px;
-      border-radius: 15px;
-      margin-bottom: 20px;
-    }
+.feature {
+  width: 100%;
+  text-align: left;
+  background: #f8f9fc;
+  color: #222;
+  margin: 15px 0;
+  padding: 25px;
+  border-radius: 22px;
+  cursor: pointer;
+  transition: 0.2s;
+}
 
-    .feature {
-      background: #f8f8ff;
-      padding: 20px;
-      border-radius: 15px;
-      margin-top: 15px;
-    }
+.feature:hover {
+  transform: scale(1.01);
+}
 
-    .profile-info {
-      line-height: 2;
-      font-size: 18px;
-    }
+.feature h3 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
 
-    @media(max-width:600px) {
-      .header h1 {
-        font-size: 36px;
-      }
+.feature p {
+  margin: 0;
+  font-size: 20px;
+}
 
-      .card {
-        padding: 25px 20px;
-      }
-    }
-  </style>
+.message {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 18px;
+}
+
+.back {
+  margin-bottom: 20px;
+}
+
+.tutor-input {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.answer {
+  background: #f0f2ff;
+  padding: 25px;
+  border-radius: 20px;
+  margin-top: 20px;
+  font-size: 19px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.profile-box {
+  background: #f8f9fc;
+  padding: 25px;
+  border-radius: 20px;
+  font-size: 20px;
+  line-height: 1.8;
+}
+
+@media (max-width: 600px) {
+
+  .header h1 {
+    font-size: 42px;
+  }
+
+  .header p {
+    font-size: 22px;
+  }
+
+  .card {
+    padding: 25px;
+  }
+
+  .nav {
+    gap: 10px;
+  }
+
+  .nav button {
+    font-size: 17px;
+    padding: 15px 5px;
+  }
+
+  .welcome h2 {
+    font-size: 32px;
+  }
+
+}
+
+</style>
 </head>
 
 <body>
 
-  <!-- HEADER -->
+<!-- HEADER -->
 
-  <div class="header">
-    <h1>📚 PadhAI</h1>
-    <p>Learn smarter. Learn faster.</p>
-  </div>
-
-
-  <!-- MAIN -->
-
-  <div class="container">
-
-    <!-- AUTH SECTION -->
-
-    <div id="authSection" class="card">
-
-      <!-- SIGNUP -->
-
-      <div id="signupBox">
-
-        <h2>📝 Create Account</h2>
-
-        <input
-          type="text"
-          id="signupName"
-          placeholder="Your name"
-          autocomplete="name"
-        >
-
-        <input
-          type="email"
-          id="signupEmail"
-          placeholder="Email"
-          autocomplete="email"
-        >
-
-        <input
-          type="password"
-          id="signupPassword"
-          placeholder="Password"
-          autocomplete="new-password"
-        >
-
-        <button id="signupButton">
-          Create Account
-        </button>
-
-        <button id="showLoginButton" class="secondary">
-          Already have an account? Login
-        </button>
-
-        <div id="signupMessage" class="message"></div>
-
-      </div>
+<div class="header">
+  <h1>📚 PadhAI</h1>
+  <p>Learn smarter. Learn faster.</p>
+</div>
 
 
-      <!-- LOGIN -->
+<div class="container">
 
-      <div id="loginBox" class="hidden">
 
-        <h2>🔐 Login</h2>
+<!-- ================= LOGIN / SIGNUP ================= -->
 
-        <input
-          type="email"
-          id="loginEmail"
-          placeholder="Email"
-          autocomplete="email"
-        >
+<div id="auth" class="card">
 
-        <input
-          type="password"
-          id="loginPassword"
-          placeholder="Password"
-          autocomplete="current-password"
-        >
+  <h2 id="authTitle">📝 Create Account</h2>
 
-        <button id="loginButton">
-          Login
-        </button>
+  <input
+    id="name"
+    type="text"
+    placeholder="Your name"
+  >
 
-        <button id="showSignupButton" class="secondary">
-          Don't have an account? Create Account
-        </button>
+  <input
+    id="email"
+    type="email"
+    placeholder="Email"
+  >
 
-        <div id="loginMessage" class="message"></div>
+  <input
+    id="password"
+    type="password"
+    placeholder="Password"
+  >
 
-      </div>
+  <button
+    id="mainAuthButton"
+    class="primary"
+    onclick="createAccount()"
+  >
+    Create Account
+  </button>
+
+  <button
+    id="switchButton"
+    class="secondary"
+    onclick="showLogin()"
+  >
+    Already have an account? Login
+  </button>
+
+  <div id="message" class="message"></div>
+
+</div>
+
+
+<!-- ================= DASHBOARD ================= -->
+
+<div id="dashboard" class="hidden">
+
+  <div class="card">
+
+    <div class="nav">
+
+      <button
+        class="primary"
+        onclick="showDashboard()"
+      >
+        🏠 Dashboard
+      </button>
+
+      <button
+        class="secondary"
+        onclick="showProfile()"
+      >
+        👤 Profile
+      </button>
+
+      <button
+        class="danger"
+        onclick="logout()"
+      >
+        Logout
+      </button>
 
     </div>
 
 
-    <!-- DASHBOARD -->
+    <div class="welcome">
 
-    <div id="dashboardSection" class="hidden">
+      <h2>
+        Hello <span id="welcomeName"></span>! 👋
+      </h2>
 
-      <div class="card">
+      <p style="font-size:20px;">
+        Your personal AI-powered learning space.
+      </p>
 
-        <div class="nav">
-
-          <button id="dashboardButton">
-            🏠 Dashboard
-          </button>
-
-          <button id="profileButton" class="secondary">
-            👤 Profile
-          </button>
-
-          <button id="logoutButton" class="danger">
-            Logout
-          </button>
-
-        </div>
+    </div>
 
 
-        <!-- DASHBOARD PAGE -->
+    <!-- AI TUTOR -->
 
-        <div id="dashboardPage">
+    <button
+      class="feature"
+      onclick="openTutor()"
+    >
 
-          <div class="welcome">
-            <h2 id="welcomeText">
-              Welcome to PadhAI 🎓
-            </h2>
+      <h3>🤖 AI Tutor</h3>
 
-            <p>
-              Your personal AI-powered learning space.
-            </p>
-          </div>
+      <p>
+        Ask questions and learn concepts faster.
+      </p>
 
-          <div class="feature">
-            <h3>🤖 AI Tutor</h3>
-            <p>
-              Ask questions and learn concepts faster.
-            </p>
-          </div>
-
-          <div class="feature">
-            <h3>📖 Study</h3>
-            <p>
-              Organize your learning and improve your progress.
-            </p>
-          </div>
-
-          <div class="feature">
-            <h3>📝 Quizzes</h3>
-            <p>
-              Test your knowledge and track your scores.
-            </p>
-          </div>
-
-        </div>
+    </button>
 
 
-        <!-- PROFILE PAGE -->
+    <!-- STUDY -->
 
-        <div id="profilePage" class="hidden">
+    <button
+      class="feature"
+      onclick="openStudy()"
+    >
 
-          <h2>👤 My Profile</h2>
+      <h3>📖 Study</h3>
 
-          <div class="profile-info">
+      <p>
+        Organize your learning and improve your progress.
+      </p>
 
-            <p>
-              <strong>Name:</strong>
-              <span id="profileName"></span>
-            </p>
+    </button>
 
-            <p>
-              <strong>Email:</strong>
-              <span id="profileEmail"></span>
-            </p>
 
-          </div>
+    <!-- QUIZZES -->
 
-          <button id="backDashboardButton">
-            ← Back to Dashboard
-          </button>
+    <button
+      class="feature"
+      onclick="openQuiz()"
+    >
 
-        </div>
+      <h3>📝 Quizzes</h3>
 
-      </div>
+      <p>
+        Test your knowledge and track your scores.
+      </p>
+
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ================= PROFILE ================= -->
+
+<div id="profile" class="hidden">
+
+  <div class="card">
+
+    <button
+      class="secondary back"
+      onclick="showDashboard()"
+    >
+      ← Back to Dashboard
+    </button>
+
+    <h2>👤 My Profile</h2>
+
+    <div class="profile-box">
+
+      <strong>Name:</strong>
+      <span id="profileName"></span>
+
+      <br>
+
+      <strong>Email:</strong>
+      <span id="profileEmail"></span>
 
     </div>
 
   </div>
 
-
-  <!-- JAVASCRIPT -->
-
-  <script>
-
-    // ==============================
-    // ELEMENTS
-    // ==============================
-
-    const signupBox = document.getElementById("signupBox");
-    const loginBox = document.getElementById("loginBox");
-
-    const authSection = document.getElementById("authSection");
-    const dashboardSection =
-      document.getElementById("dashboardSection");
-
-    const signupButton =
-      document.getElementById("signupButton");
-
-    const loginButton =
-      document.getElementById("loginButton");
-
-    const showLoginButton =
-      document.getElementById("showLoginButton");
-
-    const showSignupButton =
-      document.getElementById("showSignupButton");
-
-    const logoutButton =
-      document.getElementById("logoutButton");
-
-    const profileButton =
-      document.getElementById("profileButton");
-
-    const dashboardButton =
-      document.getElementById("dashboardButton");
-
-    const backDashboardButton =
-      document.getElementById("backDashboardButton");
-
-    const dashboardPage =
-      document.getElementById("dashboardPage");
-
-    const profilePage =
-      document.getElementById("profilePage");
+</div>
 
 
-    // ==============================
-    // SHOW LOGIN
-    // ==============================
+<!-- ================= AI TUTOR ================= -->
 
-    showLoginButton.addEventListener("click", function () {
+<div id="tutor" class="hidden">
 
-      signupBox.classList.add("hidden");
-      loginBox.classList.remove("hidden");
+  <div class="card">
 
-      document.getElementById("signupMessage").textContent = "";
-      document.getElementById("loginMessage").textContent = "";
+    <button
+      class="secondary back"
+      onclick="showDashboard()"
+    >
+      ← Back to Dashboard
+    </button>
 
-    });
+    <h2>🤖 PadhAI Tutor</h2>
+
+    <p style="font-size:19px;">
+      Ask me anything about your studies.
+    </p>
+
+    <textarea
+      id="question"
+      class="tutor-input"
+      placeholder="Example: Explain photosynthesis in simple words..."
+      style="
+        width:100%;
+        padding:18px;
+        border:1px solid #ddd;
+        border-radius:15px;
+        font-size:18px;
+        margin-top:15px;
+      "
+    ></textarea>
+
+    <button
+      class="primary"
+      onclick="askTutor()"
+    >
+      🤖 Ask PadhAI
+    </button>
+
+    <div
+      id="tutorMessage"
+      class="message"
+    ></div>
+
+    <div
+      id="answer"
+      class="answer hidden"
+    ></div>
+
+  </div>
+
+</div>
 
 
-    // ==============================
-    // SHOW SIGNUP
-    // ==============================
+<!-- ================= STUDY ================= -->
 
-    showSignupButton.addEventListener("click", function () {
+<div id="study" class="hidden">
 
-      loginBox.classList.add("hidden");
-      signupBox.classList.remove("hidden");
+  <div class="card">
 
-      document.getElementById("signupMessage").textContent = "";
-      document.getElementById("loginMessage").textContent = "";
+    <button
+      class="secondary back"
+      onclick="showDashboard()"
+    >
+      ← Back to Dashboard
+    </button>
 
-    });
+    <h2>📖 Study</h2>
 
+    <p style="font-size:20px;">
+      Your study section is ready.
+    </p>
 
-    // ==============================
-    // SIGNUP
-    // ==============================
+    <p>
+      We'll build subjects, notes, progress tracking
+      and study plans here next.
+    </p>
 
-    signupButton.addEventListener("click", async function () {
+  </div>
 
-      const name =
-        document.getElementById("signupName").value.trim();
-
-      const email =
-        document.getElementById("signupEmail").value.trim();
-
-      const password =
-        document.getElementById("signupPassword").value;
-
-      const message =
-        document.getElementById("signupMessage");
+</div>
 
 
-      if (!name || !email || !password) {
+<!-- ================= QUIZ ================= -->
 
-        message.textContent =
-          "Please fill all fields.";
+<div id="quiz" class="hidden">
 
-        return;
-      }
+  <div class="card">
 
+    <button
+      class="secondary back"
+      onclick="showDashboard()"
+    >
+      ← Back to Dashboard
+    </button>
+
+    <h2>📝 Quizzes</h2>
+
+    <p style="font-size:20px;">
+      Your quiz system will be built here next.
+    </p>
+
+  </div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   GLOBAL USER
+========================================== */
+
+let currentUser =
+  JSON.parse(localStorage.getItem("padhaiUser") || "null");
+
+
+/* ==========================================
+   PAGE CONTROL
+========================================== */
+
+function hideAllPages() {
+
+  document
+    .getElementById("auth")
+    .classList.add("hidden");
+
+  document
+    .getElementById("dashboard")
+    .classList.add("hidden");
+
+  document
+    .getElementById("profile")
+    .classList.add("hidden");
+
+  document
+    .getElementById("tutor")
+    .classList.add("hidden");
+
+  document
+    .getElementById("study")
+    .classList.add("hidden");
+
+  document
+    .getElementById("quiz")
+    .classList.add("hidden");
+}
+
+
+function showDashboard() {
+
+  hideAllPages();
+
+  document
+    .getElementById("dashboard")
+    .classList.remove("hidden");
+
+}
+
+
+function showProfile() {
+
+  if (!currentUser) return;
+
+  hideAllPages();
+
+  document
+    .getElementById("profile")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("profileName")
+    .textContent =
+    currentUser.name;
+
+  document
+    .getElementById("profileEmail")
+    .textContent =
+    currentUser.email;
+}
+
+
+function openTutor() {
+
+  hideAllPages();
+
+  document
+    .getElementById("tutor")
+    .classList.remove("hidden");
+
+}
+
+
+function openStudy() {
+
+  hideAllPages();
+
+  document
+    .getElementById("study")
+    .classList.remove("hidden");
+
+}
+
+
+function openQuiz() {
+
+  hideAllPages();
+
+  document
+    .getElementById("quiz")
+    .classList.remove("hidden");
+
+}
+
+
+/* ==========================================
+   SIGNUP
+========================================== */
+
+async function createAccount() {
+
+  const name =
+    document.getElementById("name").value.trim();
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const message =
+    document.getElementById("message");
+
+
+  if (!name || !email || !password) {
+
+    message.textContent =
+      "Please fill all fields.";
+
+    return;
+  }
+
+
+  message.textContent =
+    "Creating account...";
+
+
+  try {
+
+    const response =
+      await fetch("/api/signup", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          name,
+          email,
+          password
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
 
       message.textContent =
-        "Creating account...";
+        data.error ||
+        "Account creation failed.";
 
-
-      try {
-
-        const response = await fetch("/api/signup", {
-
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify({
-
-            name: name,
-            email: email,
-            password: password
-
-          })
-
-        });
-
-
-        const data = await response.json();
-
-
-        if (!response.ok || !data.success) {
-
-          message.textContent =
-            data.error || "Account creation failed.";
-
-          return;
-        }
-
-
-        // Save user locally
-
-        const user = {
-
-          id: data.id || "",
-          name: data.name || name,
-          email: data.email || email
-
-        };
-
-
-        localStorage.setItem(
-          "padhai_user",
-          JSON.stringify(user)
-        );
-
-
-        openDashboard(user);
-
-
-      } catch (error) {
-
-        console.error(error);
-
-        message.textContent =
-          "Connection error. Please try again.";
-
-      }
-
-    });
-
-
-    // ==============================
-    // LOGIN
-    // ==============================
-
-    loginButton.addEventListener("click", async function () {
-
-      const email =
-        document.getElementById("loginEmail").value.trim();
-
-      const password =
-        document.getElementById("loginPassword").value;
-
-      const message =
-        document.getElementById("loginMessage");
-
-
-      if (!email || !password) {
-
-        message.textContent =
-          "Please enter email and password.";
-
-        return;
-      }
-
-
-      message.textContent =
-        "Logging in...";
-
-
-      try {
-
-        const response = await fetch("/api/login", {
-
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify({
-
-            email: email,
-            password: password
-
-          })
-
-        });
-
-
-        const data = await response.json();
-
-
-        if (!response.ok || !data.success) {
-
-          message.textContent =
-            data.error || "Invalid email or password.";
-
-          return;
-        }
-
-
-        const user = {
-
-          id: data.id || "",
-          name: data.name || "Student",
-          email: data.email || email
-
-        };
-
-
-        localStorage.setItem(
-          "padhai_user",
-          JSON.stringify(user)
-        );
-
-
-        openDashboard(user);
-
-
-      } catch (error) {
-
-        console.error(error);
-
-        message.textContent =
-          "Connection error. Please try again.";
-
-      }
-
-    });
-
-
-    // ==============================
-    // OPEN DASHBOARD
-    // ==============================
-
-    function openDashboard(user) {
-
-      authSection.classList.add("hidden");
-
-      dashboardSection.classList.remove("hidden");
-
-      dashboardPage.classList.remove("hidden");
-
-      profilePage.classList.add("hidden");
-
-
-      document.getElementById("welcomeText").textContent =
-        "Hello " + user.name + "! 👋";
-
-
-      document.getElementById("profileName").textContent =
-        user.name;
-
-      document.getElementById("profileEmail").textContent =
-        user.email;
-
+      return;
     }
 
 
-    // ==============================
-    // PROFILE
-    // ==============================
-
-    profileButton.addEventListener("click", function () {
-
-      dashboardPage.classList.add("hidden");
-
-      profilePage.classList.remove("hidden");
-
-    });
+    currentUser = {
+      id: data.id,
+      name: data.name || name,
+      email: data.email || email
+    };
 
 
-    // ==============================
-    // BACK TO DASHBOARD
-    // ==============================
-
-    backDashboardButton.addEventListener(
-      "click",
-      function () {
-
-        profilePage.classList.add("hidden");
-
-        dashboardPage.classList.remove("hidden");
-
-      }
+    localStorage.setItem(
+      "padhaiUser",
+      JSON.stringify(currentUser)
     );
 
 
-    // ==============================
-    // DASHBOARD BUTTON
-    // ==============================
+    document
+      .getElementById("welcomeName")
+      .textContent =
+      currentUser.name;
 
-    dashboardButton.addEventListener(
-      "click",
-      function () {
 
-        profilePage.classList.add("hidden");
+    showDashboard();
 
-        dashboardPage.classList.remove("hidden");
+  } catch (error) {
 
-      }
+    console.error(error);
+
+    message.textContent =
+      "Connection error. Please try again.";
+
+  }
+
+}
+
+
+/* ==========================================
+   LOGIN MODE
+========================================== */
+
+function showLogin() {
+
+  document
+    .getElementById("authTitle")
+    .textContent =
+    "🔐 Login to PadhAI";
+
+
+  document
+    .getElementById("name")
+    .classList.add("hidden");
+
+
+  document
+    .getElementById("mainAuthButton")
+    .textContent =
+    "Login";
+
+
+  document
+    .getElementById("mainAuthButton")
+    .onclick =
+    login;
+
+
+  document
+    .getElementById("switchButton")
+    .textContent =
+    "Don't have an account? Create Account";
+
+
+  document
+    .getElementById("switchButton")
+    .onclick =
+    showSignup;
+
+
+  document
+    .getElementById("message")
+    .textContent =
+    "";
+
+}
+
+
+function showSignup() {
+
+  document
+    .getElementById("authTitle")
+    .textContent =
+    "📝 Create Account";
+
+
+  document
+    .getElementById("name")
+    .classList.remove("hidden");
+
+
+  document
+    .getElementById("mainAuthButton")
+    .textContent =
+    "Create Account";
+
+
+  document
+    .getElementById("mainAuthButton")
+    .onclick =
+    createAccount;
+
+
+  document
+    .getElementById("switchButton")
+    .textContent =
+    "Already have an account? Login";
+
+
+  document
+    .getElementById("switchButton")
+    .onclick =
+    showLogin;
+
+
+  document
+    .getElementById("message")
+    .textContent =
+    "";
+
+}
+
+
+/* ==========================================
+   LOGIN
+========================================== */
+
+async function login() {
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const message =
+    document.getElementById("message");
+
+
+  if (!email || !password) {
+
+    message.textContent =
+      "Enter email and password.";
+
+    return;
+  }
+
+
+  message.textContent =
+    "Logging in...";
+
+
+  try {
+
+    const response =
+      await fetch("/api/login", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          email,
+          password
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
+
+      message.textContent =
+        data.error ||
+        "Login failed.";
+
+      return;
+    }
+
+
+    currentUser = {
+      id: data.id,
+      name: data.name,
+      email: data.email
+    };
+
+
+    localStorage.setItem(
+      "padhaiUser",
+      JSON.stringify(currentUser)
     );
 
 
-    // ==============================
-    // LOGOUT
-    // ==============================
-
-    logoutButton.addEventListener(
-      "click",
-      function () {
-
-        localStorage.removeItem("padhai_user");
-
-        dashboardSection.classList.add("hidden");
-
-        authSection.classList.remove("hidden");
-
-        signupBox.classList.remove("hidden");
-
-        loginBox.classList.add("hidden");
-
-        document.getElementById("signupName").value = "";
-        document.getElementById("signupEmail").value = "";
-        document.getElementById("signupPassword").value = "";
-
-        document.getElementById("loginEmail").value = "";
-        document.getElementById("loginPassword").value = "";
-
-      }
-    );
+    document
+      .getElementById("welcomeName")
+      .textContent =
+      currentUser.name;
 
 
-    // ==============================
-    // AUTO LOGIN
-    // ==============================
+    showDashboard();
 
-    window.addEventListener("load", function () {
+  } catch (error) {
 
-      const savedUser =
-        localStorage.getItem("padhai_user");
+    console.error(error);
+
+    message.textContent =
+      "Connection error.";
+
+  }
+
+}
 
 
-      if (savedUser) {
+/* ==========================================
+   LOGOUT
+========================================== */
 
-        try {
+function logout() {
 
-          const user = JSON.parse(savedUser);
+  localStorage.removeItem("padhaiUser");
 
-          if (user && user.name && user.email) {
+  currentUser = null;
 
-            openDashboard(user);
+  hideAllPages();
 
-          }
+  document
+    .getElementById("auth")
+    .classList.remove("hidden");
 
-        } catch (error) {
+  showSignup();
 
-          localStorage.removeItem("padhai_user");
+}
 
-        }
 
-      }
+/* ==========================================
+   AI TUTOR
+========================================== */
 
-    });
+async function askTutor() {
 
-  </script>
+  const question =
+    document
+      .getElementById("question")
+      .value
+      .trim();
+
+  const message =
+    document
+      .getElementById("tutorMessage");
+
+  const answer =
+    document
+      .getElementById("answer");
+
+
+  if (!question) {
+
+    message.textContent =
+      "Please enter a question.";
+
+    return;
+  }
+
+
+  message.textContent =
+    "🤖 PadhAI is thinking...";
+
+
+  answer.classList.add("hidden");
+
+
+  try {
+
+    const response =
+      await fetch("/api/tutor", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+          question
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
+
+      message.textContent =
+        data.error ||
+        "Tutor could not answer.";
+
+      return;
+    }
+
+
+    message.textContent = "";
+
+    answer.textContent =
+      data.answer;
+
+    answer.classList.remove("hidden");
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    message.textContent =
+      "Connection error. Please try again.";
+
+  }
+
+}
+
+
+/* ==========================================
+   AUTO LOGIN
+========================================== */
+
+window.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    if (currentUser) {
+
+      document
+        .getElementById("welcomeName")
+        .textContent =
+        currentUser.name;
+
+      showDashboard();
+
+    } else {
+
+      showSignup();
+
+    }
+
+  }
+);
+
+</script>
 
 </body>
 </html>
