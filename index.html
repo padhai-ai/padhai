@@ -1,9 +1,15 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PadhAI - AI Tutor</title><style>
-*{box-sizing:border-box}
+
+<title>PadhAI - AI Tutor</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -12,7 +18,9 @@ body{
   color:#202124;
 }
 
-.hidden{display:none!important}
+.hidden{
+  display:none!important;
+}
 
 .header{
   background:linear-gradient(135deg,#5141e8,#5545f5);
@@ -21,8 +29,15 @@ body{
   padding:30px 20px;
 }
 
-.header h1{margin:0;font-size:44px}
-.header p{margin:10px 0 0;font-size:20px}
+.header h1{
+  margin:0;
+  font-size:44px;
+}
+
+.header p{
+  margin:10px 0 0;
+  font-size:20px;
+}
 
 .container{
   width:92%;
@@ -37,9 +52,12 @@ body{
   box-shadow:0 8px 30px rgba(0,0,0,.08);
 }
 
-h2{margin-top:0}
+h2{
+  margin-top:0;
+}
 
-input,textarea,select{
+input,
+textarea{
   width:100%;
   padding:16px;
   margin:8px 0;
@@ -65,12 +83,29 @@ button{
   cursor:pointer;
 }
 
-button:active{transform:scale(.98)}
-button:disabled{opacity:.6;cursor:not-allowed}
+button:active{
+  transform:scale(.98);
+}
 
-.primary{background:#5141e8;color:white}
-.secondary{background:#e8e9ed;color:#222}
-.danger{background:#ef101b;color:white}
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.primary{
+  background:#5141e8;
+  color:white;
+}
+
+.secondary{
+  background:#e8e9ed;
+  color:#222;
+}
+
+.danger{
+  background:#ef101b;
+  color:white;
+}
 
 .nav{
   display:flex;
@@ -175,7 +210,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
   gap:10px;
 }
 
-.tutor-actions button{flex:1}
+.tutor-actions button{
+  flex:1;
+}
 
 /* PROFILE */
 
@@ -272,8 +309,13 @@ button:disabled{opacity:.6;cursor:not-allowed}
   border-bottom:1px solid #ddd;
 }
 
-.review-item:last-child{border-bottom:0}
-.correct{color:#16803c}
+.review-item:last-child{
+  border-bottom:0;
+}
+
+.correct{
+  color:#16803c;
+}
 
 /* STUDY */
 
@@ -284,7 +326,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
   margin:20px 0;
 }
 
-.study-intro h3{margin-top:0}
+.study-intro h3{
+  margin-top:0;
+}
 
 .study-levels{
   display:flex;
@@ -303,7 +347,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
   background:#eeeaff;
 }
 
-.lesson{margin-top:25px}
+.lesson{
+  margin-top:25px;
+}
 
 .lesson-title{
   font-size:28px;
@@ -317,7 +363,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
   margin:15px 0;
 }
 
-.lesson-section h3{margin-top:0}
+.lesson-section h3{
+  margin-top:0;
+}
 
 .lesson-text{
   font-size:17px;
@@ -325,7 +373,9 @@ button:disabled{opacity:.6;cursor:not-allowed}
   white-space:pre-wrap;
 }
 
-.key-points{padding-left:20px}
+.key-points{
+  padding-left:20px;
+}
 
 .key-points li{
   margin:12px 0;
@@ -347,348 +397,636 @@ button:disabled{opacity:.6;cursor:not-allowed}
 }
 
 @media(max-width:600px){
-  .header h1{font-size:36px}
-  .header p{font-size:17px}
-  .nav button{font-size:14px;padding:14px 5px}
-  .card{padding:22px}
-  .chat{height:380px}
-  .quiz-question{font-size:20px}
-  .study-levels{flex-direction:column}
-  .lesson-title{font-size:24px}
+
+  .header h1{
+    font-size:36px;
+  }
+
+  .header p{
+    font-size:17px;
+  }
+
+  .nav button{
+    font-size:14px;
+    padding:14px 5px;
+  }
+
+  .card{
+    padding:22px;
+  }
+
+  .chat{
+    height:380px;
+  }
+
+  .quiz-question{
+    font-size:20px;
+  }
+
+  .study-levels{
+    flex-direction:column;
+  }
+
+  .lesson-title{
+    font-size:24px;
+  }
 }
-</style></head><body><div class="header">
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
   <h1>📚 PadhAI</h1>
   <p>Learn smarter. Learn faster.</p>
-</div><div class="container"><!-- AUTH --><div id="auth" class="card">  <h2 id="authTitle">📝 Create Account</h2>  <input id="name" type="text" placeholder="Your name">  <input id="email" type="email" placeholder="Email">  <input id="password" type="password" placeholder="Password">  <button id="authButton" class="primary">
+</div>
+
+<div class="container">
+
+<!-- AUTH -->
+
+<div id="auth" class="card">
+
+  <h2 id="authTitle">📝 Create Account</h2>
+
+  <input
+    id="name"
+    type="text"
+    placeholder="Your name"
+    autocomplete="name"
+  >
+
+  <input
+    id="email"
+    type="email"
+    placeholder="Email"
+    autocomplete="email"
+  >
+
+  <input
+    id="password"
+    type="password"
+    placeholder="Password"
+    autocomplete="current-password"
+  >
+
+  <button
+    id="authButton"
+    class="primary"
+    type="button"
+  >
     Create Account
-  </button>  <button id="switchButton" class="secondary">
+  </button>
+
+  <button
+    id="switchButton"
+    class="secondary"
+    type="button"
+  >
     Already have an account? Login
-  </button>  <div id="message" class="message"></div></div><!-- DASHBOARD --><div id="dashboard" class="hidden">  <div class="card"><div class="nav">
-
-  <button class="primary" onclick="showDashboard()">
-    🏠 Home
   </button>
 
-  <button class="secondary" onclick="showProfile()">
-    👤 Profile
-  </button>
-
-  <button class="danger" onclick="logout()">
-    Logout
-  </button>
+  <div id="message" class="message"></div>
 
 </div>
 
-<div class="welcome">
 
-  <h2>
-    Hello <span id="welcomeName"></span>! 👋
-  </h2>
+<!-- DASHBOARD -->
 
-  <p>
-    Welcome to your personal learning space.
-  </p>
+<div id="dashboard" class="hidden">
 
-</div>
+  <div class="card">
 
-<button class="feature" onclick="openTutor()">
-  <h3>🤖 AI Tutor</h3>
-  <p>Ask questions and learn concepts faster.</p>
-</button>
+    <div class="nav">
 
-<button class="feature" onclick="openStudy()">
-  <h3>📖 Study</h3>
-  <p>Learn any subject with AI-generated lessons.</p>
-</button>
+      <button
+        id="homeButton"
+        class="primary"
+        type="button"
+      >
+        🏠 Home
+      </button>
 
-<button class="feature" onclick="openQuiz()">
-  <h3>📝 Quizzes</h3>
-  <p>Test your knowledge and improve your scores.</p>
-</button>
+      <button
+        id="profileButton"
+        class="secondary"
+        type="button"
+      >
+        👤 Profile
+      </button>
 
-  </div></div><!-- PROFILE --><div id="profile" class="hidden">  <div class="card"><button class="secondary" onclick="showDashboard()">
-  ← Back to Dashboard
-</button>
+      <button
+        id="logoutButton"
+        class="danger"
+        type="button"
+      >
+        Logout
+      </button>
 
-<h2>👤 My Profile</h2>
+    </div>
 
-<div class="profile-box">
+    <div class="welcome">
 
-  <strong>Name:</strong>
-  <span id="profileName"></span>
+      <h2>
+        Hello <span id="welcomeName"></span>! 👋
+      </h2>
 
-  <br>
+      <p>
+        Welcome to your personal learning space.
+      </p>
 
-  <strong>Email:</strong>
-  <span id="profileEmail"></span>
-
-</div>
-
-  </div></div><!-- TUTOR --><div id="tutor" class="hidden">  <div class="card"><button class="secondary" onclick="showDashboard()">
-  ← Back to Dashboard
-</button>
-
-<div class="tutor-header">
-
-  <div class="tutor-icon">🤖</div>
-
-  <div>
-    <h2 style="margin:0">PadhAI Tutor</h2>
-    <p style="margin:5px 0">
-      Your personal AI study assistant
-    </p>
-  </div>
-
-</div>
-
-<div id="chat" class="chat">
-
-  <div class="bubble ai-bubble">
-
-👋 Hi! I'm PadhAI Tutor.
-
-Ask me anything about your studies and I'll help you understand it step by step.
-</div>
-
-</div>
-
-<textarea
-  id="question"
-  placeholder="Ask PadhAI anything..."
-></textarea>
-
-<div class="tutor-actions">
-
-  <button class="primary" id="askButton" onclick="askTutor()">
-    🤖 Ask PadhAI
-  </button>
-
-  <button class="secondary" onclick="clearChat()">
-    🧹 Clear
-  </button>
-
-</div>
-
-<div id="tutorMessage" class="message"></div>
-
-  </div></div><!-- STUDY --><div id="study" class="hidden">  <div class="card"><button class="secondary" onclick="showDashboard()">
-  ← Back to Dashboard
-</button>
-
-<h2>📖 PadhAI Study</h2>
-
-<div class="study-intro">
-
-  <h3>🎓 Learn anything with PadhAI</h3>
-
-  <p>
-    Enter any subject or topic and PadhAI will create a simple lesson for you.
-  </p>
-
-</div>
-
-<input
-  id="studyTopic"
-  type="text"
-  placeholder="Example: Photosynthesis, JavaScript, World War 2..."
->
-
-<h3>Choose your level</h3>
-
-<div class="study-levels">
-
-  <button
-    class="level-button active"
-    id="beginnerButton"
-    onclick="selectStudyLevel('beginner')"
-  >
-    🌱 Beginner
-  </button>
-
-  <button
-    class="level-button"
-    id="intermediateButton"
-    onclick="selectStudyLevel('intermediate')"
-  >
-    📚 Intermediate
-  </button>
-
-  <button
-    class="level-button"
-    id="advancedButton"
-    onclick="selectStudyLevel('advanced')"
-  >
-    🧠 Advanced
-  </button>
-
-</div>
-
-<button
-  class="primary"
-  id="studyButton"
-  onclick="generateStudyLesson()"
->
-  🤖 Start Learning
-</button>
-
-<div id="studyMessage" class="message"></div>
-
-<div id="lesson" class="lesson hidden">
-
-  <h2 id="lessonTitle" class="lesson-title"></h2>
-
-  <div class="lesson-section">
-    <h3>🌟 Introduction</h3>
-    <div id="lessonIntroduction" class="lesson-text"></div>
-  </div>
-
-  <div class="lesson-section">
-    <h3>📖 Explanation</h3>
-    <div id="lessonExplanation" class="lesson-text"></div>
-  </div>
-
-  <div class="lesson-section">
-    <h3>💡 Key Points</h3>
-    <ul id="keyPoints" class="key-points"></ul>
-  </div>
-
-  <div class="example-box">
-    <h3>🔎 Example</h3>
-    <div id="lessonExample" class="lesson-text"></div>
-  </div>
-
-  <div class="summary-box">
-    <h3>📝 Quick Revision</h3>
-    <div id="lessonSummary" class="lesson-text"></div>
-  </div>
-
-  <button class="primary" onclick="scrollToStudyTop()">
-    🔄 Learn Another Topic
-  </button>
-
-</div>
-
-  </div></div><!-- QUIZ --><div id="quiz" class="hidden">  <div class="card"><button class="secondary" onclick="showDashboard()">
-  ← Back to Dashboard
-</button>
-
-<div id="quizStart">
-
-  <h2>📝 PadhAI Quiz</h2>
-
-  <div class="quiz-start">
-
-    <p>
-      <strong>
-        Test your knowledge with AI-generated questions.
-      </strong>
-    </p>
-
-    <p>Enter a subject or topic below.</p>
-
-    <input
-      id="quizTopic"
-      type="text"
-      placeholder="Example: Photosynthesis, JavaScript, History..."
-    >
+    </div>
 
     <button
-      class="primary"
-      id="generateQuizButton"
-      onclick="generateQuiz()"
+      id="tutorFeature"
+      class="feature"
+      type="button"
     >
-      🤖 Generate Quiz
+
+      <h3>🤖 AI Tutor</h3>
+
+      <p>
+        Ask questions and learn concepts faster.
+      </p>
+
     </button>
 
-    <div id="quizMessage" class="message"></div>
+    <button
+      id="studyFeature"
+      class="feature"
+      type="button"
+    >
+
+      <h3>📖 Study</h3>
+
+      <p>
+        Learn any subject with AI-generated lessons.
+      </p>
+
+    </button>
+
+    <button
+      id="quizFeature"
+      class="feature"
+      type="button"
+    >
+
+      <h3>📝 Quizzes</h3>
+
+      <p>
+        Test your knowledge and improve your scores.
+      </p>
+
+    </button>
 
   </div>
 
 </div>
 
 
-<div id="quizGame" class="hidden">
+<!-- PROFILE -->
 
-  <div class="quiz-progress">
-    Question
-    <span id="questionNumber">1</span>
-    of
-    <span id="totalQuestions">5</span>
+<div id="profile" class="hidden">
+
+  <div class="card">
+
+    <button
+      id="profileBackButton"
+      class="secondary"
+      type="button"
+    >
+      ← Back to Dashboard
+    </button>
+
+    <h2>👤 My Profile</h2>
+
+    <div class="profile-box">
+
+      <strong>Name:</strong>
+      <span id="profileName"></span>
+
+      <br>
+
+      <strong>Email:</strong>
+      <span id="profileEmail"></span>
+
+    </div>
+
   </div>
-
-  <div id="quizQuestion" class="quiz-question"></div>
-
-  <div id="quizOptions"></div>
-
-  <button
-    class="primary"
-    id="nextQuestionButton"
-    onclick="nextQuestion()"
-    disabled
-  >
-    Next Question →
-  </button>
 
 </div>
 
 
-<div id="quizResult" class="hidden">
+<!-- TUTOR -->
 
-  <div class="quiz-result">
+<div id="tutor" class="hidden">
 
-    <h2>🎉 Quiz Complete!</h2>
+  <div class="card">
 
-    <div class="score-circle">
+    <button
+      id="tutorBackButton"
+      class="secondary"
+      type="button"
+    >
+      ← Back to Dashboard
+    </button>
 
-      <div id="scoreNumber" class="score-number">
-        0/5
+    <div class="tutor-header">
+
+      <div class="tutor-icon">
+        🤖
       </div>
 
-      <div class="score-label">
-        Score
+      <div>
+
+        <h2 style="margin:0">
+          PadhAI Tutor
+        </h2>
+
+        <p style="margin:5px 0">
+          Your personal AI study assistant
+        </p>
+
       </div>
 
     </div>
 
-    <h3 id="resultMessage"></h3>
+    <div id="chat" class="chat">
 
-    <div id="quizReview" class="review"></div>
+      <div class="bubble ai-bubble">
+👋 Hi! I'm PadhAI Tutor.
 
-    <button class="primary" onclick="restartQuiz()">
-      🔄 Try Another Quiz
-    </button>
+Ask me anything about your studies and I'll help you understand it step by step.
+      </div>
+
+    </div>
+
+    <textarea
+      id="question"
+      placeholder="Ask PadhAI anything..."
+    ></textarea>
+
+    <div class="tutor-actions">
+
+      <button
+        id="askButton"
+        class="primary"
+        type="button"
+      >
+        🤖 Ask PadhAI
+      </button>
+
+      <button
+        id="clearChatButton"
+        class="secondary"
+        type="button"
+      >
+        🧹 Clear
+      </button>
+
+    </div>
+
+    <div
+      id="tutorMessage"
+      class="message"
+    ></div>
 
   </div>
 
 </div>
 
-  </div></div></div><script>
+
+<!-- STUDY -->
+
+<div id="study" class="hidden">
+
+  <div class="card">
+
+    <button
+      id="studyBackButton"
+      class="secondary"
+      type="button"
+    >
+      ← Back to Dashboard
+    </button>
+
+    <h2>📖 PadhAI Study</h2>
+
+    <div class="study-intro">
+
+      <h3>🎓 Learn anything with PadhAI</h3>
+
+      <p>
+        Enter any subject or topic and PadhAI will create a simple lesson for you.
+      </p>
+
+    </div>
+
+    <input
+      id="studyTopic"
+      type="text"
+      placeholder="Example: Photosynthesis, JavaScript, World War 2..."
+    >
+
+    <h3>Choose your level</h3>
+
+    <div class="study-levels">
+
+      <button
+        id="beginnerButton"
+        class="level-button active"
+        type="button"
+      >
+        🌱 Beginner
+      </button>
+
+      <button
+        id="intermediateButton"
+        class="level-button"
+        type="button"
+      >
+        📚 Intermediate
+      </button>
+
+      <button
+        id="advancedButton"
+        class="level-button"
+        type="button"
+      >
+        🧠 Advanced
+      </button>
+
+    </div>
+
+    <button
+      id="studyButton"
+      class="primary"
+      type="button"
+    >
+      🤖 Start Learning
+    </button>
+
+    <div
+      id="studyMessage"
+      class="message"
+    ></div>
+
+    <div
+      id="lesson"
+      class="lesson hidden"
+    >
+
+      <h2
+        id="lessonTitle"
+        class="lesson-title"
+      ></h2>
+
+      <div class="lesson-section">
+
+        <h3>🌟 Introduction</h3>
+
+        <div
+          id="lessonIntroduction"
+          class="lesson-text"
+        ></div>
+
+      </div>
+
+      <div class="lesson-section">
+
+        <h3>📖 Explanation</h3>
+
+        <div
+          id="lessonExplanation"
+          class="lesson-text"
+        ></div>
+
+      </div>
+
+      <div class="lesson-section">
+
+        <h3>💡 Key Points</h3>
+
+        <ul
+          id="keyPoints"
+          class="key-points"
+        ></ul>
+
+      </div>
+
+      <div class="example-box">
+
+        <h3>🔎 Example</h3>
+
+        <div
+          id="lessonExample"
+          class="lesson-text"
+        ></div>
+
+      </div>
+
+      <div class="summary-box">
+
+        <h3>📝 Quick Revision</h3>
+
+        <div
+          id="lessonSummary"
+          class="lesson-text"
+        ></div>
+
+      </div>
+
+      <button
+        id="anotherStudyButton"
+        class="primary"
+        type="button"
+      >
+        🔄 Learn Another Topic
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- QUIZ -->
+
+<div id="quiz" class="hidden">
+
+  <div class="card">
+
+    <button
+      id="quizBackButton"
+      class="secondary"
+      type="button"
+    >
+      ← Back to Dashboard
+    </button>
+
+    <div id="quizStart">
+
+      <h2>📝 PadhAI Quiz</h2>
+
+      <div class="quiz-start">
+
+        <p>
+          <strong>
+            Test your knowledge with AI-generated questions.
+          </strong>
+        </p>
+
+        <p>
+          Enter a subject or topic below.
+        </p>
+
+        <input
+          id="quizTopic"
+          type="text"
+          placeholder="Example: Photosynthesis, JavaScript, History..."
+        >
+
+        <button
+          id="generateQuizButton"
+          class="primary"
+          type="button"
+        >
+          🤖 Generate Quiz
+        </button>
+
+        <div
+          id="quizMessage"
+          class="message"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- QUIZ GAME -->
+
+    <div
+      id="quizGame"
+      class="hidden"
+    >
+
+      <div class="quiz-progress">
+
+        Question
+        <span id="questionNumber">1</span>
+        of
+        <span id="totalQuestions">5</span>
+
+      </div>
+
+      <div
+        id="quizQuestion"
+        class="quiz-question"
+      ></div>
+
+      <div id="quizOptions"></div>
+
+      <button
+        id="nextQuestionButton"
+        class="primary"
+        type="button"
+        disabled
+      >
+        Next Question →
+      </button>
+
+    </div>
+
+
+    <!-- QUIZ RESULT -->
+
+    <div
+      id="quizResult"
+      class="hidden"
+    >
+
+      <div class="quiz-result">
+
+        <h2>🎉 Quiz Complete!</h2>
+
+        <div class="score-circle">
+
+          <div
+            id="scoreNumber"
+            class="score-number"
+          >
+            0/5
+          </div>
+
+          <div class="score-label">
+            Score
+          </div>
+
+        </div>
+
+        <h3 id="resultMessage"></h3>
+
+        <div
+          id="quizReview"
+          class="review"
+        ></div>
+
+        <button
+          id="restartQuizButton"
+          class="primary"
+          type="button"
+        >
+          🔄 Try Another Quiz
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+"use strict";
 
 /* ==========================================
-   USER
+   GLOBAL STATE
 ========================================== */
 
-let currentUser = JSON.parse(
-  localStorage.getItem("padhaiUser") || "null"
-);
+let currentUser = null;
 
-
-/* ==========================================
-   QUIZ STATE
-========================================== */
+try{
+  currentUser = JSON.parse(
+    localStorage.getItem("padhaiUser") || "null"
+  );
+}catch(error){
+  currentUser = null;
+}
 
 let quizQuestions = [];
 let currentQuestionIndex = 0;
 let quizScore = 0;
 let selectedAnswer = null;
 let quizTopicValue = "";
+let studyLevel = "beginner";
 
 
 /* ==========================================
-   STUDY STATE
+   HELPER
 ========================================== */
 
-let studyLevel = "beginner";
+function $(id){
+  return document.getElementById(id);
+}
 
 
 /* ==========================================
@@ -697,24 +1035,31 @@ let studyLevel = "beginner";
 
 function hideAll(){
 
-  const pages = [
+  [
     "auth",
     "dashboard",
     "profile",
     "tutor",
     "study",
     "quiz"
-  ];
+  ].forEach(function(id){
 
-  pages.forEach(function(id){
-
-    const element = document.getElementById(id);
+    const element = $(id);
 
     if(element){
       element.classList.add("hidden");
     }
 
   });
+
+}
+
+
+function showAuth(){
+
+  hideAll();
+
+  $("auth").classList.remove("hidden");
 
 }
 
@@ -728,24 +1073,10 @@ function showDashboard(){
 
   hideAll();
 
-  document
-    .getElementById("dashboard")
-    .classList.remove("hidden");
+  $("dashboard").classList.remove("hidden");
 
-  document
-    .getElementById("welcomeName")
-    .textContent =
+  $("welcomeName").textContent =
     currentUser.name || "Student";
-}
-
-
-function showAuth(){
-
-  hideAll();
-
-  document
-    .getElementById("auth")
-    .classList.remove("hidden");
 
 }
 
@@ -759,18 +1090,12 @@ function showProfile(){
 
   hideAll();
 
-  document
-    .getElementById("profile")
-    .classList.remove("hidden");
+  $("profile").classList.remove("hidden");
 
-  document
-    .getElementById("profileName")
-    .textContent =
+  $("profileName").textContent =
     currentUser.name || "";
 
-  document
-    .getElementById("profileEmail")
-    .textContent =
+  $("profileEmail").textContent =
     currentUser.email || "";
 
 }
@@ -785,9 +1110,7 @@ function openTutor(){
 
   hideAll();
 
-  document
-    .getElementById("tutor")
-    .classList.remove("hidden");
+  $("tutor").classList.remove("hidden");
 
 }
 
@@ -801,9 +1124,7 @@ function openStudy(){
 
   hideAll();
 
-  document
-    .getElementById("study")
-    .classList.remove("hidden");
+  $("study").classList.remove("hidden");
 
 }
 
@@ -817,11 +1138,59 @@ function openQuiz(){
 
   hideAll();
 
-  document
-    .getElementById("quiz")
-    .classList.remove("hidden");
+  $("quiz").classList.remove("hidden");
 
   resetQuizScreen();
+
+}
+
+
+/* ==========================================
+   AUTH MODE
+========================================== */
+
+function showLogin(){
+
+  $("authTitle").textContent =
+    "🔐 Login to PadhAI";
+
+  $("name").classList.add("hidden");
+
+  $("authButton").textContent =
+    "Login";
+
+  $("switchButton").textContent =
+    "Don't have an account? Create Account";
+
+  $("message").textContent = "";
+
+  $("authButton").onclick = login;
+
+  $("switchButton").onclick = showSignup;
+
+}
+
+
+function showSignup(){
+
+  $("authTitle").textContent =
+    "📝 Create Account";
+
+  $("name").classList.remove("hidden");
+
+  $("authButton").textContent =
+    "Create Account";
+
+  $("switchButton").textContent =
+    "Already have an account? Login";
+
+  $("message").textContent = "";
+
+  $("authButton").onclick =
+    createAccount;
+
+  $("switchButton").onclick =
+    showLogin;
 
 }
 
@@ -833,28 +1202,45 @@ function openQuiz(){
 async function createAccount(){
 
   const name =
-    document.getElementById("name").value.trim();
+    $("name").value.trim();
 
   const email =
-    document.getElementById("email").value.trim();
+    $("email").value.trim().toLowerCase();
 
   const password =
-    document.getElementById("password").value;
+    $("password").value;
 
   const message =
-    document.getElementById("message");
+    $("message");
 
   const button =
-    document.getElementById("authButton");
+    $("authButton");
 
 
-  if(!name || !email || !password){
+  if(!name){
 
     message.textContent =
-      "Please fill all fields.";
+      "Please enter your name.";
 
     return;
+  }
 
+
+  if(!email){
+
+    message.textContent =
+      "Please enter your email.";
+
+    return;
+  }
+
+
+  if(!password){
+
+    message.textContent =
+      "Please enter a password.";
+
+    return;
   }
 
 
@@ -864,7 +1250,6 @@ async function createAccount(){
       "Password must be at least 6 characters.";
 
     return;
-
   }
 
 
@@ -907,7 +1292,6 @@ async function createAccount(){
       button.disabled = false;
 
       return;
-
     }
 
 
@@ -928,7 +1312,7 @@ async function createAccount(){
     );
 
 
-    document.getElementById("password").value = "";
+    $("password").value = "";
 
     message.textContent = "";
 
@@ -937,7 +1321,10 @@ async function createAccount(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "SIGNUP ERROR:",
+      error
+    );
 
     message.textContent =
       "Connection error. Please try again.";
@@ -951,123 +1338,39 @@ async function createAccount(){
 
 
 /* ==========================================
-   LOGIN MODE
-========================================== */
-
-function showLogin(){
-
-  document
-    .getElementById("authTitle")
-    .textContent =
-    "🔐 Login to PadhAI";
-
-
-  document
-    .getElementById("name")
-    .classList.add("hidden");
-
-
-  document
-    .getElementById("authButton")
-    .textContent =
-    "Login";
-
-
-  document
-    .getElementById("authButton")
-    .onclick =
-    login;
-
-
-  document
-    .getElementById("switchButton")
-    .textContent =
-    "Don't have an account? Create Account";
-
-
-  document
-    .getElementById("switchButton")
-    .onclick =
-    showSignup;
-
-
-  document
-    .getElementById("message")
-    .textContent = "";
-
-}
-
-
-function showSignup(){
-
-  document
-    .getElementById("authTitle")
-    .textContent =
-    "📝 Create Account";
-
-
-  document
-    .getElementById("name")
-    .classList.remove("hidden");
-
-
-  document
-    .getElementById("authButton")
-    .textContent =
-    "Create Account";
-
-
-  document
-    .getElementById("authButton")
-    .onclick =
-    createAccount;
-
-
-  document
-    .getElementById("switchButton")
-    .textContent =
-    "Already have an account? Login";
-
-
-  document
-    .getElementById("switchButton")
-    .onclick =
-    showLogin;
-
-
-  document
-    .getElementById("message")
-    .textContent = "";
-
-}
-
-
-/* ==========================================
    LOGIN
 ========================================== */
 
 async function login(){
 
   const email =
-    document.getElementById("email").value.trim();
+    $("email").value.trim().toLowerCase();
 
   const password =
-    document.getElementById("password").value;
+    $("password").value;
 
   const message =
-    document.getElementById("message");
+    $("message");
 
   const button =
-    document.getElementById("authButton");
+    $("authButton");
 
 
-  if(!email || !password){
+  if(!email){
 
     message.textContent =
-      "Enter email and password.";
+      "Enter your email.";
 
     return;
+  }
 
+
+  if(!password){
+
+    message.textContent =
+      "Enter your password.";
+
+    return;
   }
 
 
@@ -1109,7 +1412,6 @@ async function login(){
       button.disabled = false;
 
       return;
-
     }
 
 
@@ -1117,7 +1419,7 @@ async function login(){
 
       id:data.id || null,
 
-      name:data.name || "",
+      name:data.name || "Student",
 
       email:data.email || email
 
@@ -1130,7 +1432,7 @@ async function login(){
     );
 
 
-    document.getElementById("password").value = "";
+    $("password").value = "";
 
     message.textContent = "";
 
@@ -1139,7 +1441,10 @@ async function login(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "LOGIN ERROR:",
+      error
+    );
 
     message.textContent =
       "Connection error. Please try again.";
@@ -1154,104 +1459,4 @@ async function login(){
 
 /* ==========================================
    LOGOUT
-========================================== */
-
-function logout(){
-
-  currentUser = null;
-
-  localStorage.removeItem("padhaiUser");
-
-  showSignup();
-
-  document.getElementById("email").value = "";
-  document.getElementById("password").value = "";
-
-}
-
-
-/* ==========================================
-   AI TUTOR
-========================================== */
-
-async function askTutor(){
-
-  const question =
-    document.getElementById("question").value.trim();
-
-  const chat =
-    document.getElementById("chat");
-
-  const message =
-    document.getElementById("tutorMessage");
-
-  const button =
-    document.getElementById("askButton");
-
-
-  if(!question){
-
-    message.textContent =
-      "Please enter a question.";
-
-    return;
-
-  }
-
-
-  const userBubble =
-    document.createElement("div");
-
-  userBubble.className =
-    "bubble user-bubble";
-
-  userBubble.textContent =
-    question;
-
-  chat.appendChild(userBubble);
-
-
-  document.getElementById("question").value = "";
-
-  message.textContent =
-    "PadhAI is thinking...";
-
-  button.disabled = true;
-
-  chat.scrollTop = chat.scrollHeight;
-
-
-  try{
-
-    const response =
-      await fetch("/api/tutor",{
-
-        method:"POST",
-
-        headers:{
-          "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-          question:question
-        })
-
-      });
-
-
-    const data =
-      await response.json();
-
-
-    const aiBubble =
-      document.createElement("div");
-
-    aiBubble.className =
-      "bubble ai-bubble";
-
-
-    if(!response.ok || !data.success){
-
-      aiBubble.textContent =
-        data.error ||
-        "Sorry, I couldn't answ
+================================
