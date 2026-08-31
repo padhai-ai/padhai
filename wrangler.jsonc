@@ -5,14 +5,15 @@
 
   "assets": {
     "directory": ".",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
   },
 
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "padhai-db",
-      "database_id": "77f8cd29-2f78-4a8f-94ed-07bae3c9bfcb"
+      "database_id": "77f8cd29-2f78-4a8f-94ed-07bae3c9bfc0"
     }
   ]
 }
