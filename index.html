@@ -7,159 +7,731 @@
   <title>PadhAI</title>
 
   <style>
-
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
     }
 
     body {
-      margin: 0;
-      background: #f5f7fb;
+      background: #f4f6fb;
       color: #222;
+      min-height: 100vh;
     }
 
-    header {
-      background: #4f46e5;
+    .header {
+      background: linear-gradient(135deg, #4f46e5, #5b3df5);
       color: white;
       text-align: center;
-      padding: 22px;
+      padding: 35px 20px;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 30px;
+    .header h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
     }
 
-    header p {
-      margin-bottom: 0;
+    .header p {
+      font-size: 20px;
     }
 
     .container {
-      max-width: 850px;
-      margin: auto;
-      padding: 20px;
+      width: 92%;
+      max-width: 650px;
+      margin: 35px auto;
     }
 
     .card {
       background: white;
-      padding: 25px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      border-radius: 22px;
+      padding: 35px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
     }
 
-    input,
-    textarea {
+    h2 {
+      margin-bottom: 25px;
+      font-size: 30px;
+    }
+
+    input {
       width: 100%;
-      padding: 14px;
-      margin: 7px 0;
+      padding: 17px;
+      margin-bottom: 15px;
       border: 1px solid #ddd;
-      border-radius: 9px;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: 17px;
       outline: none;
     }
 
-    input:focus,
-    textarea:focus {
+    input:focus {
       border-color: #4f46e5;
     }
 
     button {
       width: 100%;
-      padding: 14px;
-      margin-top: 10px;
+      padding: 16px;
+      margin-top: 8px;
       border: none;
-      border-radius: 9px;
-      background: #4f46e5;
-      color: white;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: 17px;
       cursor: pointer;
+      background: #5145e5;
+      color: white;
     }
 
-    button:active {
-      transform: scale(0.98);
+    button:hover {
+      opacity: 0.9;
     }
 
     .secondary {
-      background: #e5e7eb;
+      background: #e8e9ee;
       color: #222;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+    .danger {
+      background: #dc2626;
     }
 
-    .feature {
-      background: white;
-      padding: 22px;
-      border-radius: 15px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .feature:hover {
-      transform: translateY(-2px);
-    }
-
-    .feature p {
-      color: #666;
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 16px;
+      min-height: 22px;
     }
 
     .hidden {
       display: none !important;
     }
 
-    #message {
+    .nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .nav button {
+      margin: 0;
+      flex: 1;
+    }
+
+    .welcome {
+      background: #f1f3ff;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .feature {
+      background: #f8f8ff;
+      padding: 20px;
+      border-radius: 15px;
       margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
     }
 
-    /* CHAT */
-
-    .chat-box {
-      min-height: 280px;
-      max-height: 450px;
-      overflow-y: auto;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      padding: 15px;
-      background: #fafafa;
-      margin-bottom: 12px;
+    .profile-info {
+      line-height: 2;
+      font-size: 18px;
     }
 
-    .user-message {
-      background: #e0e7ff;
-      padding: 12px;
-      border-radius: 10px;
-      margin: 10px 0;
-      text-align: right;
+    @media(max-width:600px) {
+      .header h1 {
+        font-size: 36px;
+      }
+
+      .card {
+        padding: 25px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+
+  <div class="header">
+    <h1>📚 PadhAI</h1>
+    <p>Learn smarter. Learn faster.</p>
+  </div>
+
+
+  <!-- MAIN -->
+
+  <div class="container">
+
+    <!-- AUTH SECTION -->
+
+    <div id="authSection" class="card">
+
+      <!-- SIGNUP -->
+
+      <div id="signupBox">
+
+        <h2>📝 Create Account</h2>
+
+        <input
+          type="text"
+          id="signupName"
+          placeholder="Your name"
+          autocomplete="name"
+        >
+
+        <input
+          type="email"
+          id="signupEmail"
+          placeholder="Email"
+          autocomplete="email"
+        >
+
+        <input
+          type="password"
+          id="signupPassword"
+          placeholder="Password"
+          autocomplete="new-password"
+        >
+
+        <button id="signupButton">
+          Create Account
+        </button>
+
+        <button id="showLoginButton" class="secondary">
+          Already have an account? Login
+        </button>
+
+        <div id="signupMessage" class="message"></div>
+
+      </div>
+
+
+      <!-- LOGIN -->
+
+      <div id="loginBox" class="hidden">
+
+        <h2>🔐 Login</h2>
+
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="Email"
+          autocomplete="email"
+        >
+
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Password"
+          autocomplete="current-password"
+        >
+
+        <button id="loginButton">
+          Login
+        </button>
+
+        <button id="showSignupButton" class="secondary">
+          Don't have an account? Create Account
+        </button>
+
+        <div id="loginMessage" class="message"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- DASHBOARD -->
+
+    <div id="dashboardSection" class="hidden">
+
+      <div class="card">
+
+        <div class="nav">
+
+          <button id="dashboardButton">
+            🏠 Dashboard
+          </button>
+
+          <button id="profileButton" class="secondary">
+            👤 Profile
+          </button>
+
+          <button id="logoutButton" class="danger">
+            Logout
+          </button>
+
+        </div>
+
+
+        <!-- DASHBOARD PAGE -->
+
+        <div id="dashboardPage">
+
+          <div class="welcome">
+            <h2 id="welcomeText">
+              Welcome to PadhAI 🎓
+            </h2>
+
+            <p>
+              Your personal AI-powered learning space.
+            </p>
+          </div>
+
+          <div class="feature">
+            <h3>🤖 AI Tutor</h3>
+            <p>
+              Ask questions and learn concepts faster.
+            </p>
+          </div>
+
+          <div class="feature">
+            <h3>📖 Study</h3>
+            <p>
+              Organize your learning and improve your progress.
+            </p>
+          </div>
+
+          <div class="feature">
+            <h3>📝 Quizzes</h3>
+            <p>
+              Test your knowledge and track your scores.
+            </p>
+          </div>
+
+        </div>
+
+
+        <!-- PROFILE PAGE -->
+
+        <div id="profilePage" class="hidden">
+
+          <h2>👤 My Profile</h2>
+
+          <div class="profile-info">
+
+            <p>
+              <strong>Name:</strong>
+              <span id="profileName"></span>
+            </p>
+
+            <p>
+              <strong>Email:</strong>
+              <span id="profileEmail"></span>
+            </p>
+
+          </div>
+
+          <button id="backDashboardButton">
+            ← Back to Dashboard
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- JAVASCRIPT -->
+
+  <script>
+
+    // ==============================
+    // ELEMENTS
+    // ==============================
+
+    const signupBox = document.getElementById("signupBox");
+    const loginBox = document.getElementById("loginBox");
+
+    const authSection = document.getElementById("authSection");
+    const dashboardSection =
+      document.getElementById("dashboardSection");
+
+    const signupButton =
+      document.getElementById("signupButton");
+
+    const loginButton =
+      document.getElementById("loginButton");
+
+    const showLoginButton =
+      document.getElementById("showLoginButton");
+
+    const showSignupButton =
+      document.getElementById("showSignupButton");
+
+    const logoutButton =
+      document.getElementById("logoutButton");
+
+    const profileButton =
+      document.getElementById("profileButton");
+
+    const dashboardButton =
+      document.getElementById("dashboardButton");
+
+    const backDashboardButton =
+      document.getElementById("backDashboardButton");
+
+    const dashboardPage =
+      document.getElementById("dashboardPage");
+
+    const profilePage =
+      document.getElementById("profilePage");
+
+
+    // ==============================
+    // SHOW LOGIN
+    // ==============================
+
+    showLoginButton.addEventListener("click", function () {
+
+      signupBox.classList.add("hidden");
+      loginBox.classList.remove("hidden");
+
+      document.getElementById("signupMessage").textContent = "";
+      document.getElementById("loginMessage").textContent = "";
+
+    });
+
+
+    // ==============================
+    // SHOW SIGNUP
+    // ==============================
+
+    showSignupButton.addEventListener("click", function () {
+
+      loginBox.classList.add("hidden");
+      signupBox.classList.remove("hidden");
+
+      document.getElementById("signupMessage").textContent = "";
+      document.getElementById("loginMessage").textContent = "";
+
+    });
+
+
+    // ==============================
+    // SIGNUP
+    // ==============================
+
+    signupButton.addEventListener("click", async function () {
+
+      const name =
+        document.getElementById("signupName").value.trim();
+
+      const email =
+        document.getElementById("signupEmail").value.trim();
+
+      const password =
+        document.getElementById("signupPassword").value;
+
+      const message =
+        document.getElementById("signupMessage");
+
+
+      if (!name || !email || !password) {
+
+        message.textContent =
+          "Please fill all fields.";
+
+        return;
+      }
+
+
+      message.textContent =
+        "Creating account...";
+
+
+      try {
+
+        const response = await fetch("/api/signup", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            name: name,
+            email: email,
+            password: password
+
+          })
+
+        });
+
+
+        const data = await response.json();
+
+
+        if (!response.ok || !data.success) {
+
+          message.textContent =
+            data.error || "Account creation failed.";
+
+          return;
+        }
+
+
+        // Save user locally
+
+        const user = {
+
+          id: data.id || "",
+          name: data.name || name,
+          email: data.email || email
+
+        };
+
+
+        localStorage.setItem(
+          "padhai_user",
+          JSON.stringify(user)
+        );
+
+
+        openDashboard(user);
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "Connection error. Please try again.";
+
+      }
+
+    });
+
+
+    // ==============================
+    // LOGIN
+    // ==============================
+
+    loginButton.addEventListener("click", async function () {
+
+      const email =
+        document.getElementById("loginEmail").value.trim();
+
+      const password =
+        document.getElementById("loginPassword").value;
+
+      const message =
+        document.getElementById("loginMessage");
+
+
+      if (!email || !password) {
+
+        message.textContent =
+          "Please enter email and password.";
+
+        return;
+      }
+
+
+      message.textContent =
+        "Logging in...";
+
+
+      try {
+
+        const response = await fetch("/api/login", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            email: email,
+            password: password
+
+          })
+
+        });
+
+
+        const data = await response.json();
+
+
+        if (!response.ok || !data.success) {
+
+          message.textContent =
+            data.error || "Invalid email or password.";
+
+          return;
+        }
+
+
+        const user = {
+
+          id: data.id || "",
+          name: data.name || "Student",
+          email: data.email || email
+
+        };
+
+
+        localStorage.setItem(
+          "padhai_user",
+          JSON.stringify(user)
+        );
+
+
+        openDashboard(user);
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        message.textContent =
+          "Connection error. Please try again.";
+
+      }
+
+    });
+
+
+    // ==============================
+    // OPEN DASHBOARD
+    // ==============================
+
+    function openDashboard(user) {
+
+      authSection.classList.add("hidden");
+
+      dashboardSection.classList.remove("hidden");
+
+      dashboardPage.classList.remove("hidden");
+
+      profilePage.classList.add("hidden");
+
+
+      document.getElementById("welcomeText").textContent =
+        "Hello " + user.name + "! 👋";
+
+
+      document.getElementById("profileName").textContent =
+        user.name;
+
+      document.getElementById("profileEmail").textContent =
+        user.email;
+
     }
 
-    .ai-message {
-      background: #eeeeee;
-      padding: 12px;
-      border-radius: 10px;
-      margin: 10px 0;
-    }
 
-    /* PROFILE */
+    // ==============================
+    // PROFILE
+    // ==============================
 
-    .profile-row {
-      padding: 12px 0;
-      border-bottom: 1px solid #eee;
-    }
+    profileButton.addEventListener("click", function () {
 
-    .profile-row p {
-      margin-bottom: 0;
-      color: #555;
-    }
+      dashboardPage.classList.add("hidden");
 
-    @media (max-width: 600px) {
+      profilePage.classList.remove("hidden");
 
-      .grid {
-        grid-template-columns: 
+    });
+
+
+    // ==============================
+    // BACK TO DASHBOARD
+    // ==============================
+
+    backDashboardButton.addEventListener(
+      "click",
+      function () {
+
+        profilePage.classList.add("hidden");
+
+        dashboardPage.classList.remove("hidden");
+
+      }
+    );
+
+
+    // ==============================
+    // DASHBOARD BUTTON
+    // ==============================
+
+    dashboardButton.addEventListener(
+      "click",
+      function () {
+
+        profilePage.classList.add("hidden");
+
+        dashboardPage.classList.remove("hidden");
+
+      }
+    );
+
+
+    // ==============================
+    // LOGOUT
+    // ==============================
+
+    logoutButton.addEventListener(
+      "click",
+      function () {
+
+        localStorage.removeItem("padhai_user");
+
+        dashboardSection.classList.add("hidden");
+
+        authSection.classList.remove("hidden");
+
+        signupBox.classList.remove("hidden");
+
+        loginBox.classList.add("hidden");
+
+        document.getElementById("signupName").value = "";
+        document.getElementById("signupEmail").value = "";
+        document.getElementById("signupPassword").value = "";
+
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
+
+      }
+    );
+
+
+    // ==============================
+    // AUTO LOGIN
+    // ==============================
+
+    window.addEventListener("load", function () {
+
+      const savedUser =
+        localStorage.getItem("padhai_user");
+
+
+      if (savedUser) {
+
+        try {
+
+          const user = JSON.parse(savedUser);
+
+          if (user && user.name && user.email) {
+
+            openDashboard(user);
+
+          }
+
+        } catch (error) {
+
+          localStorage.removeItem("padhai_user");
+
+        }
+
+      }
+
+    });
+
+  </script>
+
+</body>
+</html>
