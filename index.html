@@ -1367,152 +1367,107 @@ function selectStudyLevel(level){
 
 async function generateStudyLesson(){
 
-  const topic =
-    $("studyTopic").value.trim();
-
-  const message =
-    $("studyMessage");
-
-  const button =
-    $("studyButton");
-
+  const topic = $("studyTopic").value.trim();
+  const message = $("studyMessage");
+  const button = $("studyButton");
 
   if(!topic){
-
-    message.textContent =
-      "Enter a topic first.";
-
+    message.textContent = "Enter a topic first.";
     return;
   }
 
-
-  message.textContent =
-    "Creating your lesson...";
-
+  message.textContent = "Creating your lesson...";
   button.disabled = true;
-
 
   try{
 
-    const response =
-      await fetch("/api/study",{
+    const response = await fetch("/api/study",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        topic: topic,
+        level: studyLevel
+      })
+    });
 
-        method:"POST",
-
-        headers:{
-          "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify({
-
-          topic:topic,
-
-          level:studyLevel
-
-        })
-
-      });
-
-
-    const text =
-      await response.text();
-
+    const text = await response.text();
 
     let data;
 
     try{
-
-      data =
-        JSON.parse(text);
-
+      data = JSON.parse(text);
     }catch(error){
-
-      throw new Error(
-        "Invalid study response: " +
-        text
-      );
-
+      console.error("STUDY RAW RESPONSE:", text);
+      throw new Error("Invalid server response");
     }
 
+    console.log("STUDY RESPONSE:", data);
 
     if(!response.ok || !data.success){
 
       message.textContent =
-        data.error ||
-        "Could not create lesson.";
+        data.error || "Could not create lesson.";
 
       button.disabled = false;
-
       return;
     }
 
+    /* IMPORTANT:
+       Worker sends the lesson inside data.lesson
+    */
 
-    const lesson =
-      data.lesson || data;
+    const lesson = data.lesson;
 
+    if(!lesson){
 
-    $("lesson").classList.remove(
-      "hidden"
-    );
+      message.textContent =
+        "Lesson data was not received from PadhAI.";
 
+      button.disabled = false;
+      return;
+    }
+
+    $("lesson").classList.remove("hidden");
 
     $("lessonTitle").textContent =
-      lesson.title ||
-      topic;
-
+      lesson.title || topic;
 
     $("lessonIntroduction").textContent =
-      lesson.introduction ||
-      "";
-
+      lesson.introduction || "";
 
     $("lessonExplanation").textContent =
-      lesson.explanation ||
-      "";
-
+      lesson.explanation || "";
 
     $("lessonExample").textContent =
-      lesson.example ||
-      "";
-
+      lesson.example || "";
 
     $("lessonSummary").textContent =
-      lesson.summary ||
-      "";
-
+      lesson.summary || "";
 
     $("keyPoints").innerHTML = "";
 
-
-    const points =
-      Array.isArray(
-        lesson.keyPoints
-      )
+    const points = Array.isArray(lesson.keyPoints)
       ? lesson.keyPoints
       : [];
 
-
     points.forEach(function(point){
 
-      const li =
-        document.createElement("li");
+      const li = document.createElement("li");
 
-      li.textContent =
-        point;
+      li.textContent = point;
 
-      $("keyPoints")
-        .appendChild(li);
+      $("keyPoints").appendChild(li);
 
     });
-
 
     message.textContent = "";
 
-    window.scrollTo({
-      top:0,
-      behavior:"smooth"
+    $("lesson").scrollIntoView({
+      behavior:"smooth",
+      block:"start"
     });
-
 
   }catch(error){
 
@@ -1522,15 +1477,12 @@ async function generateStudyLesson(){
     );
 
     message.textContent =
-      "Study connection error.";
+      "Study connection error. Please try again.";
 
   }
 
-
   button.disabled = false;
-
 }
-
 
 function anotherStudy(){
 
