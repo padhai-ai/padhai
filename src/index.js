@@ -61,8 +61,8 @@ export default {
           await env.DB
             .prepare(
               `INSERT INTO users
-               (name, email, password_hash)
-               VALUES (?, ?, ?)`
+              (name, email, password_hash)
+              VALUES (?, ?, ?)`
             )
             .bind(
               name.trim(),
@@ -80,7 +80,7 @@ export default {
 
       } catch (error) {
 
-        console.error(error);
+        console.error("SIGNUP ERROR:", error);
 
         if (
           error.message &&
@@ -185,7 +185,7 @@ export default {
 
       } catch (error) {
 
-        console.error(error);
+        console.error("LOGIN ERROR:", error);
 
         return Response.json(
           {
@@ -257,6 +257,7 @@ Use examples when useful.
 
 Help students understand instead of simply giving answers.`
                 },
+
                 {
                   role: "user",
                   content: question
@@ -275,7 +276,7 @@ Help students understand instead of simply giving answers.`
       } catch (error) {
 
         console.error(
-          "PadhAI Tutor Error:",
+          "PadhAI TUTOR ERROR:",
           error
         );
 
@@ -322,7 +323,8 @@ Help students understand instead of simply giving answers.`
           return Response.json(
             {
               success: false,
-              error: "Please enter a quiz topic."
+              error:
+                "Please enter a quiz topic."
             },
             { status: 400 }
           );
@@ -343,42 +345,45 @@ Help students understand instead of simply giving answers.`
           "@cf/meta/llama-3.2-3b-instruct";
 
         const prompt = `
-Create exactly ${count} multiple-choice quiz questions about:
+You are PadhAI Quiz Generator.
+
+Create exactly ${count} multiple-choice questions about:
 
 ${topic}
 
-Return ONLY valid JSON.
+RETURN ONLY VALID JSON.
 
-The JSON must be an array.
+Do not write anything before or after the JSON.
 
-Each question must have exactly this structure:
+Do not use markdown.
 
-{
-  "question": "Question text",
-  "options": [
-    "Option A",
-    "Option B",
-    "Option C",
-    "Option D"
-  ],
-  "answer": 0
-}
+Use exactly this format:
 
-The answer must be the NUMBER of the correct option:
-0 = first option
-1 = second option
-2 = third option
-3 = fourth option
+[
+  {
+    "question": "What is photosynthesis?",
+    "options": [
+      "Process by which plants make food",
+      "Process of animal digestion",
+      "Process of blood circulation",
+      "Process of cell division"
+    ],
+    "answer": 0
+  }
+]
 
-Rules:
+RULES:
+
 - Exactly ${count} questions.
-- Exactly 4 options per question.
-- Only one correct answer.
-- Questions should be educational.
-- Avoid ambiguous questions.
-- Do not include explanations.
-- Do not use markdown.
-- Return JSON only.
+- Every question must have exactly 4 options.
+- answer must be 0, 1, 2, or 3.
+- answer identifies the correct option.
+- Only one option is correct.
+- Questions must be factually correct.
+- Options must be different.
+- No explanations.
+- No markdown.
+- JSON array only.
 `;
 
         const result =
@@ -389,8 +394,9 @@ Rules:
                 {
                   role: "system",
                   content:
-                    "You are an educational quiz generator. Always return valid JSON only."
+                    "You are a JSON-only quiz generator. Return valid JSON and nothing else."
                 },
+
                 {
                   role: "user",
                   content: prompt
@@ -402,14 +408,63 @@ Rules:
         let raw =
           result.response || "";
 
-        raw = raw.trim();
+        raw =
+          String(raw).trim();
 
-        // Remove accidental markdown fences
-        raw = raw
-          .replace(/^```json/i, "")
-          .replace(/^```/i, "")
-          .replace(/```$/i, "")
-          .trim();
+        console.log(
+          "RAW QUIZ RESPONSE:",
+          raw
+        );
+
+        // Remove markdown fences
+        raw =
+          raw.replace(
+            /```json/gi,
+            ""
+          );
+
+        raw =
+          raw.replace(
+            /```/g,
+            ""
+          );
+
+        raw =
+          raw.trim();
+
+        // Find the JSON array
+        const firstBracket =
+          raw.indexOf("[");
+
+        const lastBracket =
+          raw.lastIndexOf("]");
+
+        if (
+          firstBracket === -1 ||
+          lastBracket === -1 ||
+          lastBracket <= firstBracket
+        ) {
+
+          console.error(
+            "NO JSON ARRAY FOUND:",
+            raw
+          );
+
+          return Response.json(
+            {
+              success: false,
+              error:
+                "AI did not return quiz data. Please try again."
+            },
+            { status: 500 }
+          );
+        }
+
+        raw =
+          raw.substring(
+            firstBracket,
+            lastBracket + 1
+          );
 
         let questions;
 
@@ -421,8 +476,12 @@ Rules:
         } catch (parseError) {
 
           console.error(
-            "Quiz JSON parse error:",
-            parseError,
+            "QUIZ JSON PARSE ERROR:",
+            parseError.message
+          );
+
+          console.error(
+            "QUIZ RAW:",
             raw
           );
 
@@ -430,13 +489,14 @@ Rules:
             {
               success: false,
               error:
-                "AI returned an invalid quiz. Please try again."
+                "AI returned invalid quiz data. Please try again."
             },
             { status: 500 }
           );
         }
 
         if (!Array.isArray(questions)) {
+
           return Response.json(
             {
               success: false,
@@ -445,49 +505,104 @@ Rules:
             },
             { status: 500 }
           );
+
         }
 
-        // Validate and clean questions
-        const cleanQuestions =
-          questions
-            .slice(0, count)
-            .filter(question => {
+        const cleanQuestions = [];
 
-              return (
-                question &&
-                typeof question.question === "string" &&
-                Array.isArray(question.options) &&
-                question.options.length === 4 &&
-                Number.isInteger(Number(question.answer)) &&
-                Number(question.answer) >= 0 &&
-                Number(question.answer) <= 3
-              );
+        for (
+          let i = 0;
+          i < questions.length;
+          i++
+        ) {
 
-            })
-            .map(question => ({
+          const q =
+            questions[i];
 
-              question:
-                question.question.trim(),
+          if (!q) continue;
 
-              options:
-                question.options.map(
-                  option => String(option).trim()
-                ),
+          if (
+            typeof q.question !== "string"
+          ) {
+            continue;
+          }
 
-              answer:
-                Number(question.answer)
+          if (
+            !Array.isArray(q.options)
+          ) {
+            continue;
+          }
 
-            }));
+          if (
+            q.options.length !== 4
+          ) {
+            continue;
+          }
 
-        if (cleanQuestions.length === 0) {
+          const answer =
+            Number(q.answer);
+
+          if (
+            !Number.isInteger(answer) ||
+            answer < 0 ||
+            answer > 3
+          ) {
+            continue;
+          }
+
+          const options =
+            q.options.map(
+              option =>
+                String(option).trim()
+            );
+
+          if (
+            options.some(
+              option => !option
+            )
+          ) {
+            continue;
+          }
+
+          cleanQuestions.push({
+
+            question:
+              q.question.trim(),
+
+            options,
+
+            answer
+
+          });
+
+          if (
+            cleanQuestions.length >= count
+          ) {
+            break;
+          }
+
+        }
+
+        if (
+          cleanQuestions.length < count
+        ) {
+
+          console.error(
+            "NOT ENOUGH QUESTIONS:",
+            cleanQuestions.length,
+            "needed:",
+            count
+          );
+
           return Response.json(
             {
               success: false,
               error:
-                "Could not create valid quiz questions."
+                "AI did not create enough valid questions. Please try again."
             },
             { status: 500 }
           );
+
         }
 
         return Response.json({
@@ -504,7 +619,7 @@ Rules:
       } catch (error) {
 
         console.error(
-          "PadhAI Quiz Error:",
+          "PadhAI QUIZ ERROR:",
           error
         );
 
@@ -514,10 +629,12 @@ Rules:
             error:
               "Quiz generation failed.",
             details:
-              error.message || "Unknown error"
+              error.message ||
+              "Unknown error"
           },
           { status: 500 }
         );
+
       }
     }
 
@@ -601,7 +718,7 @@ Rules:
       } catch (error) {
 
         console.error(
-          "Quiz score error:",
+          "QUIZ SCORE ERROR:",
           error
         );
 
@@ -611,16 +728,18 @@ Rules:
             error:
               "Could not save quiz score.",
             details:
-              error.message || "Unknown error"
+              error.message ||
+              "Unknown error"
           },
           { status: 500 }
         );
+
       }
     }
 
 
     // ==========================================
-    // QUIZ SCORE HISTORY
+    // QUIZ HISTORY
     // ==========================================
 
     if (
@@ -631,10 +750,13 @@ Rules:
 
         const userId =
           Number(
-            url.searchParams.get("userId")
+            url.searchParams.get(
+              "userId"
+            )
           );
 
         if (!userId) {
+
           return Response.json(
             {
               success: false,
@@ -643,6 +765,7 @@ Rules:
             },
             { status: 400 }
           );
+
         }
 
         await env.DB
@@ -687,7 +810,7 @@ Rules:
       } catch (error) {
 
         console.error(
-          "Quiz history error:",
+          "QUIZ HISTORY ERROR:",
           error
         );
 
@@ -699,6 +822,7 @@ Rules:
           },
           { status: 500 }
         );
+
       }
     }
 
@@ -723,8 +847,12 @@ Rules:
             .all();
 
         return Response.json({
+
           success: true,
-          tables: result.results
+
+          tables:
+            result.results
+
         });
 
       } catch (error) {
@@ -732,10 +860,12 @@ Rules:
         return Response.json(
           {
             success: false,
-            error: error.message
+            error:
+              error.message
           },
           { status: 500 }
         );
+
       }
     }
 
@@ -745,7 +875,11 @@ Rules:
     // ==========================================
 
     if (env.ASSETS) {
-      return env.ASSETS.fetch(request);
+
+      return env.ASSETS.fetch(
+        request
+      );
+
     }
 
     return new Response(
@@ -758,5 +892,6 @@ Rules:
         }
       }
     );
+
   }
 };
