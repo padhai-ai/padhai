@@ -29,7 +29,9 @@ export default {
         const body = await request.json();
 
         const name = String(body.name || "").trim();
-        const email = String(body.email || "").trim().toLowerCase();
+        const email = String(body.email || "")
+          .trim()
+          .toLowerCase();
         const password = String(body.password || "");
 
         if (!name || !email || !password) {
@@ -64,8 +66,8 @@ export default {
         return Response.json({
           success: true,
           id: result.meta?.last_row_id || null,
-          name: name,
-          email: email
+          name,
+          email
         });
       } catch (error) {
         console.error("SIGNUP ERROR:", error);
@@ -104,7 +106,10 @@ export default {
       try {
         const body = await request.json();
 
-        const email = String(body.email || "").trim().toLowerCase();
+        const email = String(body.email || "")
+          .trim()
+          .toLowerCase();
+
         const password = String(body.password || "");
 
         if (!email || !password) {
@@ -165,7 +170,10 @@ export default {
     ) {
       try {
         const body = await request.json();
-        const question = String(body.question || "").trim();
+
+        const question = String(
+          body.question || ""
+        ).trim();
 
         if (!question) {
           return Response.json(
@@ -216,7 +224,8 @@ export default {
         return Response.json(
           {
             success: false,
-            error: "AI Tutor could not answer right now."
+            error:
+              "AI Tutor could not answer right now."
           },
           { status: 500 }
         );
@@ -234,17 +243,14 @@ export default {
       try {
         const body = await request.json();
 
-        const topic = String(body.topic || "").trim();
+        const topic = String(
+          body.topic || ""
+        ).trim();
 
         let count = Number(body.count) || 5;
 
-        if (count < 1) {
-          count = 1;
-        }
-
-        if (count > 10) {
-          count = 10;
-        }
+        if (count < 1) count = 1;
+        if (count > 10) count = 10;
 
         if (!topic) {
           return Response.json(
@@ -267,19 +273,12 @@ export default {
         }
 
         const prompt =
-          "Create exactly " +
-          count +
-          " multiple choice questions about " +
-          topic +
-          ". " +
-          "Return ONLY valid JSON. " +
-          "The JSON must have this format: " +
-          '{"questions":[{"question":"Question text","options":["Option A","Option B","Option C","Option D"],"answer":0}]}' +
-          ". " +
-          "Every question must have exactly four options. " +
-          "The answer must be a number from 0 to 3. " +
-          "Do not write markdown. " +
-          "Do not write explanations.";
+          `Create exactly ${count} multiple choice questions about "${topic}". ` +
+          `Return ONLY JSON. ` +
+          `Format: {"questions":[{"question":"...","options":["...","...","...","..."],"answer":0}]}. ` +
+          `Every question must have exactly four options. ` +
+          `The answer must be an integer from 0 to 3. ` +
+          `Do not use markdown.`;
 
         const result = await env.AI.run(
           "@cf/meta/llama-3.1-8b-instruct-fast",
@@ -288,74 +287,36 @@ export default {
               {
                 role: "system",
                 content:
-                  "You are PadhAI Quiz Generator. Generate simple, accurate educational multiple choice questions. Always return valid JSON."
+                  "You are PadhAI Quiz Generator. Create accurate educational multiple-choice questions and return valid JSON only."
               },
               {
                 role: "user",
                 content: prompt
               }
-            ],
-            response_format: {
-              type: "json_schema",
-              json_schema: {
-                type: "object",
-                properties: {
-                  questions: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        question: {
-                          type: "string"
-                        },
-                        options: {
-                          type: "array",
-                          items: {
-                            type: "string"
-                          }
-                        },
-                        answer: {
-                          type: "integer"
-                        }
-                      },
-                      required: [
-                        "question",
-                        "options",
-                        "answer"
-                      ]
-                    }
-                  }
-                },
-                required: [
-                  "questions"
-                ]
-              }
-            },
-            max_tokens: 3000,
-            temperature: 0.1
+            ]
           }
         );
 
-        console.log(
-          "QUIZ RESULT:",
-          JSON.stringify(result)
-        );
+        let questions = [];
 
-        let questions = null;
+        let raw = result?.response;
 
         if (
-          result &&
-          result.response &&
-          typeof result.response === "object"
+          raw &&
+          typeof raw === "object" &&
+          Array.isArray(raw.questions)
         ) {
-          questions = result.response.questions;
+          questions = raw.questions;
         }
 
-        if (
-          typeof result?.response === "string"
-        ) {
+        if (typeof raw === "string") {
           try {
-            const parsed = JSON.parse(result.response);
+            let cleaned = raw
+              .replace(/```json/gi, "")
+              .replace(/```/g, "")
+              .trim();
+
+            const parsed = JSON.parse(cleaned);
 
             if (Array.isArray(parsed)) {
               questions = parsed;
@@ -366,36 +327,22 @@ export default {
             }
           } catch (error) {
             console.error(
-              "QUIZ JSON PARSE ERROR:",
+              "QUIZ PARSE ERROR:",
               error
             );
           }
         }
 
-        if (!Array.isArray(questions)) {
-          return Response.json(
-            {
-              success: false,
-              error:
-                "PadhAI could not create the quiz. Please try again."
-            },
-            { status: 500 }
-          );
-        }
-
         const validQuestions = [];
 
         for (const item of questions) {
-          if (!item) {
-            continue;
-          }
+          if (!item) continue;
 
-          const question =
-            String(item.question || "").trim();
+          const question = String(
+            item.question || ""
+          ).trim();
 
-          if (!question) {
-            continue;
-          }
+          if (!question) continue;
 
           if (!Array.isArray(item.options)) {
             continue;
@@ -407,19 +354,19 @@ export default {
 
           const options = item.options
             .slice(0, 4)
-            .map((option) =>
-              String(option || "").trim()
+            .map((x) =>
+              String(x || "").trim()
             );
 
           if (
             options.some(
-              (option) => option.length === 0
+              (x) => !x
             )
           ) {
             continue;
           }
 
-          let answer = Number(item.answer);
+          const answer = Number(item.answer);
 
           if (
             !Number.isInteger(answer) ||
@@ -430,9 +377,9 @@ export default {
           }
 
           validQuestions.push({
-            question: question,
-            options: options,
-            answer: answer
+            question,
+            options,
+            answer
           });
 
           if (
@@ -442,14 +389,12 @@ export default {
           }
         }
 
-        if (
-          validQuestions.length === 0
-        ) {
+        if (!validQuestions.length) {
           return Response.json(
             {
               success: false,
               error:
-                "PadhAI could not create valid questions. Please try again."
+                "PadhAI could not create valid questions. Please try another topic."
             },
             { status: 500 }
           );
@@ -457,7 +402,7 @@ export default {
 
         return Response.json({
           success: true,
-          topic: topic,
+          topic,
           questions: validQuestions
         });
       } catch (error) {
@@ -466,10 +411,7 @@ export default {
         return Response.json(
           {
             success: false,
-            error:
-              "Quiz generation failed.",
-            details:
-              error.message || "Unknown error"
+            error: "Quiz generation failed."
           },
           { status: 500 }
         );
@@ -488,7 +430,9 @@ export default {
         const body = await request.json();
 
         const userId = Number(body.userId);
-        const topic = String(body.topic || "").trim();
+        const topic = String(
+          body.topic || ""
+        ).trim();
         const score = Number(body.score);
         const total = Number(body.total);
 
@@ -523,8 +467,8 @@ export default {
         await env.DB
           .prepare(
             `INSERT INTO quiz_scores
-             (user_id, topic, score, total)
-             VALUES (?, ?, ?, ?)`
+            (user_id, topic, score, total)
+            VALUES (?, ?, ?, ?)`
           )
           .bind(
             userId,
@@ -593,12 +537,7 @@ export default {
 
         const result = await env.DB
           .prepare(
-            `SELECT
-               id,
-               topic,
-               score,
-               total,
-               created_at
+            `SELECT id, topic, score, total, created_at
              FROM quiz_scores
              WHERE user_id = ?
              ORDER BY id DESC
@@ -622,6 +561,209 @@ export default {
             success: false,
             error:
               "Could not load quiz history."
+          },
+          { status: 500 }
+        );
+      }
+    }
+
+    // ==========================================
+    // AI STUDY
+    // ==========================================
+
+    if (
+      url.pathname === "/api/study" &&
+      request.method === "POST"
+    ) {
+      try {
+        const body = await request.json();
+
+        const topic = String(
+          body.topic || ""
+        ).trim();
+
+        const level = String(
+          body.level || "beginner"
+        ).trim();
+
+        if (!topic) {
+          return Response.json(
+            {
+              success: false,
+              error: "Please enter a study topic."
+            },
+            { status: 400 }
+          );
+        }
+
+        if (!env.AI) {
+          return Response.json(
+            {
+              success: false,
+              error: "Workers AI is not connected."
+            },
+            { status: 500 }
+          );
+        }
+
+        const prompt =
+          `Create a study lesson about "${topic}" for a ${level} student.
+
+Return ONLY valid JSON in exactly this format:
+
+{
+  "title": "Lesson title",
+  "introduction": "Short simple introduction",
+  "explanation": "Clear detailed explanation",
+  "keyPoints": [
+    "Important point 1",
+    "Important point 2",
+    "Important point 3"
+  ],
+  "example": "A simple real-world or academic example",
+  "summary": "Short summary for revision"
+}
+
+Rules:
+- Use simple student-friendly language.
+- Avoid unnecessary difficult words.
+- Explain step by step.
+- Make the content educational and accurate.
+- Do not use markdown.
+- Do not add anything outside the JSON.`;
+
+        const result = await env.AI.run(
+          "@cf/meta/llama-3.2-3b-instruct",
+          {
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are PadhAI Study Teacher. You create clear, accurate and easy-to-understand study lessons for students. Always return valid JSON."
+              },
+              {
+                role: "user",
+                content: prompt
+              }
+            ]
+          }
+        );
+
+        let study = null;
+
+        const raw = result?.response;
+
+        if (
+          raw &&
+          typeof raw === "object"
+        ) {
+          study = raw;
+        }
+
+        if (typeof raw === "string") {
+          try {
+            const cleaned = raw
+              .replace(/```json/gi, "")
+              .replace(/```/g, "")
+              .trim();
+
+            study = JSON.parse(cleaned);
+          } catch (error) {
+            console.error(
+              "STUDY JSON ERROR:",
+              error
+            );
+          }
+        }
+
+        if (
+          !study ||
+          typeof study !== "object"
+        ) {
+          return Response.json(
+            {
+              success: false,
+              error:
+                "PadhAI could not create the lesson. Please try again."
+            },
+            { status: 500 }
+          );
+        }
+
+        const title = String(
+          study.title || topic
+        ).trim();
+
+        const introduction = String(
+          study.introduction || ""
+        ).trim();
+
+        const explanation = String(
+          study.explanation || ""
+        ).trim();
+
+        const example = String(
+          study.example || ""
+        ).trim();
+
+        const summary = String(
+          study.summary || ""
+        ).trim();
+
+        let keyPoints = [];
+
+        if (
+          Array.isArray(
+            study.keyPoints
+          )
+        ) {
+          keyPoints = study.keyPoints
+            .map((point) =>
+              String(point || "").trim()
+            )
+            .filter(Boolean)
+            .slice(0, 8);
+        }
+
+        if (
+          !introduction ||
+          !explanation ||
+          !summary
+        ) {
+          return Response.json(
+            {
+              success: false,
+              error:
+                "PadhAI generated an incomplete lesson. Please try again."
+            },
+            { status: 500 }
+          );
+        }
+
+        return Response.json({
+          success: true,
+          topic,
+          level,
+          lesson: {
+            title,
+            introduction,
+            explanation,
+            keyPoints,
+            example,
+            summary
+          }
+        });
+      } catch (error) {
+        console.error(
+          "STUDY ERROR:",
+          error
+        );
+
+        return Response.json(
+          {
+            success: false,
+            error:
+              "Study lesson generation failed."
           },
           { status: 500 }
         );
