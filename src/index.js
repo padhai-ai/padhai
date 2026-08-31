@@ -4,6 +4,251 @@ export default {
     const url = new URL(request.url);
 
     // ==========================================
+    // HELPER: PASSWORD HASH
+    // ==========================================
+
+    async function hashPassword(password) {
+
+      const hashBuffer =
+        await crypto.subtle.digest(
+          "SHA-256",
+          new TextEncoder().encode(password)
+        );
+
+      return Array.from(
+        new Uint8Array(hashBuffer)
+      )
+        .map(byte =>
+          byte.toString(16).padStart(2, "0")
+        )
+        .join("");
+    }
+
+
+    // ==========================================
+    // HELPER: VALIDATE QUESTIONS
+    // ==========================================
+
+    function validateQuestions(
+      questions,
+      count
+    ) {
+
+      if (!Array.isArray(questions)) {
+        return [];
+      }
+
+      const valid = [];
+
+      for (const q of questions) {
+
+        if (!q) continue;
+
+        if (
+          typeof q.question !== "string" ||
+          !q.question.trim()
+        ) {
+          continue;
+        }
+
+        if (
+          !Array.isArray(q.options) ||
+          q.options.length !== 4
+        ) {
+          continue;
+        }
+
+        const options =
+          q.options.map(
+            option =>
+              String(option).trim()
+          );
+
+        if (
+          options.some(
+            option => !option
+          )
+        ) {
+          continue;
+        }
+
+        const answer =
+          Number(q.answer);
+
+        if (
+          !Number.isInteger(answer) ||
+          answer < 0 ||
+          answer > 3
+        ) {
+          continue;
+        }
+
+        valid.push({
+
+          question:
+            q.question.trim(),
+
+          options,
+
+          answer
+
+        });
+
+        if (valid.length >= count) {
+          break;
+        }
+      }
+
+      return valid;
+    }
+
+
+    // ==========================================
+    // HELPER: EXTRACT JSON
+    // ==========================================
+
+    function extractQuestions(response) {
+
+      if (!response) {
+        return null;
+      }
+
+      // Already an object
+      if (
+        typeof response === "object"
+      ) {
+
+        if (
+          Array.isArray(
+            response.questions
+          )
+        ) {
+          return response.questions;
+        }
+
+        if (
+          Array.isArray(response)
+        ) {
+          return response;
+        }
+      }
+
+      let raw =
+        String(response).trim();
+
+      // Remove markdown fences
+      raw =
+        raw.replace(
+          /```json/gi,
+          ""
+        );
+
+      raw =
+        raw.replace(
+          /```/g,
+          ""
+        );
+
+      raw =
+        raw.trim();
+
+      // Try complete JSON first
+      try {
+
+        const parsed =
+          JSON.parse(raw);
+
+        if (
+          Array.isArray(parsed)
+        ) {
+          return parsed;
+        }
+
+        if (
+          Array.isArray(
+            parsed.questions
+          )
+        ) {
+          return parsed.questions;
+        }
+
+      } catch (error) {
+        // Continue to extraction
+      }
+
+      // Find object containing questions
+      const objectStart =
+        raw.indexOf("{");
+
+      const objectEnd =
+        raw.lastIndexOf("}");
+
+      if (
+        objectStart !== -1 &&
+        objectEnd > objectStart
+      ) {
+
+        try {
+
+          const parsed =
+            JSON.parse(
+              raw.substring(
+                objectStart,
+                objectEnd + 1
+              )
+            );
+
+          if (
+            Array.isArray(
+              parsed.questions
+            )
+          ) {
+            return parsed.questions;
+          }
+
+        } catch (error) {
+          // Continue
+        }
+      }
+
+      // Find array
+      const arrayStart =
+        raw.indexOf("[");
+
+      const arrayEnd =
+        raw.lastIndexOf("]");
+
+      if (
+        arrayStart !== -1 &&
+        arrayEnd > arrayStart
+      ) {
+
+        try {
+
+          const parsed =
+            JSON.parse(
+              raw.substring(
+                arrayStart,
+                arrayEnd + 1
+              )
+            );
+
+          if (
+            Array.isArray(parsed)
+          ) {
+            return parsed;
+          }
+
+        } catch (error) {
+          // Invalid JSON
+        }
+      }
+
+      return null;
+    }
+
+
+    // ==========================================
     // SIGNUP
     // ==========================================
 
@@ -11,26 +256,40 @@ export default {
       url.pathname === "/api/signup" &&
       request.method === "POST"
     ) {
+
       try {
 
-        const { name, email, password } =
-          await request.json();
+        const {
+          name,
+          email,
+          password
+        } = await request.json();
 
-        if (!name || !email || !password) {
+        if (
+          !name ||
+          !email ||
+          !password
+        ) {
+
           return Response.json(
             {
               success: false,
-              error: "All fields are required."
+              error:
+                "All fields are required."
             },
             { status: 400 }
           );
         }
 
-        if (password.length < 6) {
+        if (
+          password.length < 6
+        ) {
+
           return Response.json(
             {
               success: false,
-              error: "Password must be at least 6 characters."
+              error:
+                "Password must be at least 6 characters."
             },
             { status: 400 }
           );
@@ -39,18 +298,10 @@ export default {
         const cleanEmail =
           email.toLowerCase().trim();
 
-        const hashBuffer =
-          await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(password)
-          );
-
         const passwordHash =
-          Array.from(new Uint8Array(hashBuffer))
-            .map(byte =>
-              byte.toString(16).padStart(2, "0")
-            )
-            .join("");
+          await hashPassword(
+            password
+          );
 
         const result =
           await env.DB
@@ -67,33 +318,51 @@ export default {
             .run();
 
         return Response.json({
+
           success: true,
-          id: result.meta?.last_row_id || null,
-          name: name.trim(),
-          email: cleanEmail
+
+          id:
+            result.meta?.last_row_id ||
+            null,
+
+          name:
+            name.trim(),
+
+          email:
+            cleanEmail
+
         });
 
       } catch (error) {
 
-        console.error("SIGNUP ERROR:", error);
+        console.error(
+          "SIGNUP ERROR:",
+          error
+        );
 
         if (
           error.message &&
-          error.message.includes("UNIQUE")
+          error.message.includes(
+            "UNIQUE"
+          )
         ) {
+
           return Response.json(
             {
               success: false,
-              error: "Email already registered."
+              error:
+                "Email already registered."
             },
             { status: 409 }
           );
+
         }
 
         return Response.json(
           {
             success: false,
-            error: "Could not create account."
+            error:
+              "Could not create account."
           },
           { status: 500 }
         );
@@ -109,12 +378,19 @@ export default {
       url.pathname === "/api/login" &&
       request.method === "POST"
     ) {
+
       try {
 
-        const { email, password } =
-          await request.json();
+        const {
+          email,
+          password
+        } = await request.json();
 
-        if (!email || !password) {
+        if (
+          !email ||
+          !password
+        ) {
+
           return Response.json(
             {
               success: false,
@@ -123,28 +399,24 @@ export default {
             },
             { status: 400 }
           );
+
         }
 
         const cleanEmail =
           email.toLowerCase().trim();
 
-        const hashBuffer =
-          await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(password)
-          );
-
         const passwordHash =
-          Array.from(new Uint8Array(hashBuffer))
-            .map(byte =>
-              byte.toString(16).padStart(2, "0")
-            )
-            .join("");
+          await hashPassword(
+            password
+          );
 
         const user =
           await env.DB
             .prepare(
-              `SELECT id, name, email
+              `SELECT
+                 id,
+                 name,
+                 email
                FROM users
                WHERE email = ?
                AND password_hash = ?`
@@ -156,6 +428,7 @@ export default {
             .first();
 
         if (!user) {
+
           return Response.json(
             {
               success: false,
@@ -164,26 +437,40 @@ export default {
             },
             { status: 401 }
           );
+
         }
 
         return Response.json({
+
           success: true,
-          id: user.id,
-          name: user.name,
-          email: user.email
+
+          id:
+            user.id,
+
+          name:
+            user.name,
+
+          email:
+            user.email
+
         });
 
       } catch (error) {
 
-        console.error("LOGIN ERROR:", error);
+        console.error(
+          "LOGIN ERROR:",
+          error
+        );
 
         return Response.json(
           {
             success: false,
-            error: "Login failed."
+            error:
+              "Login failed."
           },
           { status: 500 }
         );
+
       }
     }
 
@@ -196,6 +483,7 @@ export default {
       url.pathname === "/api/tutor" &&
       request.method === "POST"
     ) {
+
       try {
 
         const body =
@@ -205,6 +493,7 @@ export default {
           body.question?.trim();
 
         if (!question) {
+
           return Response.json(
             {
               success: false,
@@ -213,9 +502,11 @@ export default {
             },
             { status: 400 }
           );
+
         }
 
         if (!env.AI) {
+
           return Response.json(
             {
               success: false,
@@ -224,6 +515,7 @@ export default {
             },
             { status: 500 }
           );
+
         }
 
         const result =
@@ -231,8 +523,10 @@ export default {
             "@cf/meta/llama-3.2-3b-instruct",
             {
               messages: [
+
                 {
                   role: "system",
+
                   content:
                     `You are PadhAI, a friendly educational AI tutor.
 
@@ -244,19 +538,26 @@ Use examples when useful.
 
 Help students understand instead of simply giving answers.`
                 },
+
                 {
                   role: "user",
-                  content: question
+
+                  content:
+                    question
                 }
+
               ]
             }
           );
 
         return Response.json({
+
           success: true,
+
           answer:
             result.response ||
             "I couldn't generate an answer."
+
         });
 
       } catch (error) {
@@ -272,22 +573,25 @@ Help students understand instead of simply giving answers.`
             error:
               "AI Tutor could not answer right now.",
             details:
-              error.message || "Unknown error"
+              error.message ||
+              "Unknown error"
           },
           { status: 500 }
         );
+
       }
     }
 
 
     // ==========================================
-    // AI QUIZ GENERATOR
+    // AI QUIZ
     // ==========================================
 
     if (
       url.pathname === "/api/quiz" &&
       request.method === "POST"
     ) {
+
       try {
 
         const body =
@@ -306,6 +610,7 @@ Help students understand instead of simply giving answers.`
           );
 
         if (!topic) {
+
           return Response.json(
             {
               success: false,
@@ -314,9 +619,11 @@ Help students understand instead of simply giving answers.`
             },
             { status: 400 }
           );
+
         }
 
         if (!env.AI) {
+
           return Response.json(
             {
               success: false,
@@ -325,252 +632,272 @@ Help students understand instead of simply giving answers.`
             },
             { status: 500 }
           );
+
         }
 
-        /*
-         * IMPORTANT:
-         * This model supports Cloudflare JSON Mode.
-         */
-
-        const model =
-          "@cf/meta/llama-3.1-8b-instruct-fast";
-
-        const result =
-          await env.AI.run(
-            model,
-            {
-              messages: [
-                {
-                  role: "system",
-                  content:
-                    `You are PadhAI Quiz Generator.
-
-Create educational multiple-choice questions.
-
-Always follow the provided JSON schema.
-
-Make questions factually correct.
-
-Create exactly the requested number of questions.`
-                },
-
-                {
-                  role: "user",
-                  content:
-                    `Create exactly ${count} multiple-choice questions about ${topic}.`
-                }
-              ],
-
-              response_format: {
-                type: "json_schema",
-
-                json_schema: {
-                  type: "object",
-
-                  properties: {
-
-                    questions: {
-                      type: "array",
-
-                      items: {
-                        type: "object",
-
-                        properties: {
-
-                          question: {
-                            type: "string"
-                          },
-
-                          options: {
-                            type: "array",
-
-                            items: {
-                              type: "string"
-                            }
-                          },
-
-                          answer: {
-                            type: "integer"
-                          }
-
-                        },
-
-                        required: [
-                          "question",
-                          "options",
-                          "answer"
-                        ]
-                      }
-                    }
-
-                  },
-
-                  required: [
-                    "questions"
-                  ]
-                }
-              },
-
-              temperature: 0.2,
-
-              max_tokens: 2000
-            }
-          );
-
-
-        console.log(
-          "QUIZ AI RESULT:",
-          JSON.stringify(result)
-        );
-
 
         // ======================================
-        // GET STRUCTURED RESPONSE
+        // GENERATE FUNCTION
         // ======================================
 
-        let questions =
-          result?.response?.questions;
-
-
-        // ======================================
-        // FALLBACK:
-        // SOME AI RESPONSES MAY RETURN A STRING
-        // ======================================
-
-        if (
-          typeof result?.response === "string"
+        async function generateQuiz(
+          retry = false
         ) {
 
-          try {
+          const model =
+            "@cf/meta/llama-3.1-8b-instruct-fast";
 
-            const parsed =
-              JSON.parse(
-                result.response
-              );
+          let userPrompt;
 
-            questions =
-              parsed.questions;
+          if (!retry) {
 
-          } catch (error) {
+            userPrompt = `
+Create ${count} educational multiple-choice questions about:
 
-            console.error(
-              "STRING JSON PARSE ERROR:",
-              error
-            );
+${topic}
 
+Return ONLY JSON.
+
+Use this exact structure:
+
+{
+  "questions": [
+    {
+      "question": "Question text",
+      "options": [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D"
+      ],
+      "answer": 0
+    }
+  ]
+}
+
+Rules:
+
+- Create exactly ${count} questions.
+- Every question MUST have exactly 4 options.
+- answer MUST be 0, 1, 2, or 3.
+- answer identifies the correct option.
+- Only one option is correct.
+- Make questions factually correct.
+- Do not use markdown.
+- Do not add explanations.
+- JSON ONLY.
+`;
+
+          } else {
+
+            userPrompt = `
+Create ${count} simple and reliable multiple-choice questions about:
+
+${topic}
+
+This is a retry.
+
+Return ONLY a JSON object.
+
+Every question MUST contain:
+- question
+- exactly 4 options
+- answer from 0 to 3
+
+Format:
+
+{
+  "questions": [
+    {
+      "question": "Question",
+      "options": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "answer": 0
+    }
+  ]
+}
+
+Return exactly ${count} questions.
+
+JSON ONLY.
+`;
           }
 
-        }
 
+          const result =
+            await env.AI.run(
+              model,
+              {
+                messages: [
 
-        if (
-          !Array.isArray(questions)
-        ) {
+                  {
+                    role: "system",
 
-          console.error(
-            "INVALID STRUCTURED RESPONSE:",
+                    content:
+                      `You are PadhAI's quiz generator.
+
+Your job is to create valid educational multiple-choice questions.
+
+Always follow the requested JSON format.`
+                  },
+
+                  {
+                    role: "user",
+
+                    content:
+                      userPrompt
+                  }
+
+                ],
+
+                response_format: {
+                  type: "json_schema",
+
+                  json_schema: {
+
+                    type: "object",
+
+                    properties: {
+
+                      questions: {
+
+                        type: "array",
+
+                        items: {
+
+                          type: "object",
+
+                          properties: {
+
+                            question: {
+                              type: "string"
+                            },
+
+                            options: {
+
+                              type: "array",
+
+                              items: {
+                                type: "string"
+                              },
+
+                              minItems: 4,
+                              maxItems: 4
+                            },
+
+                            answer: {
+
+                              type: "integer",
+
+                              minimum: 0,
+                              maximum: 3
+
+                            }
+
+                          },
+
+                          required: [
+                            "question",
+                            "options",
+                            "answer"
+                          ]
+
+                        }
+
+                      }
+
+                    },
+
+                    required: [
+                      "questions"
+                    ]
+
+                  }
+                },
+
+                temperature:
+                  retry ? 0.1 : 0.2,
+
+                max_tokens:
+                  2500
+
+              }
+            );
+
+          console.log(
+            "QUIZ AI RESULT:",
             JSON.stringify(result)
           );
 
-          return Response.json(
-            {
-              success: false,
-              error:
-                "AI returned an invalid quiz. Please try again."
-            },
-            { status: 500 }
+          return extractQuestions(
+            result?.response
+          );
+        }
+
+
+        // ======================================
+        // FIRST ATTEMPT
+        // ======================================
+
+        let questions =
+          await generateQuiz(false);
+
+        let validQuestions =
+          validateQuestions(
+            questions,
+            count
           );
 
-        }
-
 
         // ======================================
-        // CLEAN AND VALIDATE
+        // RETRY IF NEEDED
         // ======================================
-
-        const cleanQuestions = [];
-
-        for (
-          const q of questions
-        ) {
-
-          if (!q) continue;
-
-          if (
-            typeof q.question !==
-            "string"
-          ) {
-            continue;
-          }
-
-          if (
-            !Array.isArray(q.options)
-          ) {
-            continue;
-          }
-
-          if (
-            q.options.length !== 4
-          ) {
-            continue;
-          }
-
-          const answer =
-            Number(q.answer);
-
-          if (
-            !Number.isInteger(answer) ||
-            answer < 0 ||
-            answer > 3
-          ) {
-            continue;
-          }
-
-          const options =
-            q.options.map(
-              option =>
-                String(option).trim()
-            );
-
-          if (
-            options.some(
-              option => !option
-            )
-          ) {
-            continue;
-          }
-
-          cleanQuestions.push({
-
-            question:
-              q.question.trim(),
-
-            options,
-
-            answer
-
-          });
-
-        }
-
 
         if (
-          cleanQuestions.length <
+          validQuestions.length <
+          count
+        ) {
+
+          console.log(
+            "Quiz incomplete. Retrying..."
+          );
+
+          questions =
+            await generateQuiz(true);
+
+          validQuestions =
+            validateQuestions(
+              questions,
+              count
+            );
+        }
+
+
+        // ======================================
+        // FINAL RESPONSE
+        // ======================================
+
+        if (
+          validQuestions.length <
           count
         ) {
 
           console.error(
-            "NOT ENOUGH VALID QUESTIONS:",
-            cleanQuestions.length,
-            "EXPECTED:",
-            count
+            "FINAL INVALID QUIZ:",
+            JSON.stringify(
+              validQuestions
+            )
           );
 
           return Response.json(
             {
               success: false,
               error:
-                "AI did not create enough valid questions. Please try again."
+                "PadhAI couldn't generate a complete quiz this time. Please try again."
             },
             { status: 500 }
           );
@@ -585,7 +912,7 @@ Create exactly the requested number of questions.`
           topic,
 
           questions:
-            cleanQuestions.slice(
+            validQuestions.slice(
               0,
               count
             )
@@ -624,6 +951,7 @@ Create exactly the requested number of questions.`
       url.pathname === "/api/quiz-score" &&
       request.method === "POST"
     ) {
+
       try {
 
         const body =
@@ -659,6 +987,7 @@ Create exactly the requested number of questions.`
 
         }
 
+
         await env.DB
           .prepare(
             `CREATE TABLE IF NOT EXISTS quiz_scores (
@@ -671,6 +1000,7 @@ Create exactly the requested number of questions.`
             )`
           )
           .run();
+
 
         await env.DB
           .prepare(
@@ -686,11 +1016,16 @@ Create exactly the requested number of questions.`
           )
           .run();
 
+
         return Response.json({
+
           success: true,
+
           message:
             "Quiz score saved."
+
         });
+
 
       } catch (error) {
 
@@ -723,6 +1058,7 @@ Create exactly the requested number of questions.`
       url.pathname === "/api/quiz-history" &&
       request.method === "GET"
     ) {
+
       try {
 
         const userId =
@@ -745,6 +1081,7 @@ Create exactly the requested number of questions.`
 
         }
 
+
         await env.DB
           .prepare(
             `CREATE TABLE IF NOT EXISTS quiz_scores (
@@ -752,126 +1089,4 @@ Create exactly the requested number of questions.`
               user_id INTEGER NOT NULL,
               topic TEXT NOT NULL,
               score INTEGER NOT NULL,
-              total INTEGER NOT NULL,
-              created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )`
-          )
-          .run();
-
-        const result =
-          await env.DB
-            .prepare(
-              `SELECT
-                id,
-                topic,
-                score,
-                total,
-                created_at
-               FROM quiz_scores
-               WHERE user_id = ?
-               ORDER BY id DESC
-               LIMIT 20`
-            )
-            .bind(userId)
-            .all();
-
-        return Response.json({
-
-          success: true,
-
-          scores:
-            result.results || []
-
-        });
-
-      } catch (error) {
-
-        console.error(
-          "HISTORY ERROR:",
-          error
-        );
-
-        return Response.json(
-          {
-            success: false,
-            error:
-              "Could not load quiz history.",
-            details:
-              error.message ||
-              "Unknown error"
-          },
-          { status: 500 }
-        );
-
-      }
-    }
-
-
-    // ==========================================
-    // DATABASE TEST
-    // ==========================================
-
-    if (
-      url.pathname === "/api/test-db"
-    ) {
-
-      try {
-
-        const result =
-          await env.DB
-            .prepare(
-              `SELECT name
-               FROM sqlite_master
-               WHERE type='table'`
-            )
-            .all();
-
-        return Response.json({
-
-          success: true,
-
-          tables:
-            result.results
-
-        });
-
-      } catch (error) {
-
-        return Response.json(
-          {
-            success: false,
-            error:
-              error.message
-          },
-          { status: 500 }
-        );
-
-      }
-    }
-
-
-    // ==========================================
-    // WEBSITE
-    // ==========================================
-
-    if (env.ASSETS) {
-
-      return env.ASSETS.fetch(
-        request
-      );
-
-    }
-
-    return new Response(
-      "PadhAI Worker is running.",
-      {
-        status: 200,
-        headers: {
-          "content-type":
-            "text/plain;charset=UTF-8"
-        }
-      }
-    );
-
-  }
-};
+              total INTEGER NOT NU
