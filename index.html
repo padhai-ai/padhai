@@ -1,203 +1,236 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PadhAI - AI Tutor</title>
 
-<title>PadhAI</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6fb;
+      color: #202124;
+    }
 
-* {
-  box-sizing: border-box;
-}
+    .hidden {
+      display: none !important;
+    }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f6fb;
-  color: #202124;
-}
+    .header {
+      background: linear-gradient(135deg, #5141e8, #5545f5);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
 
-.hidden {
-  display: none !important;
-}
+    .header h1 {
+      margin: 0;
+      font-size: 44px;
+    }
 
-.header {
-  background: linear-gradient(135deg, #5141e8, #5545f5);
-  color: white;
-  text-align: center;
-  padding: 35px 20px;
-}
+    .header p {
+      margin: 10px 0 0;
+      font-size: 20px;
+    }
 
-.header h1 {
-  margin: 0;
-  font-size: 48px;
-}
+    .container {
+      width: 92%;
+      max-width: 750px;
+      margin: 30px auto;
+    }
 
-.header p {
-  font-size: 26px;
-  margin: 20px 0 0;
-}
+    .card {
+      background: white;
+      border-radius: 25px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.08);
+    }
 
-.container {
-  max-width: 700px;
-  margin: 35px auto;
-  padding: 0 20px;
-}
+    h2 {
+      margin-top: 0;
+    }
 
-.card {
-  background: white;
-  border-radius: 28px;
-  padding: 35px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-}
+    input,
+    textarea {
+      width: 100%;
+      padding: 16px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      font-size: 17px;
+      font-family: inherit;
+    }
 
-input {
-  width: 100%;
-  padding: 18px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 15px;
-  font-size: 20px;
-}
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
 
-button {
-  width: 100%;
-  padding: 18px;
-  margin-top: 12px;
-  border: none;
-  border-radius: 15px;
-  font-size: 20px;
-  cursor: pointer;
-}
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 10px;
+      border: 0;
+      border-radius: 14px;
+      font-size: 17px;
+      cursor: pointer;
+    }
 
-.primary {
-  background: #5141e8;
-  color: white;
-}
+    button:active {
+      transform: scale(.98);
+    }
 
-.secondary {
-  background: #e8e9ed;
-  color: #222;
-}
+    .primary {
+      background: #5141e8;
+      color: white;
+    }
 
-.danger {
-  background: #ef101b;
-  color: white;
-}
+    .secondary {
+      background: #e8e9ed;
+      color: #222;
+    }
 
-.nav {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 30px;
-}
+    .danger {
+      background: #ef101b;
+      color: white;
+    }
 
-.nav button {
-  flex: 1;
-}
+    .nav {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
 
-.welcome {
-  background: #f0f2ff;
-  border-radius: 25px;
-  padding: 30px;
-  margin-bottom: 25px;
-}
+    .nav button {
+      flex: 1;
+      margin-top: 0;
+    }
 
-.welcome h2 {
-  font-size: 40px;
-  margin: 0;
-}
+    .welcome {
+      background: #f0f2ff;
+      border-radius: 20px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
 
-.feature {
-  width: 100%;
-  text-align: left;
-  background: #f8f9fc;
-  color: #222;
-  margin: 15px 0;
-  padding: 25px;
-  border-radius: 22px;
-  cursor: pointer;
-  transition: 0.2s;
-}
+    .feature {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #f8f9fc;
+      padding: 22px;
+      border-radius: 20px;
+      margin: 14px 0;
+      cursor: pointer;
+    }
 
-.feature:hover {
-  transform: scale(1.01);
-}
+    .feature h3 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
 
-.feature h3 {
-  margin: 0 0 8px;
-  font-size: 28px;
-}
+    .feature p {
+      margin: 0;
+      font-size: 17px;
+    }
 
-.feature p {
-  margin: 0;
-  font-size: 20px;
-}
+    .message {
+      text-align: center;
+      margin: 12px 0;
+      min-height: 22px;
+    }
 
-.message {
-  text-align: center;
-  margin-top: 15px;
-  font-size: 18px;
-}
+    /* TUTOR */
 
-.back {
-  margin-bottom: 20px;
-}
+    .tutor-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
 
-.tutor-input {
-  min-height: 120px;
-  resize: vertical;
-}
+    .tutor-icon {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: #5141e8;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
 
-.answer {
-  background: #f0f2ff;
-  padding: 25px;
-  border-radius: 20px;
-  margin-top: 20px;
-  font-size: 19px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
+    .chat {
+      height: 420px;
+      overflow-y: auto;
+      background: #f7f8fc;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 15px;
+    }
 
-.profile-box {
-  background: #f8f9fc;
-  padding: 25px;
-  border-radius: 20px;
-  font-size: 20px;
-  line-height: 1.8;
-}
+    .bubble {
+      max-width: 85%;
+      padding: 14px 17px;
+      border-radius: 18px;
+      margin: 10px 0;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
 
-@media (max-width: 600px) {
+    .user-bubble {
+      margin-left: auto;
+      background: #5141e8;
+      color: white;
+      border-bottom-right-radius: 5px;
+    }
 
-  .header h1 {
-    font-size: 42px;
-  }
+    .ai-bubble {
+      margin-right: auto;
+      background: white;
+      border: 1px solid #e3e3e3;
+      border-bottom-left-radius: 5px;
+    }
 
-  .header p {
-    font-size: 22px;
-  }
+    .tutor-actions {
+      display: flex;
+      gap: 10px;
+    }
 
-  .card {
-    padding: 25px;
-  }
+    .tutor-actions button {
+      flex: 1;
+    }
 
-  .nav {
-    gap: 10px;
-  }
+    .profile-box {
+      background: #f7f8fc;
+      border-radius: 18px;
+      padding: 20px;
+      font-size: 18px;
+      line-height: 2;
+    }
 
-  .nav button {
-    font-size: 17px;
-    padding: 15px 5px;
-  }
+    @media(max-width:600px) {
+      .nav button {
+        font-size: 14px;
+        padding: 14px 5px;
+      }
 
-  .welcome h2 {
-    font-size: 32px;
-  }
+      .card {
+        padding: 22px;
+      }
 
-}
-
-</style>
+      .chat {
+        height: 380px;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -212,8 +245,7 @@ button {
 
 <div class="container">
 
-
-<!-- ================= LOGIN / SIGNUP ================= -->
+<!-- ================= AUTH ================= -->
 
 <div id="auth" class="card">
 
@@ -238,7 +270,7 @@ button {
   >
 
   <button
-    id="mainAuthButton"
+    id="authButton"
     class="primary"
     onclick="createAccount()"
   >
@@ -270,7 +302,7 @@ button {
         class="primary"
         onclick="showDashboard()"
       >
-        🏠 Dashboard
+        🏠 Home
       </button>
 
       <button
@@ -296,58 +328,37 @@ button {
         Hello <span id="welcomeName"></span>! 👋
       </h2>
 
-      <p style="font-size:20px;">
-        Your personal AI-powered learning space.
+      <p>
+        Welcome to your personal learning space.
       </p>
 
     </div>
 
 
-    <!-- AI TUTOR -->
-
     <button
       class="feature"
       onclick="openTutor()"
     >
-
       <h3>🤖 AI Tutor</h3>
-
-      <p>
-        Ask questions and learn concepts faster.
-      </p>
-
+      <p>Ask questions and learn concepts faster.</p>
     </button>
 
-
-    <!-- STUDY -->
 
     <button
       class="feature"
       onclick="openStudy()"
     >
-
       <h3>📖 Study</h3>
-
-      <p>
-        Organize your learning and improve your progress.
-      </p>
-
+      <p>Study subjects and organize your learning.</p>
     </button>
 
-
-    <!-- QUIZZES -->
 
     <button
       class="feature"
       onclick="openQuiz()"
     >
-
       <h3>📝 Quizzes</h3>
-
-      <p>
-        Test your knowledge and track your scores.
-      </p>
-
+      <p>Test your knowledge and improve your scores.</p>
     </button>
 
   </div>
@@ -362,7 +373,7 @@ button {
   <div class="card">
 
     <button
-      class="secondary back"
+      class="secondary"
       onclick="showDashboard()"
     >
       ← Back to Dashboard
@@ -394,47 +405,76 @@ button {
   <div class="card">
 
     <button
-      class="secondary back"
+      class="secondary"
       onclick="showDashboard()"
     >
       ← Back to Dashboard
     </button>
 
-    <h2>🤖 PadhAI Tutor</h2>
 
-    <p style="font-size:19px;">
-      Ask me anything about your studies.
-    </p>
+    <div class="tutor-header">
+
+      <div class="tutor-icon">
+        🤖
+      </div>
+
+      <div>
+        <h2 style="margin:0;">
+          PadhAI Tutor
+        </h2>
+
+        <p style="margin:5px 0;">
+          Your personal AI study assistant
+        </p>
+      </div>
+
+    </div>
+
+
+    <!-- CHAT -->
+
+    <div id="chat" class="chat">
+
+      <div class="bubble ai-bubble">
+        👋 Hi! I'm PadhAI Tutor.
+
+        Ask me anything about your studies and I'll help you understand it step by step.
+      </div>
+
+    </div>
+
+
+    <!-- QUESTION -->
 
     <textarea
       id="question"
-      class="tutor-input"
-      placeholder="Example: Explain photosynthesis in simple words..."
-      style="
-        width:100%;
-        padding:18px;
-        border:1px solid #ddd;
-        border-radius:15px;
-        font-size:18px;
-        margin-top:15px;
-      "
+      placeholder="Ask PadhAI anything..."
+      onkeydown="handleEnter(event)"
     ></textarea>
 
-    <button
-      class="primary"
-      onclick="askTutor()"
-    >
-      🤖 Ask PadhAI
-    </button>
+
+    <div class="tutor-actions">
+
+      <button
+        class="primary"
+        id="askButton"
+        onclick="askTutor()"
+      >
+        🤖 Ask PadhAI
+      </button>
+
+      <button
+        class="secondary"
+        onclick="clearChat()"
+      >
+        🧹 Clear
+      </button>
+
+    </div>
 
     <div
       id="tutorMessage"
       class="message"
-    ></div>
-
-    <div
-      id="answer"
-      class="answer hidden"
     ></div>
 
   </div>
@@ -449,7 +489,7 @@ button {
   <div class="card">
 
     <button
-      class="secondary back"
+      class="secondary"
       onclick="showDashboard()"
     >
       ← Back to Dashboard
@@ -457,13 +497,8 @@ button {
 
     <h2>📖 Study</h2>
 
-    <p style="font-size:20px;">
-      Your study section is ready.
-    </p>
-
     <p>
-      We'll build subjects, notes, progress tracking
-      and study plans here next.
+      Study tools are coming next.
     </p>
 
   </div>
@@ -478,7 +513,7 @@ button {
   <div class="card">
 
     <button
-      class="secondary back"
+      class="secondary"
       onclick="showDashboard()"
     >
       ← Back to Dashboard
@@ -486,14 +521,13 @@ button {
 
     <h2>📝 Quizzes</h2>
 
-    <p style="font-size:20px;">
-      Your quiz system will be built here next.
+    <p>
+      Quiz system is coming next.
     </p>
 
   </div>
 
 </div>
-
 
 </div>
 
@@ -501,48 +535,42 @@ button {
 <script>
 
 /* ==========================================
-   GLOBAL USER
+   USER
 ========================================== */
 
 let currentUser =
-  JSON.parse(localStorage.getItem("padhaiUser") || "null");
+  JSON.parse(
+    localStorage.getItem("padhaiUser") || "null"
+  );
 
 
 /* ==========================================
    PAGE CONTROL
 ========================================== */
 
-function hideAllPages() {
+function hideAll() {
 
-  document
-    .getElementById("auth")
-    .classList.add("hidden");
+  [
+    "auth",
+    "dashboard",
+    "profile",
+    "tutor",
+    "study",
+    "quiz"
+  ].forEach(function(id) {
 
-  document
-    .getElementById("dashboard")
-    .classList.add("hidden");
+    document
+      .getElementById(id)
+      .classList.add("hidden");
 
-  document
-    .getElementById("profile")
-    .classList.add("hidden");
+  });
 
-  document
-    .getElementById("tutor")
-    .classList.add("hidden");
-
-  document
-    .getElementById("study")
-    .classList.add("hidden");
-
-  document
-    .getElementById("quiz")
-    .classList.add("hidden");
 }
 
 
 function showDashboard() {
 
-  hideAllPages();
+  hideAll();
 
   document
     .getElementById("dashboard")
@@ -555,7 +583,7 @@ function showProfile() {
 
   if (!currentUser) return;
 
-  hideAllPages();
+  hideAll();
 
   document
     .getElementById("profile")
@@ -570,12 +598,13 @@ function showProfile() {
     .getElementById("profileEmail")
     .textContent =
     currentUser.email;
+
 }
 
 
 function openTutor() {
 
-  hideAllPages();
+  hideAll();
 
   document
     .getElementById("tutor")
@@ -586,7 +615,7 @@ function openTutor() {
 
 function openStudy() {
 
-  hideAllPages();
+  hideAll();
 
   document
     .getElementById("study")
@@ -597,7 +626,7 @@ function openStudy() {
 
 function openQuiz() {
 
-  hideAllPages();
+  hideAll();
 
   document
     .getElementById("quiz")
@@ -613,13 +642,21 @@ function openQuiz() {
 async function createAccount() {
 
   const name =
-    document.getElementById("name").value.trim();
+    document
+      .getElementById("name")
+      .value
+      .trim();
 
   const email =
-    document.getElementById("email").value.trim();
+    document
+      .getElementById("email")
+      .value
+      .trim();
 
   const password =
-    document.getElementById("password").value;
+    document
+      .getElementById("password")
+      .value;
 
   const message =
     document.getElementById("message");
@@ -641,22 +678,23 @@ async function createAccount() {
   try {
 
     const response =
-      await fetch("/api/signup", {
+      await fetch(
+        "/api/signup",
+        {
+          method: "POST",
 
-        method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body: JSON.stringify({
-          name,
-          email,
-          password
-        })
-
-      });
+          body: JSON.stringify({
+            name,
+            email,
+            password
+          })
+        }
+      );
 
 
     const data =
@@ -674,9 +712,15 @@ async function createAccount() {
 
 
     currentUser = {
-      id: data.id,
-      name: data.name || name,
-      email: data.email || email
+
+      id: data.id || null,
+
+      name:
+        data.name || name,
+
+      email:
+        data.email || email
+
     };
 
 
@@ -694,12 +738,13 @@ async function createAccount() {
 
     showDashboard();
 
+
   } catch (error) {
 
     console.error(error);
 
     message.textContent =
-      "Connection error. Please try again.";
+      "Connection error.";
 
   }
 
@@ -724,13 +769,13 @@ function showLogin() {
 
 
   document
-    .getElementById("mainAuthButton")
+    .getElementById("authButton")
     .textContent =
     "Login";
 
 
   document
-    .getElementById("mainAuthButton")
+    .getElementById("authButton")
     .onclick =
     login;
 
@@ -749,8 +794,7 @@ function showLogin() {
 
   document
     .getElementById("message")
-    .textContent =
-    "";
+    .textContent = "";
 
 }
 
@@ -769,13 +813,13 @@ function showSignup() {
 
 
   document
-    .getElementById("mainAuthButton")
+    .getElementById("authButton")
     .textContent =
     "Create Account";
 
 
   document
-    .getElementById("mainAuthButton")
+    .getElementById("authButton")
     .onclick =
     createAccount;
 
@@ -794,8 +838,7 @@ function showSignup() {
 
   document
     .getElementById("message")
-    .textContent =
-    "";
+    .textContent = "";
 
 }
 
@@ -807,10 +850,15 @@ function showSignup() {
 async function login() {
 
   const email =
-    document.getElementById("email").value.trim();
+    document
+      .getElementById("email")
+      .value
+      .trim();
 
   const password =
-    document.getElementById("password").value;
+    document
+      .getElementById("password")
+      .value;
 
   const message =
     document.getElementById("message");
@@ -832,21 +880,22 @@ async function login() {
   try {
 
     const response =
-      await fetch("/api/login", {
+      await fetch(
+        "/api/login",
+        {
+          method: "POST",
 
-        method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body: JSON.stringify({
-          email,
-          password
-        })
-
-      });
+          body: JSON.stringify({
+            email,
+            password
+          })
+        }
+      );
 
 
     const data =
@@ -864,9 +913,13 @@ async function login() {
 
 
     currentUser = {
-      id: data.id,
+
+      id: data.id || null,
+
       name: data.name,
+
       email: data.email
+
     };
 
 
@@ -883,6 +936,7 @@ async function login() {
 
 
     showDashboard();
+
 
   } catch (error) {
 
@@ -902,11 +956,13 @@ async function login() {
 
 function logout() {
 
-  localStorage.removeItem("padhaiUser");
+  localStorage.removeItem(
+    "padhaiUser"
+  );
 
   currentUser = null;
 
-  hideAllPages();
+  hideAll();
 
   document
     .getElementById("auth")
@@ -923,19 +979,20 @@ function logout() {
 
 async function askTutor() {
 
+  const input =
+    document.getElementById("question");
+
   const question =
-    document
-      .getElementById("question")
-      .value
-      .trim();
+    input.value.trim();
+
+  const chat =
+    document.getElementById("chat");
 
   const message =
-    document
-      .getElementById("tutorMessage");
+    document.getElementById("tutorMessage");
 
-  const answer =
-    document
-      .getElementById("answer");
+  const button =
+    document.getElementById("askButton");
 
 
   if (!question) {
@@ -947,30 +1004,55 @@ async function askTutor() {
   }
 
 
+  /* USER MESSAGE */
+
+  const userBubble =
+    document.createElement("div");
+
+  userBubble.className =
+    "bubble user-bubble";
+
+  userBubble.textContent =
+    question;
+
+  chat.appendChild(userBubble);
+
+
+  input.value = "";
+
+  chat.scrollTop =
+    chat.scrollHeight;
+
+
+  /* LOADING */
+
   message.textContent =
     "🤖 PadhAI is thinking...";
 
+  button.disabled = true;
 
-  answer.classList.add("hidden");
+  button.textContent =
+    "Thinking...";
 
 
   try {
 
     const response =
-      await fetch("/api/tutor", {
+      await fetch(
+        "/api/tutor",
+        {
+          method: "POST",
 
-        method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
-
-        body: JSON.stringify({
-          question
-        })
-
-      });
+          body: JSON.stringify({
+            question
+          })
+        }
+      );
 
 
     const data =
@@ -979,30 +1061,101 @@ async function askTutor() {
 
     if (!data.success) {
 
-      message.textContent =
+      throw new Error(
         data.error ||
-        "Tutor could not answer.";
+        "Tutor error"
+      );
 
-      return;
     }
+
+
+    /* AI MESSAGE */
+
+    const aiBubble =
+      document.createElement("div");
+
+    aiBubble.className =
+      "bubble ai-bubble";
+
+    aiBubble.textContent =
+      data.answer;
+
+    chat.appendChild(aiBubble);
 
 
     message.textContent = "";
 
-    answer.textContent =
-      data.answer;
-
-    answer.classList.remove("hidden");
+    chat.scrollTop =
+      chat.scrollHeight;
 
 
   } catch (error) {
 
     console.error(error);
 
-    message.textContent =
-      "Connection error. Please try again.";
+    const errorBubble =
+      document.createElement("div");
+
+    errorBubble.className =
+      "bubble ai-bubble";
+
+    errorBubble.textContent =
+      "⚠️ " +
+      (
+        error.message ||
+        "Something went wrong."
+      );
+
+    chat.appendChild(errorBubble);
+
+    message.textContent = "";
 
   }
+
+
+  button.disabled = false;
+
+  button.textContent =
+    "🤖 Ask PadhAI";
+
+}
+
+
+/* ==========================================
+   ENTER KEY
+========================================== */
+
+function handleEnter(event) {
+
+  if (
+    event.key === "Enter" &&
+    !event.shiftKey
+  ) {
+
+    event.preventDefault();
+
+    askTutor();
+
+  }
+
+}
+
+
+/* ==========================================
+   CLEAR CHAT
+========================================== */
+
+function clearChat() {
+
+  document
+    .getElementById("chat")
+    .innerHTML = `
+      <div class="bubble ai-bubble">
+        👋 Hi! I'm PadhAI Tutor.
+
+        Ask me anything about your studies and I'll help you understand it step by step.
+      </div>
+    `;
 
 }
 
