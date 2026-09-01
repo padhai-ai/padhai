@@ -54,13 +54,18 @@ export default {
           );
         }
 
-        const passwordHash = await hashPassword(password);
+        const passwordHash =
+          await hashPassword(password);
 
         const result = await env.DB
           .prepare(
             "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)"
           )
-          .bind(name, email, passwordHash)
+          .bind(
+            name,
+            email,
+            passwordHash
+          )
           .run();
 
         return Response.json({
@@ -69,17 +74,24 @@ export default {
           name,
           email
         });
+
       } catch (error) {
-        console.error("SIGNUP ERROR:", error);
+        console.error(
+          "SIGNUP ERROR:",
+          error
+        );
 
         if (
           error.message &&
-          error.message.toLowerCase().includes("unique")
+          error.message
+            .toLowerCase()
+            .includes("unique")
         ) {
           return Response.json(
             {
               success: false,
-              error: "Email already registered."
+              error:
+                "Email already registered."
             },
             { status: 409 }
           );
@@ -88,7 +100,8 @@ export default {
         return Response.json(
           {
             success: false,
-            error: "Could not create account."
+            error:
+              "Could not create account."
           },
           { status: 500 }
         );
@@ -104,38 +117,48 @@ export default {
       request.method === "POST"
     ) {
       try {
-        const body = await request.json();
+        const body =
+          await request.json();
 
-        const email = String(body.email || "")
-          .trim()
-          .toLowerCase();
+        const email =
+          String(body.email || "")
+            .trim()
+            .toLowerCase();
 
-        const password = String(body.password || "");
+        const password =
+          String(body.password || "");
 
         if (!email || !password) {
           return Response.json(
             {
               success: false,
-              error: "Email and password are required."
+              error:
+                "Email and password are required."
             },
             { status: 400 }
           );
         }
 
-        const passwordHash = await hashPassword(password);
+        const passwordHash =
+          await hashPassword(password);
 
-        const user = await env.DB
-          .prepare(
-            "SELECT id, name, email FROM users WHERE email = ? AND password_hash = ?"
-          )
-          .bind(email, passwordHash)
-          .first();
+        const user =
+          await env.DB
+            .prepare(
+              "SELECT id, name, email FROM users WHERE email = ? AND password_hash = ?"
+            )
+            .bind(
+              email,
+              passwordHash
+            )
+            .first();
 
         if (!user) {
           return Response.json(
             {
               success: false,
-              error: "Invalid email or password."
+              error:
+                "Invalid email or password."
             },
             { status: 401 }
           );
@@ -147,13 +170,18 @@ export default {
           name: user.name,
           email: user.email
         });
+
       } catch (error) {
-        console.error("LOGIN ERROR:", error);
+        console.error(
+          "LOGIN ERROR:",
+          error
+        );
 
         return Response.json(
           {
             success: false,
-            error: "Login failed."
+            error:
+              "Login failed."
           },
           { status: 500 }
         );
@@ -169,17 +197,20 @@ export default {
       request.method === "POST"
     ) {
       try {
-        const body = await request.json();
+        const body =
+          await request.json();
 
-        const question = String(
-          body.question || ""
-        ).trim();
+        const question =
+          String(
+            body.question || ""
+          ).trim();
 
         if (!question) {
           return Response.json(
             {
               success: false,
-              error: "Please enter a question."
+              error:
+                "Please enter a question."
             },
             { status: 400 }
           );
@@ -189,28 +220,30 @@ export default {
           return Response.json(
             {
               success: false,
-              error: "Workers AI is not connected."
+              error:
+                "Workers AI is not connected."
             },
             { status: 500 }
           );
         }
 
-        const result = await env.AI.run(
-          "@cf/meta/llama-3.2-3b-instruct",
-          {
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are PadhAI, a friendly educational AI tutor. Explain difficult topics in simple language. Give step-by-step explanations and examples when useful. Help students understand instead of simply giving answers."
-              },
-              {
-                role: "user",
-                content: question
-              }
-            ]
-          }
-        );
+        const result =
+          await env.AI.run(
+            "@cf/meta/llama-3.2-3b-instruct",
+            {
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    "You are PadhAI, a friendly educational AI tutor. Explain difficult topics in simple language. Give step-by-step explanations and examples when useful. Help students understand instead of simply giving answers."
+                },
+                {
+                  role: "user",
+                  content: question
+                }
+              ]
+            }
+          );
 
         return Response.json({
           success: true,
@@ -218,8 +251,12 @@ export default {
             result.response ||
             "I could not generate an answer."
         });
+
       } catch (error) {
-        console.error("TUTOR ERROR:", error);
+        console.error(
+          "TUTOR ERROR:",
+          error
+        );
 
         return Response.json(
           {
@@ -241,13 +278,16 @@ export default {
       request.method === "POST"
     ) {
       try {
-        const body = await request.json();
+        const body =
+          await request.json();
 
-        const topic = String(
-          body.topic || ""
-        ).trim();
+        const topic =
+          String(
+            body.topic || ""
+          ).trim();
 
-        let count = Number(body.count) || 5;
+        let count =
+          Number(body.count) || 5;
 
         if (count < 1) count = 1;
         if (count > 10) count = 10;
@@ -256,7 +296,8 @@ export default {
           return Response.json(
             {
               success: false,
-              error: "Please enter a quiz topic."
+              error:
+                "Please enter a quiz topic."
             },
             { status: 400 }
           );
@@ -266,65 +307,110 @@ export default {
           return Response.json(
             {
               success: false,
-              error: "Workers AI is not connected."
+              error:
+                "Workers AI is not connected."
             },
             { status: 500 }
           );
         }
 
         const prompt =
-          `Create exactly ${count} multiple choice questions about "${topic}". ` +
-          `Return ONLY JSON. ` +
-          `Format: {"questions":[{"question":"...","options":["...","...","...","..."],"answer":0}]}. ` +
-          `Every question must have exactly four options. ` +
-          `The answer must be an integer from 0 to 3. ` +
-          `Do not use markdown.`;
+          `Create exactly ${count} multiple choice questions about "${topic}".
 
-        const result = await env.AI.run(
-          "@cf/meta/llama-3.1-8b-instruct-fast",
-          {
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are PadhAI Quiz Generator. Create accurate educational multiple-choice questions and return valid JSON only."
-              },
-              {
-                role: "user",
-                content: prompt
-              }
-            ]
-          }
-        );
+Return ONLY JSON.
+
+Format:
+{"questions":[{"question":"...","options":["...","...","...","..."],"answer":0}]}
+
+Rules:
+- Exactly ${count} questions.
+- Exactly four options per question.
+- answer must be 0, 1, 2, or 3.
+- No markdown.
+- No explanation outside JSON.`;
+
+        const result =
+          await env.AI.run(
+            "@cf/meta/llama-3.1-8b-instruct-fast",
+            {
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    "You are PadhAI Quiz Generator. Create accurate educational multiple-choice questions and return valid JSON only."
+                },
+                {
+                  role: "user",
+                  content: prompt
+                }
+              ]
+            }
+          );
+
+        let raw =
+          result?.response;
 
         let questions = [];
-
-        let raw = result?.response;
 
         if (
           raw &&
           typeof raw === "object" &&
           Array.isArray(raw.questions)
         ) {
-          questions = raw.questions;
+          questions =
+            raw.questions;
         }
 
-        if (typeof raw === "string") {
+        if (
+          typeof raw === "string"
+        ) {
           try {
-            let cleaned = raw
-              .replace(/```json/gi, "")
-              .replace(/```/g, "")
-              .trim();
+            let cleaned =
+              raw
+                .replace(
+                  /```json/gi,
+                  ""
+                )
+                .replace(
+                  /```/g,
+                  ""
+                )
+                .trim();
 
-            const parsed = JSON.parse(cleaned);
+            const firstBrace =
+              cleaned.indexOf("{");
 
-            if (Array.isArray(parsed)) {
-              questions = parsed;
-            } else if (
-              Array.isArray(parsed.questions)
+            const lastBrace =
+              cleaned.lastIndexOf("}");
+
+            if (
+              firstBrace !== -1 &&
+              lastBrace !== -1
             ) {
-              questions = parsed.questions;
+              cleaned =
+                cleaned.substring(
+                  firstBrace,
+                  lastBrace + 1
+                );
             }
+
+            const parsed =
+              JSON.parse(cleaned);
+
+            if (
+              Array.isArray(parsed)
+            ) {
+              questions =
+                parsed;
+            } else if (
+              Array.isArray(
+                parsed.questions
+              )
+            ) {
+              questions =
+                parsed.questions;
+            }
+
           } catch (error) {
             console.error(
               "QUIZ PARSE ERROR:",
@@ -335,28 +421,40 @@ export default {
 
         const validQuestions = [];
 
-        for (const item of questions) {
+        for (
+          const item of questions
+        ) {
           if (!item) continue;
 
-          const question = String(
-            item.question || ""
-          ).trim();
+          const question =
+            String(
+              item.question || ""
+            ).trim();
 
           if (!question) continue;
 
-          if (!Array.isArray(item.options)) {
+          if (
+            !Array.isArray(
+              item.options
+            )
+          ) {
             continue;
           }
 
-          if (item.options.length < 4) {
+          if (
+            item.options.length < 4
+          ) {
             continue;
           }
 
-          const options = item.options
-            .slice(0, 4)
-            .map((x) =>
-              String(x || "").trim()
-            );
+          const options =
+            item.options
+              .slice(0, 4)
+              .map((x) =>
+                String(
+                  x || ""
+                ).trim()
+              );
 
           if (
             options.some(
@@ -366,7 +464,8 @@ export default {
             continue;
           }
 
-          const answer = Number(item.answer);
+          const answer =
+            Number(item.answer);
 
           if (
             !Number.isInteger(answer) ||
@@ -383,13 +482,16 @@ export default {
           });
 
           if (
-            validQuestions.length >= count
+            validQuestions.length >=
+            count
           ) {
             break;
           }
         }
 
-        if (!validQuestions.length) {
+        if (
+          !validQuestions.length
+        ) {
           return Response.json(
             {
               success: false,
@@ -403,15 +505,21 @@ export default {
         return Response.json({
           success: true,
           topic,
-          questions: validQuestions
+          questions:
+            validQuestions
         });
+
       } catch (error) {
-        console.error("QUIZ ERROR:", error);
+        console.error(
+          "QUIZ ERROR:",
+          error
+        );
 
         return Response.json(
           {
             success: false,
-            error: "Quiz generation failed."
+            error:
+              "Quiz generation failed."
           },
           { status: 500 }
         );
@@ -423,18 +531,27 @@ export default {
     // ==========================================
 
     if (
-      url.pathname === "/api/quiz-score" &&
+      url.pathname ===
+        "/api/quiz-score" &&
       request.method === "POST"
     ) {
       try {
-        const body = await request.json();
+        const body =
+          await request.json();
 
-        const userId = Number(body.userId);
-        const topic = String(
-          body.topic || ""
-        ).trim();
-        const score = Number(body.score);
-        const total = Number(body.total);
+        const userId =
+          Number(body.userId);
+
+        const topic =
+          String(
+            body.topic || ""
+          ).trim();
+
+        const score =
+          Number(body.score);
+
+        const total =
+          Number(body.total);
 
         if (
           !userId ||
@@ -445,7 +562,8 @@ export default {
           return Response.json(
             {
               success: false,
-              error: "Invalid quiz score data."
+              error:
+                "Invalid quiz score data."
             },
             { status: 400 }
           );
@@ -480,8 +598,10 @@ export default {
 
         return Response.json({
           success: true,
-          message: "Quiz score saved."
+          message:
+            "Quiz score saved."
         });
+
       } catch (error) {
         console.error(
           "SCORE ERROR:",
@@ -504,19 +624,24 @@ export default {
     // ==========================================
 
     if (
-      url.pathname === "/api/quiz-history" &&
+      url.pathname ===
+        "/api/quiz-history" &&
       request.method === "GET"
     ) {
       try {
-        const userId = Number(
-          url.searchParams.get("userId")
-        );
+        const userId =
+          Number(
+            url.searchParams.get(
+              "userId"
+            )
+          );
 
         if (!userId) {
           return Response.json(
             {
               success: false,
-              error: "User ID is required."
+              error:
+                "User ID is required."
             },
             { status: 400 }
           );
@@ -535,21 +660,24 @@ export default {
           )
           .run();
 
-        const result = await env.DB
-          .prepare(
-            `SELECT id, topic, score, total, created_at
-             FROM quiz_scores
-             WHERE user_id = ?
-             ORDER BY id DESC
-             LIMIT 20`
-          )
-          .bind(userId)
-          .all();
+        const result =
+          await env.DB
+            .prepare(
+              `SELECT id, topic, score, total, created_at
+               FROM quiz_scores
+               WHERE user_id = ?
+               ORDER BY id DESC
+               LIMIT 20`
+            )
+            .bind(userId)
+            .all();
 
         return Response.json({
           success: true,
-          scores: result.results || []
+          scores:
+            result.results || []
         });
+
       } catch (error) {
         console.error(
           "HISTORY ERROR:",
@@ -576,246 +704,258 @@ export default {
       request.method === "POST"
     ) {
       try {
-        const body = await request.json();
 
-        const topic = String(
-          body.topic || ""
-        ).trim();
+        const body =
+          await request.json();
 
-        const level = String(
-          body.level || "beginner"
-        ).trim();
+        const topic =
+          String(
+            body.topic || ""
+          ).trim();
+
+        const level =
+          String(
+            body.level || "beginner"
+          )
+            .trim()
+            .toLowerCase();
+
 
         if (!topic) {
           return Response.json(
             {
               success: false,
-              error: "Please enter a study topic."
+              error:
+                "Please enter a study topic."
             },
             { status: 400 }
           );
         }
 
+
         if (!env.AI) {
           return Response.json(
             {
               success: false,
-              error: "Workers AI is not connected."
+              error:
+                "Workers AI is not connected."
             },
             { status: 500 }
           );
         }
 
-        const prompt =
-          `Create a study lesson about "${topic}" for a ${level} student.
 
-Return ONLY valid JSON in exactly this format:
+        const allowedLevels = [
+          "beginner",
+          "intermediate",
+          "advanced"
+        ];
+
+
+        const safeLevel =
+          allowedLevels.includes(level)
+            ? level
+            : "beginner";
+
+
+        let difficulty =
+          "";
+
+
+        if (
+          safeLevel ===
+          "beginner"
+        ) {
+
+          difficulty = `
+Teach the topic from the basics.
+Assume the student has little previous knowledge.
+Use simple language and easy examples.
+`;
+
+        }
+
+
+        if (
+          safeLevel ===
+          "intermediate"
+        ) {
+
+          difficulty = `
+Assume the student understands the basics.
+Teach at an intermediate academic level.
+Include deeper concepts, relationships,
+applications and useful examples.
+`;
+
+        }
+
+
+        if (
+          safeLevel ===
+          "advanced"
+        ) {
+
+          difficulty = `
+Assume the student already understands
+the fundamentals.
+Teach at an advanced academic level.
+Include deeper technical concepts,
+detailed reasoning, applications,
+limitations and advanced examples.
+`;
+
+        }
+
+
+        const prompt = `
+Create a complete educational lesson
+about "${topic}".
+
+Student level:
+${safeLevel}
+
+${difficulty}
+
+Return ONLY valid JSON.
+
+Use EXACTLY this structure:
 
 {
   "title": "Lesson title",
-  "introduction": "Short simple introduction",
-  "explanation": "Clear detailed explanation",
+  "introduction": "Introduction",
+  "explanation": "Detailed explanation",
   "keyPoints": [
     "Important point 1",
     "Important point 2",
-    "Important point 3"
+    "Important point 3",
+    "Important point 4",
+    "Important point 5"
   ],
-  "example": "A simple real-world or academic example",
-  "summary": "Short summary for revision"
+  "example": "Useful example",
+  "summary": "Short revision summary"
 }
 
-Rules:
-- Use simple student-friendly language.
-- Avoid unnecessary difficult words.
-- Explain step by step.
-- Make the content educational and accurate.
-- Do not use markdown.
-- Do not add anything outside the JSON.`;
+IMPORTANT:
 
-        const result = await env.AI.run(
-          "@cf/meta/llama-3.2-3b-instruct",
-          {
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are PadhAI Study Teacher. You create clear, accurate and easy-to-understand study lessons for students. Always return valid JSON."
-              },
-              {
-                role: "user",
-                content: prompt
-              }
-            ]
+- Return JSON only.
+- No markdown.
+- No code fences.
+- No text outside JSON.
+- keyPoints must be an array.
+- All other fields must be strings.
+- Do not leave introduction empty.
+- Do not leave explanation empty.
+- Do not leave summary empty.
+- Make the lesson accurate.
+- Match the requested difficulty.
+`;
+
+
+        const result =
+          await env.AI.run(
+            "@cf/meta/llama-3.2-3b-instruct",
+            {
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    "You are PadhAI Study Teacher. Create accurate educational lessons and always return valid JSON only."
+                },
+                {
+                  role: "user",
+                  content: prompt
+                }
+              ]
+            }
+          );
+
+
+        let raw =
+          result?.response || "";
+
+
+        if (
+          typeof raw !==
+          "string"
+        ) {
+
+          try {
+            raw =
+              JSON.stringify(
+                raw
+              );
+          } catch {
+            raw = "";
           }
+
+        }
+
+
+        console.log(
+          "RAW STUDY RESPONSE:",
+          raw
         );
+
+
+        let cleaned =
+          raw
+            .replace(
+              /```json/gi,
+              ""
+            )
+            .replace(
+              /```/g,
+              ""
+            )
+            .trim();
+
 
         let study = null;
 
-        const raw = result?.response;
 
-        if (
-          raw &&
-          typeof raw === "object"
-        ) {
-          study = raw;
-        }
+        // First JSON attempt
 
-        if (typeof raw === "string") {
-          try {
-            const cleaned = raw
-              .replace(/```json/gi, "")
-              .replace(/```/g, "")
-              .trim();
+        try {
 
-            study = JSON.parse(cleaned);
-          } catch (error) {
-            console.error(
-              "STUDY JSON ERROR:",
-              error
+          study =
+            JSON.parse(
+              cleaned
             );
-          }
-        }
 
-        if (
-          !study ||
-          typeof study !== "object"
-        ) {
-          return Response.json(
-            {
-              success: false,
-              error:
-                "PadhAI could not create the lesson. Please try again."
-            },
-            { status: 500 }
+        } catch (error) {
+
+          console.log(
+            "DIRECT STUDY JSON PARSE FAILED"
           );
+
         }
 
-        const title = String(
-          study.title || topic
-        ).trim();
 
-        const introduction = String(
-          study.introduction || ""
-        ).trim();
+        // Second JSON attempt
 
-        const explanation = String(
-          study.explanation || ""
-        ).trim();
+        if (!study) {
 
-        const example = String(
-          study.example || ""
-        ).trim();
+          try {
 
-        const summary = String(
-          study.summary || ""
-        ).trim();
+            const firstBrace =
+              cleaned.indexOf(
+                "{"
+              );
 
-        let keyPoints = [];
+            const lastBrace =
+              cleaned.lastIndexOf(
+                "}"
+              );
 
-        if (
-          Array.isArray(
-            study.keyPoints
-          )
-        ) {
-          keyPoints = study.keyPoints
-            .map((point) =>
-              String(point || "").trim()
-            )
-            .filter(Boolean)
-            .slice(0, 8);
-        }
 
-        if (
-          !introduction ||
-          !explanation ||
-          !summary
-        ) {
-          return Response.json(
-            {
-              success: false,
-              error:
-                "PadhAI generated an incomplete lesson. Please try again."
-            },
-            { status: 500 }
-          );
-        }
+            if (
+              firstBrace !== -1 &&
+              lastBrace !== -1 &&
+              lastBrace >
+                firstBrace
+            ) {
 
-        return Response.json({
-          success: true,
-          topic,
-          level,
-          lesson: {
-            title,
-            introduction,
-            explanation,
-            keyPoints,
-            example,
-            summary
-          }
-        });
-      } catch (error) {
-        console.error(
-          "STUDY ERROR:",
-          error
-        );
-
-        return Response.json(
-          {
-            success: false,
-            error:
-              "Study lesson generation failed."
-          },
-          { status: 500 }
-        );
-      }
-    }
-
-    // ==========================================
-    // DATABASE TEST
-    // ==========================================
-
-    if (
-      url.pathname === "/api/test-db"
-    ) {
-      try {
-        const result = await env.DB
-          .prepare(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-          )
-          .all();
-
-        return Response.json({
-          success: true,
-          tables: result.results || []
-        });
-      } catch (error) {
-        return Response.json(
-          {
-            success: false,
-            error: error.message
-          },
-          { status: 500 }
-        );
-      }
-    }
-
-    // ==========================================
-    // WEBSITE
-    // ==========================================
-
-    if (env.ASSETS) {
-      return env.ASSETS.fetch(request);
-    }
-
-    return new Response(
-      "PadhAI Worker is running.",
-      {
-        status: 200,
-        headers: {
-          "content-type":
-            "text/plain;charset=UTF-8"
-        }
-      }
-    );
-  }
-};
+              const extracted =
+                cleaned.substring(
+                  first
