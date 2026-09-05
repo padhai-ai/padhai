@@ -1,6 +1,6 @@
 // ============================================
 // PADHAI AI - CLOUDFLARE WORKER
-// FINAL VERSION
+// COMPLETE VERSION + PROGRESS SYSTEM
 // ============================================
 
 export default {
@@ -145,7 +145,6 @@ export default {
       // ==========================================
       if (path === "/api/tutor" && method === "POST") {
         const body = await request.json();
-
         const question = String(body.question || "").trim();
 
         if (!question) {
@@ -192,7 +191,6 @@ export default {
         const body = await request.json();
 
         const topic = String(body.topic || "").trim();
-
         let count = Number(body.count || 5);
 
         if (!topic) {
@@ -217,7 +215,7 @@ export default {
                 role: "system",
                 content:
                   "Create accurate educational multiple-choice quizzes. " +
-                  "Return only the requested JSON."
+                  "Return only valid JSON."
               },
               {
                 role: "user",
@@ -225,57 +223,18 @@ export default {
 Create exactly ${count} multiple-choice questions about "${topic}".
 
 Each question must contain:
-- question
-- exactly 4 options
-- answer as a number from 0 to 3
+question, options, answer.
 
-Keep questions and options concise.
+There must be exactly 4 options.
+answer must be 0, 1, 2 or 3.
+Keep questions concise.
 `
               }
             ],
-
-            max_tokens: Math.min(
-              3000,
-              600 + count * 300
-            ),
-
+            max_tokens: Math.min(3000, 600 + count * 300),
             temperature: 0.2,
-
             response_format: {
-              type: "json_schema",
-              json_schema: {
-                type: "object",
-                properties: {
-                  questions: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        question: {
-                          type: "string"
-                        },
-                        options: {
-                          type: "array",
-                          items: {
-                            type: "string"
-                          }
-                        },
-                        answer: {
-                          type: "integer"
-                        }
-                      },
-                      required: [
-                        "question",
-                        "options",
-                        "answer"
-                      ]
-                    }
-                  }
-                },
-                required: [
-                  "questions"
-                ]
-              }
+              type: "json_object"
             }
           }
         );
@@ -349,16 +308,7 @@ Keep questions and options concise.
           }, 400);
         }
 
-        await env.DB.prepare(`
-          CREATE TABLE IF NOT EXISTS quiz_scores (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            topic TEXT NOT NULL,
-            score INTEGER NOT NULL,
-            total INTEGER NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-          )
-        `).run();
+        await createProgressTables(env);
 
         await env.DB
           .prepare(`
@@ -396,16 +346,7 @@ Keep questions and options concise.
           }, 400);
         }
 
-        await env.DB.prepare(`
-          CREATE TABLE IF NOT EXISTS quiz_scores (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            topic TEXT NOT NULL,
-            score INTEGER NOT NULL,
-            total INTEGER NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-          )
-        `).run();
+        await createProgressTables(env);
 
         const result = await env.DB
           .prepare(`
@@ -444,13 +385,6 @@ Keep questions and options concise.
           }, 400);
         }
 
-        if (topic.length > 300) {
-          return json({
-            success: false,
-            message: "Study topic is too long."
-          }, 400);
-        }
-
         if (![
           "beginner",
           "intermediate",
@@ -467,8 +401,8 @@ Keep questions and options concise.
                 role: "system",
                 content:
                   "You are PadhAI's educational lesson generator. " +
-                  "Create accurate, clear and student-friendly lessons. " +
-                  "Return only the requested JSON."
+                  "Create accurate, clear student-friendly lessons. " +
+                  "Return only valid JSON."
               },
               {
                 role: "user",
@@ -477,61 +411,22 @@ Create a lesson about "${topic}".
 
 Student level: ${level}
 
-For beginner:
-Use simple words and basic examples.
+Create:
+title
+introduction
+explanation
+exactly 5 keyPoints
+example
+summary
 
-For intermediate:
-Give more detail and practical examples.
-
-For advanced:
-Give deeper concepts and technical details.
-
-Create exactly 5 key points.
-Keep the explanation detailed but concise.
+Keep the lesson useful and concise.
 `
               }
             ],
-
             max_tokens: 2200,
-
             temperature: 0.3,
-
             response_format: {
-              type: "json_schema",
-              json_schema: {
-                type: "object",
-                properties: {
-                  title: {
-                    type: "string"
-                  },
-                  introduction: {
-                    type: "string"
-                  },
-                  explanation: {
-                    type: "string"
-                  },
-                  keyPoints: {
-                    type: "array",
-                    items: {
-                      type: "string"
-                    }
-                  },
-                  example: {
-                    type: "string"
-                  },
-                  summary: {
-                    type: "string"
-                  }
-                },
-                required: [
-                  "title",
-                  "introduction",
-                  "explanation",
-                  "keyPoints",
-                  "example",
-                  "summary"
-                ]
-              }
+              type: "json_object"
             }
           }
         );
@@ -609,6 +504,89 @@ Keep the explanation detailed but concise.
 
 
       // ==========================================
+      // PROGRESS DASHBOARD
+      // ==========================================
+      if (path === "/api/progress" && method === "GET") {
+
+        const userId = Number(
+          url.searchParams.get("userId")
+        );
+
+        if (!Number.isInteger(userId) || userId <= 0) {
+          return json({
+            success: false,
+            message: "Invalid user."
+          }, 400);
+        }
+
+        await createProgressTables(env);
+
+        const stats = await env.DB
+          .prepare(`
+            SELECT
+              COUNT(*) AS total_quizzes,
+              COALESCE(SUM(score), 0) AS correct_answers,
+              COALESCE(SUM(total), 0) AS total_questions,
+              COALESCE(
+                ROUND(
+                  CAST(SUM(score) AS REAL) * 100 /
+                  NULLIF(SUM(total), 0),
+                  1
+                ),
+                0
+              ) AS average_percentage
+            FROM quiz_scores
+            WHERE user_id = ?
+          `)
+          .bind(userId)
+          .first();
+
+        const topics = await env.DB
+          .prepare(`
+            SELECT
+              topic,
+              COUNT(*) AS attempts,
+              SUM(score) AS correct,
+              SUM(total) AS questions
+            FROM quiz_scores
+            WHERE user_id = ?
+            GROUP BY topic
+            ORDER BY attempts DESC
+            LIMIT 20
+          `)
+          .bind(userId)
+          .all();
+
+        const recent = await env.DB
+          .prepare(`
+            SELECT
+              topic,
+              score,
+              total,
+              created_at
+            FROM quiz_scores
+            WHERE user_id = ?
+            ORDER BY id DESC
+            LIMIT 10
+          `)
+          .bind(userId)
+          .all();
+
+        return json({
+          success: true,
+          progress: {
+            totalQuizzes: Number(stats?.total_quizzes || 0),
+            correctAnswers: Number(stats?.correct_answers || 0),
+            totalQuestions: Number(stats?.total_questions || 0),
+            averagePercentage: Number(stats?.average_percentage || 0),
+            topics: topics.results || [],
+            recent: recent.results || []
+          }
+        });
+      }
+
+
+      // ==========================================
       // DATABASE TEST
       // ==========================================
       if (path === "/api/test-db" && method === "GET") {
@@ -647,6 +625,7 @@ Keep the explanation detailed but concise.
       );
 
     } catch (error) {
+
       console.error("PadhAI Worker Error:", error);
 
       return json({
@@ -660,10 +639,31 @@ Keep the explanation detailed but concise.
 
 
 // ============================================
+// CREATE PROGRESS TABLES
+// ============================================
+
+async function createProgressTables(env) {
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS quiz_scores (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      topic TEXT NOT NULL,
+      score INTEGER NOT NULL,
+      total INTEGER NOT NULL,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+}
+
+
+// ============================================
 // AI JSON PARSER
 // ============================================
 
 function parseAIJson(result) {
+
   if (!result) return null;
 
   let value = result.response;
@@ -711,6 +711,7 @@ function parseAIJson(result) {
 // ============================================
 
 function json(data, status = 200) {
+
   return new Response(
     JSON.stringify(data),
     {
@@ -730,6 +731,7 @@ function json(data, status = 200) {
 // ============================================
 
 function corsHeaders() {
+
   return {
     "access-control-allow-origin": "*",
     "access-control-allow-methods":
@@ -745,12 +747,15 @@ function corsHeaders() {
 // ============================================
 
 async function hashPassword(password) {
-  const data = new TextEncoder().encode(password);
 
-  const hash = await crypto.subtle.digest(
-    "SHA-256",
-    data
-  );
+  const data =
+    new TextEncoder().encode(password);
+
+  const hash =
+    await crypto.subtle.digest(
+      "SHA-256",
+      data
+    );
 
   return Array.from(
     new Uint8Array(hash)
