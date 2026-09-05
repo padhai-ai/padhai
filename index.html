@@ -650,6 +650,7 @@ Ask me anything about your studies and I'll explain it simply.</div>
 </div>
 
 </div>
+
 <script>
 "use strict";
 
@@ -867,37 +868,26 @@ async function createAccount(){
 
 
   if(!name){
-
     message.textContent =
       "Please enter your name.";
-
     return;
   }
-
 
   if(!email){
-
     message.textContent =
       "Please enter your email.";
-
     return;
   }
-
 
   if(!password){
-
     message.textContent =
       "Please enter a password.";
-
     return;
   }
 
-
   if(password.length < 6){
-
     message.textContent =
       "Password must be at least 6 characters.";
-
     return;
   }
 
@@ -931,42 +921,44 @@ async function createAccount(){
     const text =
       await response.text();
 
-
     let data;
 
     try{
-
-      data =
-        JSON.parse(text);
-
+      data = JSON.parse(text);
     }catch(error){
-
       throw new Error(
         "Invalid server response: " + text
       );
-
     }
 
 
     if(!response.ok || !data.success){
 
       message.textContent =
+        data.message ||
         data.error ||
         "Account creation failed.";
 
       button.disabled = false;
-
       return;
     }
 
 
+    /*
+      IMPORTANT:
+      Backend returns user inside data.user
+    */
+
+    const user =
+      data.user || {};
+
     currentUser = {
 
-      id:data.id || null,
+      id:user.id || null,
 
-      name:data.name || name,
+      name:user.name || name,
 
-      email:data.email || email
+      email:user.email || email
 
     };
 
@@ -1087,6 +1079,7 @@ async function login(){
     if(!response.ok || !data.success){
 
       message.textContent =
+        data.message ||
         data.error ||
         "Invalid email or password.";
 
@@ -1096,13 +1089,22 @@ async function login(){
     }
 
 
+    /*
+      IMPORTANT:
+      Backend returns user inside data.user
+    */
+
+    const user =
+      data.user || {};
+
+
     currentUser = {
 
-      id:data.id || null,
+      id:user.id || null,
 
-      name:data.name || "Student",
+      name:user.name || "Student",
 
-      email:data.email || email
+      email:user.email || email
 
     };
 
@@ -1155,7 +1157,6 @@ function logout(){
   $("password").value = "";
 
   showSignup();
-
   showAuth();
 
 }
@@ -1259,6 +1260,7 @@ async function askTutor(){
     if(!response.ok || !data.success){
 
       aiBubble.textContent =
+        data.message ||
         data.error ||
         "Sorry, I couldn't answer.";
 
@@ -1298,9 +1300,7 @@ async function askTutor(){
   button.disabled = false;
 
 }
-
-
-function clearChat(){
+  function clearChat(){
 
   $("chat").innerHTML = `
     <div class="bubble ai-bubble">
@@ -1367,58 +1367,102 @@ function selectStudyLevel(level){
 
 async function generateStudyLesson(){
 
-  const topic = $("studyTopic").value.trim();
-  const message = $("studyMessage");
-  const button = $("studyButton");
+  const topic =
+    $("studyTopic").value.trim();
+
+  const message =
+    $("studyMessage");
+
+  const button =
+    $("studyButton");
+
 
   if(!topic){
-    message.textContent = "Enter a topic first.";
+
+    message.textContent =
+      "Enter a topic first.";
+
     return;
   }
 
-  message.textContent = "Creating your lesson...";
+
+  message.textContent =
+    "Creating your lesson...";
+
   button.disabled = true;
+
 
   try{
 
-    const response = await fetch("/api/study",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        topic: topic,
-        level: studyLevel
-      })
-    });
+    const response =
+      await fetch("/api/study",{
 
-    const text = await response.text();
+        method:"POST",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify({
+          topic:topic,
+          level:studyLevel
+        })
+
+      });
+
+
+    const text =
+      await response.text();
+
 
     let data;
 
     try{
-      data = JSON.parse(text);
+
+      data =
+        JSON.parse(text);
+
     }catch(error){
-      console.error("STUDY RAW RESPONSE:", text);
-      throw new Error("Invalid server response");
+
+      console.error(
+        "STUDY RAW RESPONSE:",
+        text
+      );
+
+      throw new Error(
+        "Invalid server response"
+      );
+
     }
 
-    console.log("STUDY RESPONSE:", data);
+
+    console.log(
+      "STUDY RESPONSE:",
+      data
+    );
+
 
     if(!response.ok || !data.success){
 
       message.textContent =
-        data.error || "Could not create lesson.";
+        data.message ||
+        data.error ||
+        "Could not create lesson.";
 
       button.disabled = false;
+
       return;
     }
 
-    /* IMPORTANT:
-       Worker sends the lesson inside data.lesson
+
+    /*
+      IMPORTANT:
+      Backend sends lesson inside data.lesson
     */
 
-    const lesson = data.lesson;
+    const lesson =
+      data.lesson;
+
 
     if(!lesson){
 
@@ -1426,48 +1470,77 @@ async function generateStudyLesson(){
         "Lesson data was not received from PadhAI.";
 
       button.disabled = false;
+
       return;
     }
 
-    $("lesson").classList.remove("hidden");
 
-    $("lessonTitle").textContent =
-      lesson.title || topic;
+    $("lesson")
+      .classList
+      .remove("hidden");
 
-    $("lessonIntroduction").textContent =
-      lesson.introduction || "";
 
-    $("lessonExplanation").textContent =
-      lesson.explanation || "";
+    $("lessonTitle")
+      .textContent =
+        lesson.title || topic;
 
-    $("lessonExample").textContent =
-      lesson.example || "";
 
-    $("lessonSummary").textContent =
-      lesson.summary || "";
+    $("lessonIntroduction")
+      .textContent =
+        lesson.introduction || "";
 
-    $("keyPoints").innerHTML = "";
 
-    const points = Array.isArray(lesson.keyPoints)
+    $("lessonExplanation")
+      .textContent =
+        lesson.explanation || "";
+
+
+    $("lessonExample")
+      .textContent =
+        lesson.example || "";
+
+
+    $("lessonSummary")
+      .textContent =
+        lesson.summary || "";
+
+
+    $("keyPoints")
+      .innerHTML = "";
+
+
+    const points =
+      Array.isArray(
+        lesson.keyPoints
+      )
       ? lesson.keyPoints
       : [];
 
-    points.forEach(function(point){
 
-      const li = document.createElement("li");
+    points.forEach(
+      function(point){
 
-      li.textContent = point;
+        const li =
+          document.createElement("li");
 
-      $("keyPoints").appendChild(li);
+        li.textContent =
+          point;
 
-    });
+        $("keyPoints")
+          .appendChild(li);
+
+      }
+    );
+
 
     message.textContent = "";
+
 
     $("lesson").scrollIntoView({
       behavior:"smooth",
       block:"start"
     });
+
 
   }catch(error){
 
@@ -1481,18 +1554,27 @@ async function generateStudyLesson(){
 
   }
 
+
   button.disabled = false;
+
 }
+
 
 function anotherStudy(){
 
   $("lesson")
-    .classList.add("hidden");
+    .classList
+    .add("hidden");
 
-  $("studyTopic").value = "";
+
+  $("studyTopic").value =
+    "";
+
 
   $("studyMessage")
-    .textContent = "";
+    .textContent =
+    "";
+
 
   window.scrollTo({
     top:0,
@@ -1509,16 +1591,23 @@ function anotherStudy(){
 function resetQuiz(){
 
   $("quizStart")
-    .classList.remove("hidden");
+    .classList
+    .remove("hidden");
+
 
   $("quizGame")
-    .classList.add("hidden");
+    .classList
+    .add("hidden");
+
 
   $("quizResult")
-    .classList.add("hidden");
+    .classList
+    .add("hidden");
+
 
   $("quizMessage")
-    .textContent = "";
+    .textContent =
+    "";
 
 }
 
@@ -1530,10 +1619,14 @@ function resetQuiz(){
 async function generateQuiz(){
 
   const topic =
-    $("quizTopic").value.trim();
+    $("quizTopic")
+      .value
+      .trim();
+
 
   const message =
     $("quizMessage");
+
 
   const button =
     $("generateQuizButton");
@@ -1562,7 +1655,8 @@ async function generateQuiz(){
         method:"POST",
 
         headers:{
-          "Content-Type":"application/json"
+          "Content-Type":
+            "application/json"
         },
 
         body:JSON.stringify({
@@ -1600,6 +1694,7 @@ async function generateQuiz(){
     if(!response.ok || !data.success){
 
       message.textContent =
+        data.message ||
         data.error ||
         "Could not generate quiz.";
 
@@ -1629,21 +1724,27 @@ async function generateQuiz(){
     quizTopicValue =
       topic;
 
+
     currentQuestionIndex =
       0;
 
+
     quizScore =
       0;
+
 
     selectedAnswer =
       null;
 
 
     $("quizStart")
-      .classList.add("hidden");
+      .classList
+      .add("hidden");
+
 
     $("quizGame")
-      .classList.remove("hidden");
+      .classList
+      .remove("hidden");
 
 
     showQuestion();
@@ -1689,17 +1790,17 @@ function showQuestion(){
 
   $("questionNumber")
     .textContent =
-      currentQuestionIndex + 1;
+    currentQuestionIndex + 1;
 
 
   $("totalQuestions")
     .textContent =
-      quizQuestions.length;
+    quizQuestions.length;
 
 
   $("quizQuestion")
     .textContent =
-      q.question || "";
+    q.question || "";
 
 
   $("quizOptions")
@@ -1711,7 +1812,8 @@ function showQuestion(){
 
 
   $("nextQuestionButton")
-    .disabled = true;
+    .disabled =
+    true;
 
 
   const options =
@@ -1732,8 +1834,10 @@ function showQuestion(){
       button.type =
         "button";
 
+
       button.className =
         "option";
+
 
       button.textContent =
         option;
@@ -1758,9 +1862,8 @@ function showQuestion(){
             );
 
 
-          button.classList.add(
-            "selected"
-          );
+          button.classList
+            .add("selected");
 
 
           selectedAnswer =
@@ -1768,7 +1871,8 @@ function showQuestion(){
 
 
           $("nextQuestionButton")
-            .disabled = false;
+            .disabled =
+            false;
 
         };
 
@@ -1835,10 +1939,13 @@ function nextQuestion(){
 async function showQuizResult(){
 
   $("quizGame")
-    .classList.add("hidden");
+    .classList
+    .add("hidden");
+
 
   $("quizResult")
-    .classList.remove("hidden");
+    .classList
+    .remove("hidden");
 
 
   $("scoreNumber")
@@ -1855,7 +1962,7 @@ async function showQuizResult(){
 
     $("resultMessage")
       .textContent =
-        "Perfect score! 🎉";
+      "Perfect score! 🎉";
 
   }else if(
     quizScore >=
@@ -1864,13 +1971,13 @@ async function showQuizResult(){
 
     $("resultMessage")
       .textContent =
-        "Good job! Keep learning! 💪";
+      "Good job! Keep learning! 💪";
 
   }else{
 
     $("resultMessage")
       .textContent =
-        "Keep practicing! 📚";
+      "Keep practicing! 📚";
 
   }
 
@@ -1967,6 +2074,7 @@ document.addEventListener(
     $("authButton").onclick =
       createAccount;
 
+
     $("switchButton").onclick =
       showLogin;
 
@@ -1974,8 +2082,10 @@ document.addEventListener(
     $("homeButton").onclick =
       showDashboard;
 
+
     $("profileButton").onclick =
       showProfile;
+
 
     $("logoutButton").onclick =
       logout;
@@ -1984,8 +2094,10 @@ document.addEventListener(
     $("tutorFeature").onclick =
       openTutor;
 
+
     $("studyFeature").onclick =
       openStudy;
+
 
     $("quizFeature").onclick =
       openQuiz;
@@ -1994,11 +2106,14 @@ document.addEventListener(
     $("profileBackButton").onclick =
       showDashboard;
 
+
     $("tutorBackButton").onclick =
       showDashboard;
 
+
     $("studyBackButton").onclick =
       showDashboard;
+
 
     $("quizBackButton").onclick =
       showDashboard;
@@ -2006,6 +2121,7 @@ document.addEventListener(
 
     $("askButton").onclick =
       askTutor;
+
 
     $("clearChatButton").onclick =
       clearChat;
@@ -2061,7 +2177,9 @@ document.addEventListener(
       restartQuiz;
 
 
-    /* LOAD SAVED USER */
+    /* ======================================
+       LOAD SAVED USER
+    ====================================== */
 
     try{
 
@@ -2074,7 +2192,8 @@ document.addEventListener(
 
     }catch(error){
 
-      currentUser = null;
+      currentUser =
+        null;
 
     }
 
