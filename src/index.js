@@ -1,6 +1,6 @@
 // ============================================
 // PADHAI AI TUTOR - CLOUDFLARE WORKER
-// PART 1 / 2
+// COMPLETE VERSION
 // ============================================
 
 export default {
@@ -20,16 +20,20 @@ export default {
     }
 
     try {
-      // ------------------------------------------
+
+      // ==========================================
       // API: SIGN UP
-      // ------------------------------------------
+      // ==========================================
       if (path === "/api/signup" && method === "POST") {
+
         const body = await request.json();
 
         const name = String(body.name || "").trim();
+
         const email = String(body.email || "")
           .trim()
           .toLowerCase();
+
         const password = String(body.password || "");
 
         if (!name || !email || !password) {
@@ -66,7 +70,8 @@ export default {
         if (existing) {
           return json({
             success: false,
-            message: "An account with this email already exists."
+            message:
+              "An account with this email already exists."
           }, 409);
         }
 
@@ -79,7 +84,11 @@ export default {
              (name, email, password_hash)
              VALUES (?, ?, ?)`
           )
-          .bind(name, email, passwordHash)
+          .bind(
+            name,
+            email,
+            passwordHash
+          )
           .run();
 
         if (!result.success) {
@@ -101,27 +110,33 @@ export default {
 
         return json({
           success: true,
-          message: "Account created successfully.",
+          message:
+            "Account created successfully.",
           user
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // API: LOGIN
-      // ------------------------------------------
+      // ==========================================
       if (path === "/api/login" && method === "POST") {
+
         const body = await request.json();
 
         const email = String(body.email || "")
           .trim()
           .toLowerCase();
 
-        const password = String(body.password || "");
+        const password = String(
+          body.password || ""
+        );
 
         if (!email || !password) {
           return json({
             success: false,
-            message: "Please enter email and password."
+            message:
+              "Please enter email and password."
           }, 400);
         }
 
@@ -136,13 +151,17 @@ export default {
              AND password_hash = ?
              LIMIT 1`
           )
-          .bind(email, passwordHash)
+          .bind(
+            email,
+            passwordHash
+          )
           .first();
 
         if (!user) {
           return json({
             success: false,
-            message: "Invalid email or password."
+            message:
+              "Invalid email or password."
           }, 401);
         }
 
@@ -153,10 +172,12 @@ export default {
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // API: AI TUTOR
-      // ------------------------------------------
+      // ==========================================
       if (path === "/api/tutor" && method === "POST") {
+
         const body = await request.json();
 
         const question = String(
@@ -166,14 +187,16 @@ export default {
         if (!question) {
           return json({
             success: false,
-            message: "Please enter a question."
+            message:
+              "Please enter a question."
           }, 400);
         }
 
         if (question.length > 4000) {
           return json({
             success: false,
-            message: "Question is too long."
+            message:
+              "Question is too long."
           }, 400);
         }
 
@@ -203,7 +226,12 @@ Rules:
                 role: "user",
                 content: question
               }
-            ]
+            ],
+
+            // Give the tutor enough room for a useful answer.
+            max_tokens: 1000,
+
+            temperature: 0.4
           }
         );
 
@@ -217,22 +245,27 @@ Rules:
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // API: GENERATE QUIZ
-      // ------------------------------------------
+      // ==========================================
       if (path === "/api/quiz" && method === "POST") {
+
         const body = await request.json();
 
         const topic = String(
           body.topic || ""
         ).trim();
 
-        let count = Number(body.count || 5);
+        let count = Number(
+          body.count || 5
+        );
 
         if (!topic) {
           return json({
             success: false,
-            message: "Please enter a quiz topic."
+            message:
+              "Please enter a quiz topic."
           }, 400);
         }
 
@@ -242,8 +275,27 @@ Rules:
 
         count = Math.floor(count);
 
-        if (count < 1) count = 1;
-        if (count > 10) count = 10;
+        if (count < 1) {
+          count = 1;
+        }
+
+        if (count > 10) {
+          count = 10;
+        }
+
+
+        // ------------------------------------------
+        // More output tokens are essential here.
+        //
+        // 5 questions + 4 options each can easily
+        // exceed the default 256-token limit.
+        // ------------------------------------------
+        const quizMaxTokens =
+          Math.min(
+            2500,
+            500 + (count * 250)
+          );
+
 
         const prompt =
           `Create exactly ${count} multiple-choice questions
@@ -276,7 +328,10 @@ Rules:
 - Questions should be educational and accurate.
 - Do not include explanations.
 - Do not include markdown.
-- Do not include text before or after the JSON.`;
+- Do not include text before or after the JSON.
+- Make every question different.
+- Keep questions and options reasonably concise.`;
+
 
         const result = await env.AI.run(
           "@cf/meta/llama-3.1-8b-instruct-fast",
@@ -285,64 +340,80 @@ Rules:
               {
                 role: "system",
                 content:
-                  "You generate accurate educational multiple-choice quizzes."
+                  `You generate accurate educational
+multiple-choice quizzes.
+
+You MUST return valid JSON.
+Never return markdown.
+Never return explanations outside the JSON.`
               },
               {
                 role: "user",
                 content: prompt
               }
             ],
+
+            // IMPORTANT:
+            // Prevent the quiz JSON from being truncated.
+            max_tokens: quizMaxTokens,
+
+            temperature: 0.2,
+
             response_format: {
               type: "json_object"
             }
           }
         );
 
+
+        // ------------------------------------------
+        // Get AI response
+        // ------------------------------------------
+
         let raw = "";
 
-        if (typeof result?.response === "string") {
+        if (
+          typeof result?.response === "string"
+        ) {
           raw = result.response;
+        } else if (
+          result?.response &&
+          typeof result.response === "object"
+        ) {
+          raw = JSON.stringify(
+            result.response
+          );
         } else {
-          raw = JSON.stringify(result?.response || "");
+          raw = "";
         }
 
-        let quizData = null;
 
-        // Try direct JSON
-        try {
-          quizData = JSON.parse(raw);
-        } catch (error) {
-          quizData = null;
-        }
+        console.log(
+          "Quiz AI response:",
+          raw
+        );
 
-        // Try extracting JSON if AI added extra text
-        if (!quizData) {
-          try {
-            const firstBrace = raw.indexOf("{");
-            const lastBrace = raw.lastIndexOf("}");
 
-            if (
-              firstBrace !== -1 &&
-              lastBrace !== -1 &&
-              lastBrace > firstBrace
-            ) {
-              const extracted =
-                raw.substring(
-                  firstBrace,
-                  lastBrace + 1
-                );
+        // ------------------------------------------
+        // Parse quiz JSON
+        // ------------------------------------------
 
-              quizData = JSON.parse(extracted);
-            }
-          } catch (error) {
-            quizData = null;
-          }
-        }
+        const quizData =
+          extractJsonObject(raw);
+
 
         if (
           !quizData ||
-          !Array.isArray(quizData.questions)
+          !Array.isArray(
+            quizData.questions
+          )
         ) {
+
+          console.error(
+            "Invalid quiz AI response:",
+            raw
+          );
+
           return json({
             success: false,
             message:
@@ -350,14 +421,22 @@ Rules:
           }, 500);
         }
 
+
+        // ------------------------------------------
+        // Validate questions
+        // ------------------------------------------
+
         const validQuestions =
           quizData.questions
-            .slice(0, count)
             .filter((item) => {
-              if (!item) return false;
+
+              if (!item) {
+                return false;
+              }
 
               if (
-                typeof item.question !== "string" ||
+                typeof item.question !==
+                "string" ||
                 !item.question.trim()
               ) {
                 return false;
@@ -373,7 +452,8 @@ Rules:
               if (
                 item.options.some(
                   (option) =>
-                    typeof option !== "string" ||
+                    typeof option !==
+                      "string" ||
                     !option.trim()
                 )
               ) {
@@ -393,48 +473,78 @@ Rules:
 
               return true;
             })
+            .slice(0, count)
             .map((item) => ({
               question:
                 item.question.trim(),
+
               options:
                 item.options.map(
-                  (option) => option.trim()
+                  (option) =>
+                    option.trim()
                 ),
+
               answer:
                 Number(item.answer)
             }));
 
-        if (validQuestions.length === 0) {
+
+        // ------------------------------------------
+        // Require the requested number of questions
+        // ------------------------------------------
+
+        if (
+          validQuestions.length < count
+        ) {
+
+          console.error(
+            "AI returned fewer valid questions:",
+            validQuestions.length,
+            "requested:",
+            count
+          );
+
           return json({
             success: false,
             message:
-              "Could not create valid quiz questions."
+              "The AI could not create enough valid questions. Please try again."
           }, 500);
         }
+
 
         return json({
           success: true,
           topic,
-          questions: validQuestions
+          questions:
+            validQuestions
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // API: SAVE QUIZ SCORE
-      // ------------------------------------------
+      // ==========================================
       if (
         path === "/api/quiz-score" &&
         method === "POST"
       ) {
-        const body = await request.json();
 
-        const userId = Number(body.userId);
-        const topic = String(
-          body.topic || ""
-        ).trim();
+        const body =
+          await request.json();
 
-        const score = Number(body.score);
-        const total = Number(body.total);
+        const userId =
+          Number(body.userId);
+
+        const topic =
+          String(body.topic || "")
+            .trim();
+
+        const score =
+          Number(body.score);
+
+        const total =
+          Number(body.total);
+
 
         if (
           !Number.isInteger(userId) ||
@@ -442,28 +552,36 @@ Rules:
         ) {
           return json({
             success: false,
-            message: "Invalid user."
+            message:
+              "Invalid user."
           }, 400);
         }
+
 
         if (!topic) {
           return json({
             success: false,
-            message: "Quiz topic is required."
+            message:
+              "Quiz topic is required."
           }, 400);
         }
+
 
         if (
           !Number.isFinite(score) ||
-          !Number.isFinite(total)
+          !Number.isFinite(total) ||
+          total <= 0 ||
+          score < 0 ||
+          score > total
         ) {
           return json({
             success: false,
-            message: "Invalid quiz score."
+            message:
+              "Invalid quiz score."
           }, 400);
         }
 
-        // Create table if it doesn't exist.
+
         await env.DB.prepare(
           `CREATE TABLE IF NOT EXISTS quiz_scores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -474,6 +592,7 @@ Rules:
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
           )`
         ).run();
+
 
         await env.DB
           .prepare(
@@ -489,22 +608,30 @@ Rules:
           )
           .run();
 
+
         return json({
           success: true,
-          message: "Quiz score saved."
+          message:
+            "Quiz score saved."
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // API: QUIZ HISTORY
-      // ------------------------------------------
+      // ==========================================
       if (
         path === "/api/quiz-history" &&
         method === "GET"
       ) {
-        const userId = Number(
-          url.searchParams.get("userId")
-        );
+
+        const userId =
+          Number(
+            url.searchParams.get(
+              "userId"
+            )
+          );
+
 
         if (
           !Number.isInteger(userId) ||
@@ -512,11 +639,12 @@ Rules:
         ) {
           return json({
             success: false,
-            message: "Invalid user."
+            message:
+              "Invalid user."
           }, 400);
         }
 
-        // Make sure table exists.
+
         await env.DB.prepare(
           `CREATE TABLE IF NOT EXISTS quiz_scores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -528,53 +656,76 @@ Rules:
           )`
         ).run();
 
-        const result = await env.DB
-          .prepare(
-            `SELECT
-              id,
-              topic,
-              score,
-              total,
-              created_at
-             FROM quiz_scores
-             WHERE user_id = ?
-             ORDER BY id DESC
-             LIMIT 20`
-          )
-          .bind(userId)
-          .all();
+
+        const result =
+          await env.DB
+            .prepare(
+              `SELECT
+                id,
+                topic,
+                score,
+                total,
+                created_at
+               FROM quiz_scores
+               WHERE user_id = ?
+               ORDER BY id DESC
+               LIMIT 20`
+            )
+            .bind(userId)
+            .all();
+
 
         return json({
           success: true,
-          history: result.results || []
+          history:
+            result.results || []
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // API: STUDY LESSON
-      // ------------------------------------------
+      // ==========================================
       if (
         path === "/api/study" &&
         method === "POST"
       ) {
-        const body = await request.json();
 
-        const topic = String(
-          body.topic || ""
-        ).trim();
+        const body =
+          await request.json();
 
-        let level = String(
-          body.level || "beginner"
-        )
-          .trim()
-          .toLowerCase();
+
+        const topic =
+          String(body.topic || "")
+            .trim();
+
+
+        let level =
+          String(
+            body.level ||
+              "beginner"
+          )
+            .trim()
+            .toLowerCase();
+
 
         if (!topic) {
           return json({
             success: false,
-            message: "Please enter a study topic."
+            message:
+              "Please enter a study topic."
           }, 400);
         }
+
+
+        if (topic.length > 300) {
+          return json({
+            success: false,
+            message:
+              "Study topic is too long."
+          }, 400);
+        }
+
 
         const allowedLevels = [
           "beginner",
@@ -582,32 +733,43 @@ Rules:
           "advanced"
         ];
 
-        if (!allowedLevels.includes(level)) {
+
+        if (
+          !allowedLevels.includes(level)
+        ) {
           level = "beginner";
         }
 
+
         let levelInstruction = "";
 
+
         if (level === "beginner") {
+
           levelInstruction =
             `Explain the topic for a beginner.
 Use simple words and basic examples.
 Assume the student is learning the topic for the first time.`;
         }
 
+
         if (level === "intermediate") {
+
           levelInstruction =
             `Explain the topic at an intermediate level.
 Include more detail, concepts, relationships,
 and practical examples.`;
         }
 
+
         if (level === "advanced") {
+
           levelInstruction =
             `Explain the topic at an advanced level.
 Include deeper concepts, technical details,
 important exceptions, and meaningful examples.`;
         }
+
 
         const studyPrompt =
           `Create a complete educational lesson about:
@@ -641,80 +803,99 @@ Rules:
 - Make the explanation easy to study.
 - Use plain text.
 - Do not use markdown outside the JSON.
-- Do not include anything before or after the JSON.`;
+- Do not include anything before or after the JSON.
+- Keep the explanation detailed but reasonably concise.
+- Include exactly 5 key points.`;
 
-        const result = await env.AI.run(
-          "@cf/meta/llama-3.2-3b-instruct",
-          {
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are PadhAI's educational lesson generator. Create accurate, clear and student-friendly lessons."
-              },
-              {
-                role: "user",
-                content: studyPrompt
-              }
-            ]
-          }
-        );
+
+        const result =
+          await env.AI.run(
+            "@cf/meta/llama-3.2-3b-instruct",
+            {
+              messages: [
+                {
+                  role: "system",
+                  content:
+                    `You are PadhAI's educational lesson generator.
+
+Create accurate, clear and student-friendly lessons.
+
+You MUST return valid JSON.
+Do not return markdown.
+Do not add text before or after the JSON.`
+                },
+                {
+                  role: "user",
+                  content:
+                    studyPrompt
+                }
+              ],
+
+              // IMPORTANT:
+              // The old default was too small for
+              // a complete lesson.
+              max_tokens: 1600,
+
+              temperature: 0.3
+            }
+          );
+
+
+        // ------------------------------------------
+        // Get AI response
+        // ------------------------------------------
 
         let rawStudy = "";
 
+
         if (
-          typeof result?.response === "string"
+          typeof result?.response ===
+          "string"
         ) {
-          rawStudy = result.response;
+
+          rawStudy =
+            result.response;
+
+        } else if (
+          result?.response &&
+          typeof result.response ===
+            "object"
+        ) {
+
+          rawStudy =
+            JSON.stringify(
+              result.response
+            );
+
         } else {
-          rawStudy = JSON.stringify(
-            result?.response || ""
+
+          rawStudy = "";
+        }
+
+
+        console.log(
+          "Study AI response:",
+          rawStudy
+        );
+
+
+        // ------------------------------------------
+        // Parse lesson JSON
+        // ------------------------------------------
+
+        const study =
+          extractJsonObject(
+            rawStudy
           );
-        }
 
-        let study = null;
-
-        // Direct JSON parsing
-        try {
-          study = JSON.parse(rawStudy);
-        } catch (error) {
-          study = null;
-        }
-
-        // Extract JSON from AI response
-        if (!study) {
-          try {
-            const cleaned =
-              rawStudy
-                .replace(/```json/gi, "")
-                .replace(/```/g, "")
-                .trim();
-
-            const firstBrace =
-              cleaned.indexOf("{");
-
-            const lastBrace =
-              cleaned.lastIndexOf("}");
-
-            if (
-              firstBrace !== -1 &&
-              lastBrace !== -1 &&
-              lastBrace > firstBrace
-            ) {
-              const extracted =
-                cleaned.substring(
-                  firstBrace,
-                  lastBrace + 1
-                );
-
-              study = JSON.parse(extracted);
-            }
-          } catch (error) {
-            study = null;
-          }
-        }
 
         if (!study) {
+
+          console.error(
+            "Invalid study AI response:",
+            rawStudy
+          );
+
           return json({
             success: false,
             message:
@@ -722,48 +903,95 @@ Rules:
           }, 500);
         }
 
-        // Basic validation
+
+        // ------------------------------------------
+        // Validate / clean lesson
+        // ------------------------------------------
+
         const title =
-          typeof study.title === "string"
+          typeof study.title ===
+          "string"
             ? study.title.trim()
             : "Study Lesson";
 
+
         const introduction =
-          typeof study.introduction === "string"
+          typeof study.introduction ===
+          "string"
             ? study.introduction.trim()
             : "";
 
+
         const explanation =
-          typeof study.explanation === "string"
+          typeof study.explanation ===
+          "string"
             ? study.explanation.trim()
             : "";
 
+
         const keyPoints =
-          Array.isArray(study.keyPoints)
+          Array.isArray(
+            study.keyPoints
+          )
             ? study.keyPoints
                 .filter(
                   (point) =>
-                    typeof point === "string"
+                    typeof point ===
+                    "string"
                 )
-                .map((point) => point.trim())
+                .map(
+                  (point) =>
+                    point.trim()
+                )
                 .filter(Boolean)
                 .slice(0, 10)
             : [];
 
+
         const example =
-          typeof study.example === "string"
+          typeof study.example ===
+          "string"
             ? study.example.trim()
             : "";
 
+
         const summary =
-          typeof study.summary === "string"
+          typeof study.summary ===
+          "string"
             ? study.summary.trim()
             : "";
+
+
+        // ------------------------------------------
+        // Make sure important lesson fields exist
+        // ------------------------------------------
+
+        if (
+          !title ||
+          !introduction ||
+          !explanation ||
+          keyPoints.length === 0 ||
+          !summary
+        ) {
+
+          console.error(
+            "Incomplete lesson returned:",
+            study
+          );
+
+          return json({
+            success: false,
+            message:
+              "The AI returned an incomplete lesson. Please try again."
+          }, 500);
+        }
+
 
         return json({
           success: true,
           topic,
           level,
+
           lesson: {
             title,
             introduction,
@@ -775,55 +1003,72 @@ Rules:
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // API: DATABASE TEST
-      // ------------------------------------------
+      // ==========================================
       if (
         path === "/api/test-db" &&
         method === "GET"
       ) {
-        const result = await env.DB
-          .prepare(
-            `SELECT name
-             FROM sqlite_master
-             WHERE type = 'table'
-             ORDER BY name`
-          )
-          .all();
+
+        const result =
+          await env.DB
+            .prepare(
+              `SELECT name
+               FROM sqlite_master
+               WHERE type = 'table'
+               ORDER BY name`
+            )
+            .all();
+
 
         return json({
           success: true,
-          database: "padhai-db",
-          tables: result.results || []
+          database:
+            "padhai-db",
+          tables:
+            result.results || []
         });
       }
 
-      // ------------------------------------------
+
+      // ==========================================
       // FRONTEND ASSETS
-      // ------------------------------------------
+      // ==========================================
       if (env.ASSETS) {
-        return env.ASSETS.fetch(request);
+        return env.ASSETS.fetch(
+          request
+        );
       }
+
 
       return new Response(
         "PadhAI Worker is running.",
         {
           status: 200,
           headers: {
-            "content-type": "text/plain; charset=UTF-8"
+            "content-type":
+              "text/plain; charset=UTF-8"
           }
         }
       );
 
     } catch (error) {
-      console.error("PadhAI Worker Error:", error);
+
+      console.error(
+        "PadhAI Worker Error:",
+        error
+      );
+
 
       return json({
         success: false,
         message:
           "Something went wrong on the server.",
         error:
-          error?.message || String(error)
+          error?.message ||
+          String(error)
       }, 500);
     }
   }
@@ -831,16 +1076,187 @@ Rules:
 
 
 // ============================================
+// HELPER: EXTRACT JSON OBJECT
+// ============================================
+//
+// Handles:
+// 1. Pure JSON
+// 2. ```json ... ```
+// 3. Extra text before JSON
+// 4. Extra text after JSON
+//
+// ============================================
+
+function extractJsonObject(raw) {
+
+  if (
+    !raw ||
+    typeof raw !== "string"
+  ) {
+    return null;
+  }
+
+
+  let text =
+    raw
+      .replace(/^\uFEFF/, "")
+      .trim();
+
+
+  // ------------------------------------------
+  // Remove markdown code fences
+  // ------------------------------------------
+
+  text =
+    text
+      .replace(
+        /```json/gi,
+        ""
+      )
+      .replace(
+        /```/g,
+        ""
+      )
+      .trim();
+
+
+  // ------------------------------------------
+  // First attempt: direct JSON
+  // ------------------------------------------
+
+  try {
+
+    const parsed =
+      JSON.parse(text);
+
+    if (
+      parsed &&
+      typeof parsed === "object"
+    ) {
+      return parsed;
+    }
+
+  } catch (error) {
+    // Continue below.
+  }
+
+
+  // ------------------------------------------
+  // Find JSON object boundaries.
+  //
+  // Instead of simply taking the first {
+  // and last }, we track nested braces.
+  // ------------------------------------------
+
+  const firstBrace =
+    text.indexOf("{");
+
+
+  if (firstBrace === -1) {
+    return null;
+  }
+
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+
+  for (
+    let i = firstBrace;
+    i < text.length;
+    i++
+  ) {
+
+    const char =
+      text[i];
+
+
+    // Handle JSON string state.
+    if (char === '"' && !escaped) {
+      inString = !inString;
+    }
+
+
+    if (
+      char === "\\" &&
+      !escaped
+    ) {
+      escaped = true;
+      continue;
+    }
+
+
+    escaped = false;
+
+
+    if (inString) {
+      continue;
+    }
+
+
+    if (char === "{") {
+      depth++;
+    }
+
+
+    if (char === "}") {
+
+      depth--;
+
+      if (depth === 0) {
+
+        const candidate =
+          text.substring(
+            firstBrace,
+            i + 1
+          );
+
+
+        try {
+
+          const parsed =
+            JSON.parse(
+              candidate
+            );
+
+          if (
+            parsed &&
+            typeof parsed ===
+              "object"
+          ) {
+            return parsed;
+          }
+
+        } catch (error) {
+          return null;
+        }
+      }
+    }
+  }
+
+
+  return null;
+}
+
+
+// ============================================
 // HELPER: JSON RESPONSE
 // ============================================
 
-function json(data, status = 200) {
+function json(
+  data,
+  status = 200
+) {
+
   return new Response(
     JSON.stringify(data),
     {
       status,
+
       headers: {
         ...corsHeaders(),
+
         "content-type":
           "application/json; charset=UTF-8"
       }
@@ -854,10 +1270,14 @@ function json(data, status = 200) {
 // ============================================
 
 function corsHeaders() {
+
   return {
-    "access-control-allow-origin": "*",
+    "access-control-allow-origin":
+      "*",
+
     "access-control-allow-methods":
       "GET, POST, OPTIONS",
+
     "access-control-allow-headers":
       "Content-Type"
   };
@@ -868,12 +1288,19 @@ function corsHeaders() {
 // HELPER: PASSWORD HASH
 // ============================================
 
-async function hashPassword(password) {
+async function hashPassword(
+  password
+) {
+
   const encoder =
     new TextEncoder();
 
+
   const data =
-    encoder.encode(password);
+    encoder.encode(
+      password
+    );
+
 
   const hash =
     await crypto.subtle.digest(
@@ -881,11 +1308,16 @@ async function hashPassword(password) {
       data
     );
 
+
   return Array
-    .from(new Uint8Array(hash))
+    .from(
+      new Uint8Array(hash)
+    )
     .map(
       (byte) =>
-        byte.toString(16).padStart(2, "0")
+        byte
+          .toString(16)
+          .padStart(2, "0")
     )
     .join("");
 }
