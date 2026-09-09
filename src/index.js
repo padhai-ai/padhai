@@ -676,166 +676,129 @@ if (
 
 
       // =====================================================
-      // PROGRESS
-      // =====================================================
-      if (
-        url.pathname === "/api/progress" &&
-        request.method === "GET"
-      ) {
-        await createProgressTables(env);
+// PROGRESS
+// =====================================================
+if (
+  url.pathname ==/= "/api/progress" &&
+  request.method === "GET"
+) {
+  try {
+    const userId = String(
+      url.searchParams.get("userId") || ""
+    ).trim();
 
-        const userId = String(
-          url.searchParams.get("userId") || ""
-        ).trim();
+    if (!userId) {
+      return json(
+        {
+          error: "User ID is required."
+        },
+        400
+      );
+    }
 
-        if (!userId) {
-          return json({
-            error: "User ID is required."
-          }, 400);
-        }
+    const stats = await env.DB
+      .prepare(`
+        SELECT
+          COUNT(*) AS total_quizzes,
+          COALESCE(SUM(score), 0) AS correct_answers,
+          COALESCE(SUM(total_questions), 0) AS total_questions,
+          COALESCE(
+            AVG(
+              CASE
+                WHEN total_questions > 0
+                THEN score * 100.0 / total_questions
+                ELSE 0
+              END
+            ),
+            0
+          ) AS average_percentage
+        FROM quiz_scores
+        WHERE user_id = ?
+      `)
+      .bind(userId)
+      .first();
 
-        const stats =
-          await env.DB
-            .prepare(`
-              SELECT
-                COUNT(*) AS total_quizzes,
+    const topics = await env.DB
+      .prepare(`
+        SELECT
+          COALESCE(topic, subject, 'General') AS topic,
+          COALESCE(SUM(total_questions), 0) AS questions,
+          COALESCE(SUM(score), 0) AS correct
+        FROM quiz_scores
+        WHERE user_id = ?
+        GROUP BY COALESCE(topic, subject, 'General')
+        ORDER BY questions DESC
+      `)
+      .bind(userId)
+      .all();
 
-                COALESCE(
-                  AVG(
-                    CASE
-                      WHEN total > 0
-                      THEN score * 100.0 / total
-                      ELSE 0
-                    END
-                  ),
-                  0
-                ) AS average_score,
+    const recent = await env.DB
+      .prepare(`
+        SELECT
+          COALESCE(topic, subject, 'General') AS topic,
+          score,
+          COALESCE(total_questions, total, 0) AS total,
+          created_at
+        FROM quiz_scores
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        LIMIT 10
+      `)
+      .bind(userId)
+      .all();
 
-                COALESCE(
-                  SUM(score),
-                  0
-                ) AS correct_answers,
+    return json({
+      success: true,
 
-                COALESCE(
-                  SUM(total),
-                  0
-                ) AS total_questions
+      progress: {
+        totalQuizzes:
+          Number(stats?.total_quizzes || 0),
 
-              FROM quiz_scores
+        averagePercentage:
+          Math.round(
+            Number(
+              stats?.average_percentage || 0
+            )
+          ),
 
-              WHERE user_id = ?
-            `)
-            .bind(userId)
-            .first();
+        correctAnswers:
+          Number(
+            stats?.correct_answers || 0
+          ),
 
-        const topicResult =
-          await env.DB
-            .prepare(`
-              SELECT
-                topic,
-                COUNT(*) AS quizzes,
-                SUM(score) AS correct,
-                SUM(total) AS questions,
+        totalQuestions:
+          Number(
+            stats?.total_questions || 0
+          ),
 
-                AVG(
-                  CASE
-                    WHEN total > 0
-                    THEN score * 100.0 / total
-                    ELSE 0
-                  END
-                ) AS percentage
+        topics:
+          (topics.results || []).map(item => ({
+            topic: item.topic,
+            questions:
+              Number(item.questions || 0),
+            correct:
+              Number(item.correct || 0)
+          })),
 
-              FROM quiz_scores
-
-              WHERE user_id = ?
-
-              GROUP BY topic
-
-              ORDER BY quizzes DESC
-            `)
-            .bind(userId)
-            .all();
-
-        const recentResult =
-          await env.DB
-            .prepare(`
-              SELECT
-                id,
-                topic,
-                score,
-                total,
-                created_at
-
-              FROM quiz_scores
-
-              WHERE user_id = ?
-
-              ORDER BY created_at DESC
-
-              LIMIT 10
-            `)
-            .bind(userId)
-            .all();
-
-        return json({
-          success: true,
-
-          stats: {
-            totalQuizzes:
-              Number(
-                stats?.total_quizzes || 0
-              ),
-
-            averageScore:
-              Math.round(
-                Number(
-                  stats?.average_score || 0
-                )
-              ),
-
-            correctAnswers:
-              Number(
-                stats?.correct_answers || 0
-              ),
-
-            totalQuestions:
-              Number(
-                stats?.total_questions || 0
-              )
-          },
-
-          topics:
-            (topicResult.results || [])
-              .map(item => ({
-                topic: item.topic,
-
-                quizzes:
-                  Number(
-                    item.quizzes || 0
-                  ),
-
-                correct:
-                  Number(
-                    item.correct || 0
-                  ),
-
-                questions:
-                  Number(
-                    item.questions || 0
-                  ),
-
-                percentage:
-                  Math.round(
-                    Number(
-                      item.percentage || 0
-                    )
-                  )
-              })),
-
-          recent:
-            recentResult.results || []
-        });
+        recent:
+          recent.results || []
       }
+    });
+
+  } catch (error) {
+    console.error(
+      "PROGRESS ERROR:",
+      error
+    );
+
+    return json({
+      success: false,
+      error: "Could not load progress.",
+      details:
+        String(error?.message || error)
+    }, 500);
+  }
+}
 
 
       // =====================================================
