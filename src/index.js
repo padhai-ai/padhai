@@ -512,102 +512,123 @@ Rules:
 
 
       // =====================================================
-      // SAVE QUIZ SCORE
-      // =====================================================
-      if (
-        url.pathname === "/api/quiz-score" &&
-        request.method === "POST"
-      ) {
-        try {
-          await createProgressTables(env);
+// SAVE QUIZ SCORE
+// =====================================================
+if (
+  url.pathname === "/api/quiz-score" &&
+  request.method === "POST"
+) {
+  try {
+    const body = await request.json();
 
-          const body = await request.json();
+    const userId = String(
+      body.userId || ""
+    ).trim();
 
-          const userId = String(
-            body.userId || ""
-          ).trim();
+    const topic = String(
+      body.topic || "General"
+    ).trim();
 
-          const topic = String(
-            body.topic || "General"
-          ).trim();
+    const score = Number(body.score);
+    const total = Number(body.total);
 
-          const score =
-            Number(body.score);
+    if (!userId) {
+      return json(
+        {
+          error: "User ID is missing."
+        },
+        400
+      );
+    }
 
-          const total =
-            Number(body.total);
+    if (
+      !Number.isFinite(score) ||
+      !Number.isFinite(total) ||
+      total <= 0 ||
+      score < 0 ||
+      score > total
+    ) {
+      return json(
+        {
+          error: "Invalid score data."
+        },
+        400
+      );
+    }
 
-          if (!userId) {
-            return json({
-              error: "User ID is missing."
-            }, 400);
-          }
+    /*
+      IMPORTANT:
+      The existing D1 table uses:
 
-          if (
-            !Number.isFinite(score) ||
-            !Number.isFinite(total) ||
-            total <= 0 ||
-            score < 0 ||
-            score > total
-          ) {
-            return json({
-              error: "Invalid score data."
-            }, 400);
-          }
+      user_id
+      subject
+      quiz_name
+      score
+      total_questions
+      created_at
+      topic
+      total
 
-          const id =
-            crypto.randomUUID();
+      So we must insert into that existing schema.
+      We intentionally do NOT insert "id" because
+      the database already generates the INTEGER id.
+    */
 
-          const createdAt =
-            new Date().toISOString();
+    await env.DB
+      .prepare(`
+        INSERT INTO quiz_scores
+        (
+          user_id,
+          subject,
+          quiz_name,
+          score,
+          total_questions,
+          created_at,
+          topic,
+          total
+        )
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
+      `)
+      .bind(
+        userId,
+        topic || "General",
+        "AI Quiz",
+        Math.round(score),
+        Math.round(total),
+        topic || "General",
+        Math.round(total)
+      )
+      .run();
 
-          await env.DB
-            .prepare(`
-              INSERT INTO quiz_scores
-              (
-                id,
-                user_id,
-                topic,
-                score,
-                total,
-                created_at
-              )
-              VALUES (?, ?, ?, ?, ?, ?)
-            `)
-            .bind(
-              id,
-              userId,
-              topic || "General",
-              Math.round(score),
-              Math.round(total),
-              createdAt
-            )
-            .run();
+    return json({
+      success: true,
+      saved: true,
+      score: Math.round(score),
+      total: Math.round(total)
+    });
 
-          return json({
-            success: true,
-            saved: true,
-            score: Math.round(score),
-            total: Math.round(total)
-          });
+  } catch (error) {
 
-        } catch (error) {
-          console.error(
-            "QUIZ SCORE ERROR:",
-            error
-          );
+    console.error(
+      "QUIZ SCORE SAVE ERROR:",
+      error
+    );
 
-          return json({
-            error:
-              "Could not save quiz score.",
-            details:
-              String(
-                error?.message ||
-                error
-              )
-          }, 500);
-        }
-      }
+    return json(
+      {
+        success: false,
+        saved: false,
+        error:
+          "Could not save quiz score.",
+        details:
+          String(
+            error?.message || error
+          )
+      },
+      500
+    );
+  }
+}
 
 
       // =====================================================
