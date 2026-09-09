@@ -397,38 +397,35 @@ IMPORTANT RULES:
           topic,
           questions
         });
-      }
+         }
 
-
-      // =========================
-      // SAVE QUIZ SCORE
-      // =========================
-      if (
-        url.pathname === "/api/quiz-score" &&
-        request.method === "POST"
-      ) {
+    // =========================
+    // SAVE QUIZ SCORE
+    // =========================
+    if (
+      url.pathname === "/api/quiz-score" &&
+      request.method === "POST"
+    ) {
+      try {
         await createProgressTables(env);
 
-        const body =
-          await request.json();
+        const body = await request.json();
 
-        const userId =
-          String(body.userId || "").trim();
+        const userId = String(
+          body.userId || ""
+        ).trim();
 
-        const topic =
-          String(body.topic || "").trim();
+        const topic = String(
+          body.topic || "General"
+        ).trim();
 
-        const score =
-          Number(body.score);
+        const score = Number(body.score);
+        const total = Number(body.total);
 
-        const total =
-          Number(body.total);
-
-        if (!userId || !topic) {
+        if (!userId) {
           return json(
             {
-              error:
-                "Missing quiz information."
+              error: "User ID is missing."
             },
             400
           );
@@ -443,12 +440,16 @@ IMPORTANT RULES:
         ) {
           return json(
             {
-              error:
-                "Invalid quiz score."
+              error: "Invalid score data."
             },
             400
           );
         }
+
+        const quizId = crypto.randomUUID();
+
+        const createdAt =
+          new Date().toISOString();
 
         await env.DB
           .prepare(`
@@ -464,46 +465,60 @@ IMPORTANT RULES:
             VALUES (?, ?, ?, ?, ?, ?)
           `)
           .bind(
-            crypto.randomUUID(),
+            quizId,
             userId,
-            topic,
-            score,
-            total,
-            new Date().toISOString()
+            topic || "General",
+            Math.round(score),
+            Math.round(total),
+            createdAt
           )
           .run();
 
         return json({
-          success: true
+          success: true,
+          saved: true,
+          score: Math.round(score),
+          total: Math.round(total)
         });
+
+      } catch (error) {
+
+        console.error(
+          "SAVE QUIZ SCORE ERROR:",
+          error
+        );
+
+        return json(
+          {
+            error:
+              "Could not save quiz score."
+          },
+          500
+        );
       }
+    }
 
+    // =========================
+    // QUIZ HISTORY
+    // =========================
+    if (
+      url.pathname === "/api/quiz-history" &&
+      request.method === "GET"
+    ) {
+      await createProgressTables(env);
 
-      // =========================
-      // QUIZ HISTORY
-      // =========================
-      if (
-        url.pathname === "/api/quiz-history" &&
-        request.method === "GET"
-      ) {
-        await createProgressTables(env);
+      const userId = String(
+        url.searchParams.get("userId") || ""
+      ).trim();
 
-        const userId =
-          String(
-            url.searchParams.get(
-              "userId"
-            ) || ""
-          ).trim();
-
-        if (!userId) {
-          return json(
-            {
-              error:
-                "User ID is required."
-            },
-            400
-          );
-        }
+      if (!userId) {
+        return json(
+          {
+            error: "User ID is required."
+          },
+          400
+        );
+      }
 
         const result =
           await env.DB
