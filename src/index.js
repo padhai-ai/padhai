@@ -3,12 +3,18 @@ export default {
     const url = new URL(request.url);
 
     // =========================
-    // CORS / OPTIONS
+    // CORS
     // =========================
+    const corsHeaders = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
+    };
+
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
-        headers: corsHeaders()
+        headers: corsHeaders
       });
     }
 
@@ -17,11 +23,18 @@ export default {
       // =========================
       // SIGNUP
       // =========================
-      if (url.pathname === "/api/signup" && request.method === "POST") {
+      if (
+        url.pathname === "/api/signup" &&
+        request.method === "POST"
+      ) {
+        await createUserTable(env);
+
         const body = await request.json();
 
         const name = String(body.name || "").trim();
-        const email = String(body.email || "").trim().toLowerCase();
+        const email = String(body.email || "")
+          .trim()
+          .toLowerCase();
         const password = String(body.password || "");
 
         if (!name || !email || !password) {
@@ -40,7 +53,10 @@ export default {
 
         if (password.length < 6) {
           return json(
-            { error: "Password must be at least 6 characters." },
+            {
+              error:
+                "Password must be at least 6 characters."
+            },
             400
           );
         }
@@ -54,15 +70,17 @@ export default {
 
         if (existing) {
           return json(
-            { error: "Email is already registered." },
+            {
+              error:
+                "Email is already registered."
+            },
             409
           );
         }
 
+        const userId = crypto.randomUUID();
         const passwordHash =
           await hashPassword(password);
-
-        const userId = crypto.randomUUID();
 
         await env.DB
           .prepare(`
@@ -92,16 +110,21 @@ export default {
       // =========================
       // LOGIN
       // =========================
-      if (url.pathname === "/api/login" && request.method === "POST") {
+      if (
+        url.pathname === "/api/login" &&
+        request.method === "POST"
+      ) {
+        await createUserTable(env);
+
         const body = await request.json();
 
-        const email =
-          String(body.email || "")
-            .trim()
-            .toLowerCase();
+        const email = String(body.email || "")
+          .trim()
+          .toLowerCase();
 
-        const password =
-          String(body.password || "");
+        const password = String(
+          body.password || ""
+        );
 
         if (!email || !password) {
           return json(
@@ -113,36 +136,26 @@ export default {
           );
         }
 
+        const passwordHash =
+          await hashPassword(password);
+
         const user = await env.DB
           .prepare(`
             SELECT
               id,
               name,
-              email,
-              password_hash
+              email
             FROM users
             WHERE email = ?
+            AND password_hash = ?
           `)
-          .bind(email)
+          .bind(
+            email,
+            passwordHash
+          )
           .first();
 
         if (!user) {
-          return json(
-            {
-              error:
-                "Invalid email or password."
-            },
-            401
-          );
-        }
-
-        const passwordHash =
-          await hashPassword(password);
-
-        if (
-          passwordHash !==
-          user.password_hash
-        ) {
           return json(
             {
               error:
@@ -172,8 +185,9 @@ export default {
       ) {
         const body = await request.json();
 
-        const message =
-          String(body.message || "").trim();
+        const message = String(
+          body.message || ""
+        ).trim();
 
         if (!message) {
           return json(
@@ -192,27 +206,148 @@ export default {
               {
                 role: "system",
                 content:
-                  "You are PadhAI, a friendly AI tutor for PU students. " +
-                  "Explain concepts simply and step by step. " +
-                  "Use examples when useful. " +
-                  "Be accurate, clear and student-friendly."
+                  "You are PadhAI, a friendly AI tutor for PU students. Explain academic topics clearly and step by step. Use simple language, examples, and short sections. Never make the student feel bad for asking basic questions."
               },
               {
                 role: "user",
                 content: message
               }
             ],
-            max_tokens: 700,
-            temperature: 0.4
+            max_tokens: 700
           }
         );
 
+        const answer =
+          result?.response ||
+          result?.result?.response ||
+          "Sorry, I could not generate an answer.";
+
         return json({
           success: true,
-          answer:
-            result?.response ||
-            result?.result?.response ||
-            "Sorry, I could not generate an answer."
+          answer
+        });
+      }
+
+
+      // =========================
+      // AI STUDY
+      // =========================
+      if (
+        url.pathname === "/api/study" &&
+        request.method === "POST"
+      ) {
+        const body = await request.json();
+
+        const topic = String(
+          body.topic || ""
+        ).trim();
+
+        const level = String(
+          body.level || "beginner"
+        ).trim().toLowerCase();
+
+        if (!topic) {
+          return json(
+            {
+              error:
+                "Please enter a study topic."
+            },
+            400
+          );
+        }
+
+        const safeLevel = [
+          "beginner",
+          "intermediate",
+          "advanced"
+        ].includes(level)
+          ? level
+          : "beginner";
+
+        const prompt = `
+You are PadhAI, an educational AI tutor for PU students.
+
+Create a clear lesson about:
+${topic}
+
+Difficulty:
+${safeLevel}
+
+Return ONLY valid JSON.
+
+The JSON must have exactly these fields:
+
+{
+  "title": "string",
+  "introduction": "string",
+  "explanation": "string",
+  "keyPoints": [
+    "string",
+    "string",
+    "string",
+    "string",
+    "string"
+  ],
+  "example": "string",
+  "summary": "string"
+}
+
+Rules:
+- keyPoints must contain exactly 5 items.
+- All fields must contain useful content.
+- Keep language simple and student-friendly.
+- Do not use markdown.
+- Do not put JSON inside markdown fences.
+`;
+
+        const result = await env.AI.run(
+          "@cf/meta/llama-3.1-8b-instruct-fast",
+          {
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Return only valid JSON."
+              },
+              {
+                role: "user",
+                content: prompt
+              }
+            ],
+            max_tokens: 1600
+          }
+        );
+
+        const text =
+          result?.response ||
+          result?.result?.response ||
+          "";
+
+        const lesson = parseAIJson(text);
+
+        if (
+          !lesson ||
+          !lesson.title ||
+          !lesson.introduction ||
+          !lesson.explanation ||
+          !Array.isArray(
+            lesson.keyPoints
+          ) ||
+          lesson.keyPoints.length !== 5 ||
+          !lesson.summary
+        ) {
+          return json(
+            {
+              error:
+                "AI returned an incomplete lesson."
+            },
+            500
+          );
+        }
+
+        return json({
+          success: true,
+          lesson
         });
       }
 
@@ -226,14 +361,15 @@ export default {
       ) {
         const body = await request.json();
 
-        const topic =
-          String(body.topic || "").trim();
+        const topic = String(
+          body.topic || ""
+        ).trim();
 
-        const requestedCount = Math.min(
-          Math.max(
-            Number(body.count) || 5,
-            1
-          ),
+        const requestedCount =
+          Number(body.count) || 5;
+
+        const count = Math.min(
+          Math.max(requestedCount, 1),
           10
         );
 
@@ -241,18 +377,20 @@ export default {
           return json(
             {
               error:
-                "Please enter a topic."
+                "Please enter a quiz topic."
             },
             400
           );
         }
 
         const prompt = `
-Create exactly ${requestedCount} multiple-choice questions for a PU student about:
+Create exactly ${count} multiple-choice questions about:
 
 ${topic}
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON.
+
+Format:
 
 {
   "questions": [
@@ -270,61 +408,39 @@ Return ONLY valid JSON in this exact format:
   ]
 }
 
-IMPORTANT RULES:
-- Create exactly ${requestedCount} questions.
+Rules:
+- Exactly ${count} questions.
 - Every question must have exactly 4 options.
-- answer must be 0, 1, 2 or 3.
-- Questions must be factually accurate.
-- Do not use markdown.
-- Do not write anything outside the JSON.
+- answer must be a number from 0 to 3.
+- Questions must be educational and factually correct.
+- No markdown.
+- Do not wrap the JSON in code fences.
 `;
 
-        let result;
-
-        try {
-          result = await env.AI.run(
-            "@cf/meta/llama-3.1-8b-instruct-fast",
-            {
-              messages: [
-                {
-                  role: "system",
-                  content:
-                    "You generate accurate educational multiple-choice quizzes. " +
-                    "Always follow the requested JSON format exactly."
-                },
-                {
-                  role: "user",
-                  content: prompt
-                }
-              ],
-              response_format: {
-                type: "json_object"
+        const result = await env.AI.run(
+          "@cf/meta/llama-3.1-8b-instruct-fast",
+          {
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Return only valid JSON."
               },
-              max_tokens: 1600,
-              temperature: 0.2
-            }
-          );
-        } catch (error) {
-          console.error(
-            "Quiz AI error:",
-            error
-          );
+              {
+                role: "user",
+                content: prompt
+              }
+            ],
+            max_tokens: 2200
+          }
+        );
 
-          return json(
-            {
-              error:
-                "AI quiz service is temporarily unavailable. Please try again."
-            },
-            500
-          );
-        }
-
-        const raw =
+        const text =
           result?.response ||
           result?.result?.response ||
-          result;
+          "";
 
-        const data = parseAIJson(raw);
+        const data = parseAIJson(text);
 
         if (
           !data ||
@@ -333,7 +449,7 @@ IMPORTANT RULES:
           return json(
             {
               error:
-                "Could not create quiz. Please try again."
+                "AI did not create a valid quiz. Please try again."
             },
             500
           );
@@ -345,43 +461,33 @@ IMPORTANT RULES:
               q &&
               typeof q.question === "string" &&
               Array.isArray(q.options) &&
-              q.options.length >= 4 &&
-              Number.isInteger(
-                Number(q.answer)
-              )
+              q.options.length === 4 &&
+              q.options.every(
+                (x) =>
+                  typeof x === "string" &&
+                  x.trim()
+              ) &&
+              Number.isInteger(q.answer) &&
+              q.answer >= 0 &&
+              q.answer <= 3
             );
           })
-          .slice(0, requestedCount)
-          .map((q) => {
-            let answer =
-              Number(q.answer);
-
-            if (answer < 0) answer = 0;
-            if (answer > 3) answer = 3;
-
-            return {
-              question:
-                String(q.question).trim(),
-
-              options:
-                q.options
-                  .slice(0, 4)
-                  .map((x) =>
-                    String(x).trim()
-                  ),
-
-              answer,
-
-              explanation:
-                String(
-                  q.explanation || ""
-                ).trim()
-            };
-          });
+          .slice(0, count)
+          .map((q) => ({
+            question: q.question.trim(),
+            options: q.options.map(
+              (x) => x.trim()
+            ),
+            answer: q.answer,
+            explanation:
+              typeof q.explanation ===
+              "string"
+                ? q.explanation.trim()
+                : ""
+          }));
 
         if (
-          questions.length <
-          requestedCount
+          questions.length !== count
         ) {
           return json(
             {
@@ -397,357 +503,128 @@ IMPORTANT RULES:
           topic,
           questions
         });
-         }
-
-    // =========================
-    // SAVE QUIZ SCORE
-    // =========================
-    if (
-      url.pathname === "/api/quiz-score" &&
-      request.method === "POST"
-    ) {
-      try {
-        await createProgressTables(env);
-
-        const body = await request.json();
-
-        const userId = String(
-          body.userId || ""
-        ).trim();
-
-        const topic = String(
-          body.topic || "General"
-        ).trim();
-
-        const score = Number(body.score);
-        const total = Number(body.total);
-
-        if (!userId) {
-          return json(
-            {
-              error: "User ID is missing."
-            },
-            400
-          );
-        }
-
-        if (
-          !Number.isFinite(score) ||
-          !Number.isFinite(total) ||
-          total <= 0 ||
-          score < 0 ||
-          score > total
-        ) {
-          return json(
-            {
-              error: "Invalid score data."
-            },
-            400
-          );
-        }
-
-        const quizId = crypto.randomUUID();
-
-        const createdAt =
-          new Date().toISOString();
-
-        await env.DB
-          .prepare(`
-            INSERT INTO quiz_scores
-            (
-              id,
-              user_id,
-              topic,
-              score,
-              total,
-              created_at
-            )
-            VALUES (?, ?, ?, ?, ?, ?)
-          `)
-          .bind(
-            quizId,
-            userId,
-            topic || "General",
-            Math.round(score),
-            Math.round(total),
-            createdAt
-          )
-          .run();
-
-        return json({
-          success: true,
-          saved: true,
-          score: Math.round(score),
-          total: Math.round(total)
-        });
-
-      } catch (error) {
-
-        console.error(
-          "SAVE QUIZ SCORE ERROR:",
-          error
-        );
-
-        return json(
-          {
-            error:
-              "Could not save quiz score."
-          },
-          500
-        );
-      }
-    }
-
-    // =========================
-    // QUIZ HISTORY
-    // =========================
-    if (
-      url.pathname === "/api/quiz-history" &&
-      request.method === "GET"
-    ) {
-      await createProgressTables(env);
-
-      const userId = String(
-        url.searchParams.get("userId") || ""
-      ).trim();
-
-      if (!userId) {
-        return json(
-          {
-            error: "User ID is required."
-          },
-          400
-        );
       }
 
-        const result =
+
+      // =========================
+      // SAVE QUIZ SCORE
+      // =========================
+      if (
+        url.pathname === "/api/quiz-score" &&
+        request.method === "POST"
+      ) {
+        try {
+          await createProgressTables(env);
+
+          const body = await request.json();
+
+          const userId = String(
+            body.userId || ""
+          ).trim();
+
+          const topic = String(
+            body.topic || "General"
+          ).trim();
+
+          const score =
+            Number(body.score);
+
+          const total =
+            Number(body.total);
+
+          if (!userId) {
+            return json(
+              {
+                error:
+                  "User ID is missing."
+              },
+              400
+            );
+          }
+
+          if (
+            !Number.isFinite(score) ||
+            !Number.isFinite(total) ||
+            total <= 0 ||
+            score < 0 ||
+            score > total
+          ) {
+            return json(
+              {
+                error:
+                  "Invalid score data."
+              },
+              400
+            );
+          }
+
+          const quizId =
+            crypto.randomUUID();
+
+          const createdAt =
+            new Date().toISOString();
+
           await env.DB
             .prepare(`
-              SELECT
+              INSERT INTO quiz_scores
+              (
                 id,
+                user_id,
                 topic,
                 score,
                 total,
                 created_at
-              FROM quiz_scores
-              WHERE user_id = ?
-              ORDER BY created_at DESC
-              LIMIT 20
+              )
+              VALUES (?, ?, ?, ?, ?, ?)
             `)
-            .bind(userId)
-            .all();
+            .bind(
+              quizId,
+              userId,
+              topic || "General",
+              Math.round(score),
+              Math.round(total),
+              createdAt
+            )
+            .run();
 
-        return json({
-          success: true,
-          quizzes:
-            result.results || []
-        });
-      }
-
-
-      // =========================
-      // AI STUDY
-      // =========================
-      if (
-        url.pathname === "/api/study" &&
-        request.method === "POST"
-      ) {
-        const body =
-          await request.json();
-
-        const topic =
-          String(body.topic || "").trim();
-
-        const level =
-          String(
-            body.level || "beginner"
-          )
-            .trim()
-            .toLowerCase();
-
-        if (!topic) {
-          return json(
-            {
-              error:
-                "Please enter a topic."
-            },
-            400
-          );
-        }
-
-        const allowedLevels = [
-          "beginner",
-          "intermediate",
-          "advanced"
-        ];
-
-        const safeLevel =
-          allowedLevels.includes(level)
-            ? level
-            : "beginner";
-
-        const prompt = `
-You are PadhAI, an educational AI tutor for PU students.
-
-Create a complete lesson about:
-
-${topic}
-
-Difficulty:
-${safeLevel}
-
-Return ONLY valid JSON using this exact structure:
-
-{
-  "title": "Lesson title",
-  "introduction": "Short introduction",
-  "explanation": "Detailed but easy explanation",
-  "keyPoints": [
-    "Point 1",
-    "Point 2",
-    "Point 3",
-    "Point 4",
-    "Point 5"
-  ],
-  "example": "Simple example",
-  "summary": "Short summary"
-}
-
-IMPORTANT RULES:
-- keyPoints must contain exactly 5 points.
-- Explain the topic accurately.
-- Keep it appropriate for PU students.
-- Use simple language.
-- Do not use markdown.
-- Do not write anything outside JSON.
-`;
-
-        let result;
-        let data = null;
-
-        try {
-          result = await env.AI.run(
-            "@cf/meta/llama-3.1-8b-instruct-fast",
-            {
-              messages: [
-                {
-                  role: "system",
-                  content:
-                    "You create complete, accurate educational lessons. " +
-                    "Always return valid JSON."
-                },
-                {
-                  role: "user",
-                  content: prompt
-                }
-              ],
-              response_format: {
-                type: "json_object"
-              },
-              max_tokens: 1800,
-              temperature: 0.2
-            }
-          );
-
-          const raw =
-            result?.response ||
-            result?.result?.response ||
-            result;
-
-          data = normalizeLesson(
-            parseAIJson(raw),
-            topic,
-            safeLevel
-          );
+          return json({
+            success: true,
+            saved: true,
+            score: Math.round(score),
+            total: Math.round(total)
+          });
 
         } catch (error) {
           console.error(
-            "Study AI error:",
+            "SAVE QUIZ SCORE ERROR:",
             error
           );
-        }
 
-        // =========================
-        // SECOND ATTEMPT
-        // =========================
-        if (!data) {
-          try {
-            result = await env.AI.run(
-              "@cf/meta/llama-3.1-8b-instruct-fast",
-              {
-                messages: [
-                  {
-                    role: "system",
-                    content:
-                      "Return ONLY valid JSON. " +
-                      "No markdown. " +
-                      "No explanation outside JSON."
-                  },
-                  {
-                    role: "user",
-                    content: prompt
-                  }
-                ],
-                response_format: {
-                  type: "json_object"
-                },
-                max_tokens: 1800,
-                temperature: 0.1
-              }
-            );
-
-            const retryRaw =
-              result?.response ||
-              result?.result?.response ||
-              result;
-
-            data = normalizeLesson(
-              parseAIJson(retryRaw),
-              topic,
-              safeLevel
-            );
-
-          } catch (error) {
-            console.error(
-              "Study retry error:",
-              error
-            );
-          }
-        }
-
-        if (!data) {
           return json(
             {
               error:
-                "Could not create lesson. Please try again."
+                "Could not save quiz score.",
+              details:
+                String(error?.message || error)
             },
             500
           );
         }
-
-        return json({
-          success: true,
-          lesson: data
-        });
       }
 
 
       // =========================
-      // PROGRESS
+      // QUIZ HISTORY
       // =========================
       if (
-        url.pathname === "/api/progress" &&
+        url.pathname === "/api/quiz-history" &&
         request.method === "GET"
       ) {
-        // Make absolutely sure the table exists
         await createProgressTables(env);
 
-        const userId =
-          String(
-            url.searchParams.get(
-              "userId"
-            ) || ""
-          ).trim();
+        const userId = String(
+          url.searchParams.get("userId") || ""
+        ).trim();
 
         if (!userId) {
           return json(
@@ -759,88 +636,117 @@ IMPORTANT RULES:
           );
         }
 
-        const stats =
-          await env.DB
-            .prepare(`
-              SELECT
-                COUNT(*) AS total_quizzes,
+        const result = await env.DB
+          .prepare(`
+            SELECT
+              id,
+              topic,
+              score,
+              total,
+              created_at
+            FROM quiz_scores
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT 20
+          `)
+          .bind(userId)
+          .all();
 
-                COALESCE(
-                  AVG(
-                    CASE
-                      WHEN total > 0
-                      THEN
-                        (score * 100.0 / total)
-                      ELSE 0
-                    END
-                  ),
-                  0
-                ) AS average_score,
+        return json({
+          success: true,
+          quizzes: result.results || []
+        });
+      }
 
-                COALESCE(
-                  SUM(score),
-                  0
-                ) AS correct_answers,
 
-                COALESCE(
-                  SUM(total),
-                  0
-                ) AS total_questions
+      // =========================
+      // PROGRESS
+      // =========================
+      if (
+        url.pathname === "/api/progress" &&
+        request.method === "GET"
+      ) {
+        await createProgressTables(env);
 
-              FROM quiz_scores
-              WHERE user_id = ?
-            `)
-            .bind(userId)
-            .first();
+        const userId = String(
+          url.searchParams.get("userId") || ""
+        ).trim();
 
-        const topics =
-          await env.DB
-            .prepare(`
-              SELECT
-                topic,
-                COUNT(*) AS quizzes,
+        if (!userId) {
+          return json(
+            {
+              error:
+                "User ID is required."
+            },
+            400
+          );
+        }
 
-                COALESCE(
-                  AVG(
-                    CASE
-                      WHEN total > 0
-                      THEN
-                        (score * 100.0 / total)
-                      ELSE 0
-                    END
-                  ),
-                  0
-                ) AS average_score
+        const stats = await env.DB
+          .prepare(`
+            SELECT
+              COUNT(*) AS total_quizzes,
+              COALESCE(
+                AVG(
+                  CASE
+                    WHEN total > 0
+                    THEN (score * 100.0 / total)
+                    ELSE 0
+                  END
+                ),
+                0
+              ) AS average_score,
+              COALESCE(
+                SUM(score),
+                0
+              ) AS correct_answers,
+              COALESCE(
+                SUM(total),
+                0
+              ) AS total_questions
+            FROM quiz_scores
+            WHERE user_id = ?
+          `)
+          .bind(userId)
+          .first();
 
-              FROM quiz_scores
-              WHERE user_id = ?
+        const topics = await env.DB
+          .prepare(`
+            SELECT
+              topic,
+              COUNT(*) AS quizzes,
+              SUM(score) AS correct,
+              SUM(total) AS questions,
+              AVG(
+                CASE
+                  WHEN total > 0
+                  THEN (score * 100.0 / total)
+                  ELSE 0
+                END
+              ) AS percentage
+            FROM quiz_scores
+            WHERE user_id = ?
+            GROUP BY topic
+            ORDER BY quizzes DESC
+          `)
+          .bind(userId)
+          .all();
 
-              GROUP BY topic
-
-              ORDER BY quizzes DESC
-            `)
-            .bind(userId)
-            .all();
-
-        const recent =
-          await env.DB
-            .prepare(`
-              SELECT
-                topic,
-                score,
-                total,
-                created_at
-
-              FROM quiz_scores
-
-              WHERE user_id = ?
-
-              ORDER BY created_at DESC
-
-              LIMIT 10
-            `)
-            .bind(userId)
-            .all();
+        const recent = await env.DB
+          .prepare(`
+            SELECT
+              id,
+              topic,
+              score,
+              total,
+              created_at
+            FROM quiz_scores
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT 10
+          `)
+          .bind(userId)
+          .all();
 
         return json({
           success: true,
@@ -852,10 +758,10 @@ IMPORTANT RULES:
               ),
 
             averageScore:
-              Number(
+              Math.round(
                 Number(
                   stats?.average_score || 0
-                ).toFixed(1)
+                )
               ),
 
             correctAnswers:
@@ -870,27 +776,32 @@ IMPORTANT RULES:
           },
 
           topics:
-            (topics?.results || [])
-              .map((row) => ({
-                topic:
-                  row.topic,
-
+            (topics.results || []).map(
+              (item) => ({
+                topic: item.topic,
                 quizzes:
                   Number(
-                    row.quizzes || 0
+                    item.quizzes || 0
                   ),
-
-                averageScore:
+                correct:
                   Number(
+                    item.correct || 0
+                  ),
+                questions:
+                  Number(
+                    item.questions || 0
+                  ),
+                percentage:
+                  Math.round(
                     Number(
-                      row.average_score ||
-                      0
-                    ).toFixed(1)
+                      item.percentage || 0
+                    )
                   )
-              })),
+              })
+            ),
 
           recent:
-            recent?.results || []
+            recent.results || []
         });
       }
 
@@ -902,23 +813,21 @@ IMPORTANT RULES:
         url.pathname === "/api/test-db" &&
         request.method === "GET"
       ) {
+        await createUserTable(env);
         await createProgressTables(env);
 
-        const result =
-          await env.DB
-            .prepare(`
-              SELECT
-                name
-              FROM sqlite_master
-              WHERE type = 'table'
-              ORDER BY name
-            `)
-            .all();
+        const result = await env.DB
+          .prepare(`
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+            ORDER BY name
+          `)
+          .all();
 
         return json({
           success: true,
-          tables:
-            result.results || []
+          tables: result.results || []
         });
       }
 
@@ -926,12 +835,22 @@ IMPORTANT RULES:
       // =========================
       // FRONTEND
       // =========================
-      return env.ASSETS.fetch(request);
+      if (env.ASSETS) {
+        return env.ASSETS.fetch(request);
+      }
+
+      return json(
+        {
+          error:
+            "PadhAI frontend is unavailable."
+        },
+        404
+      );
 
     } catch (error) {
 
       console.error(
-        "PadhAI API Error:",
+        "PadhAI SERVER ERROR:",
         error
       );
 
@@ -940,7 +859,7 @@ IMPORTANT RULES:
           error:
             "Something went wrong on the server.",
           details:
-            "Please try again."
+            String(error?.message || error)
         },
         500
       );
@@ -949,10 +868,26 @@ IMPORTANT RULES:
 };
 
 
-// ========================================
-// CREATE PROGRESS TABLES
-// ========================================
+// ==================================================
+// DATABASE: USERS
+// ==================================================
+async function createUserTable(env) {
+  await env.DB
+    .prepare(`
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL
+      )
+    `)
+    .run();
+}
 
+
+// ==================================================
+// DATABASE: QUIZ SCORES
+// ==================================================
 async function createProgressTables(env) {
 
   await env.DB
@@ -967,230 +902,77 @@ async function createProgressTables(env) {
       )
     `)
     .run();
+
+  // Check existing columns so an older table
+  // does not break the new application.
+  const info = await env.DB
+    .prepare(`
+      PRAGMA table_info(quiz_scores)
+    `)
+    .all();
+
+  const columns =
+    (info.results || []).map(
+      (column) => column.name
+    );
+
+  if (!columns.includes("id")) {
+    await env.DB
+      .prepare(
+        `ALTER TABLE quiz_scores ADD COLUMN id TEXT`
+      )
+      .run();
+  }
+
+  if (!columns.includes("user_id")) {
+    await env.DB
+      .prepare(
+        `ALTER TABLE quiz_scores ADD COLUMN user_id TEXT`
+      )
+      .run();
+  }
+
+  if (!columns.includes("topic")) {
+    await env.DB
+      .prepare(
+        `ALTER TABLE quiz_scores ADD COLUMN topic TEXT`
+      )
+      .run();
+  }
+
+  if (!columns.includes("score")) {
+    await env.DB
+      .prepare(
+        `ALTER TABLE quiz_scores ADD COLUMN score INTEGER`
+      )
+      .run();
+  }
+
+  if (!columns.includes("total")) {
+    await env.DB
+      .prepare(
+        `ALTER TABLE quiz_scores ADD COLUMN total INTEGER`
+      )
+      .run();
+  }
+
+  if (!columns.includes("created_at")) {
+    await env.DB
+      .prepare(
+        `ALTER TABLE quiz_scores ADD COLUMN created_at TEXT`
+      )
+      .run();
+  }
 }
 
 
-// ========================================
-// NORMALIZE AI STUDY LESSON
-// ========================================
-
-function normalizeLesson(
-  data,
-  topic,
-  level
-) {
-
-  if (
-    !data ||
-    typeof data !== "object"
-  ) {
-    return null;
-  }
-
-  const title =
-    String(
-      data.title ||
-      data.lessonTitle ||
-      topic
-    ).trim();
-
-  const introduction =
-    String(
-      data.introduction ||
-      data.intro ||
-      data.overview ||
-      ""
-    ).trim();
-
-  const explanation =
-    String(
-      data.explanation ||
-      data.content ||
-      data.details ||
-      ""
-    ).trim();
-
-  let points =
-    data.keyPoints ||
-    data.key_points ||
-    data.keypoints ||
-    data.points ||
-    [];
-
-  if (!Array.isArray(points)) {
-    points = [];
-  }
-
-  points = points
-    .map((x) =>
-      String(x || "").trim()
-    )
-    .filter(Boolean);
-
-  // Add safe fallback points
-  // if the AI returns fewer than 5.
-  const fallbackPoints = [
-    `Understand the basic idea of ${topic}.`,
-    `Remember the important terms related to ${topic}.`,
-    `Focus on how ${topic} works.`,
-    `Use examples to understand ${topic} better.`,
-    `Review the main concepts of ${topic}.`
-  ];
-
-  while (points.length < 5) {
-    const fallback =
-      fallbackPoints[points.length];
-
-    if (fallback) {
-      points.push(fallback);
-    } else {
-      break;
-    }
-  }
-
-  points =
-    points.slice(0, 5);
-
-  const example =
-    String(
-      data.example ||
-      data.examples ||
-      ""
-    ).trim();
-
-  const summary =
-    String(
-      data.summary ||
-      data.conclusion ||
-      data.takeaway ||
-      ""
-    ).trim();
-
-  if (
-    !title ||
-    !introduction ||
-    !explanation ||
-    !summary
-  ) {
-    return null;
-  }
-
-  if (points.length !== 5) {
-    return null;
-  }
-
-  return {
-    title,
-    introduction,
-    explanation,
-    keyPoints: points,
-    example,
-    summary,
-    level
-  };
-}
-
-
-// ========================================
-// AI JSON PARSER
-// ========================================
-
-function parseAIJson(raw) {
-
-  if (!raw) {
-    return null;
-  }
-
-  if (
-    typeof raw === "object"
-  ) {
-
-    if (
-      typeof raw.response ===
-      "string"
-    ) {
-      raw = raw.response;
-
-    } else if (
-      raw.result &&
-      typeof raw.result.response ===
-      "string"
-    ) {
-      raw =
-        raw.result.response;
-
-    } else {
-      return raw;
-    }
-  }
-
-  let text =
-    String(raw).trim();
-
-  // Remove markdown fences
-  text =
-    text
-      .replace(
-        /^```json\s*/i,
-        ""
-      )
-      .replace(
-        /^```\s*/i,
-        ""
-      )
-      .replace(
-        /\s*```$/i,
-        ""
-      )
-      .trim();
-
-  // Direct JSON parse
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    // Continue below
-  }
-
-  // Try extracting JSON object
-  const first =
-    text.indexOf("{");
-
-  const last =
-    text.lastIndexOf("}");
-
-  if (
-    first !== -1 &&
-    last !== -1 &&
-    last > first
-  ) {
-
-    try {
-      return JSON.parse(
-        text.substring(
-          first,
-          last + 1
-        )
-      );
-    } catch (error) {
-      return null;
-    }
-  }
-
-  return null;
-}
-
-
-// ========================================
+// ==================================================
 // PASSWORD HASH
-// ========================================
-
-async function hashPassword(
-  password
-) {
+// ==================================================
+async function hashPassword(password) {
 
   const data =
-    new TextEncoder()
-      .encode(password);
+    new TextEncoder().encode(password);
 
   const hash =
     await crypto.subtle.digest(
@@ -1201,53 +983,89 @@ async function hashPassword(
   return Array.from(
     new Uint8Array(hash)
   )
-    .map((b) =>
-      b.toString(16)
-        .padStart(2, "0")
+    .map(
+      (byte) =>
+        byte.toString(16).padStart(2, "0")
     )
     .join("");
 }
 
 
-// ========================================
-// JSON RESPONSE
-// ========================================
+// ==================================================
+// AI JSON PARSER
+// ==================================================
+function parseAIJson(text) {
 
-function json(
-  data,
-  status = 200
-) {
+  if (!text) {
+    return null;
+  }
+
+  let cleaned = String(text).trim();
+
+  // Remove markdown code fences
+  cleaned = cleaned
+    .replace(/^```json/i, "")
+    .replace(/^```/i, "")
+    .replace(/```$/i, "")
+    .trim();
+
+  // First attempt
+  try {
+    return JSON.parse(cleaned);
+  } catch (error) {
+    // Continue below
+  }
+
+  // Find first JSON object
+  const start =
+    cleaned.indexOf("{");
+
+  const end =
+    cleaned.lastIndexOf("}");
+
+  if (
+    start !== -1 &&
+    end !== -1 &&
+    end > start
+  ) {
+    const possibleJson =
+      cleaned.slice(start, end + 1);
+
+    try {
+      return JSON.parse(
+        possibleJson
+      );
+    } catch (error) {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+
+// ==================================================
+// JSON RESPONSE
+// ==================================================
+function json(data, status = 200) {
 
   return new Response(
     JSON.stringify(data),
     {
       status,
-
       headers: {
-        ...corsHeaders(),
-
         "Content-Type":
-          "application/json"
+          "application/json; charset=utf-8",
+
+        "Access-Control-Allow-Origin":
+          "*",
+
+        "Access-Control-Allow-Methods":
+          "GET, POST, OPTIONS",
+
+        "Access-Control-Allow-Headers":
+          "Content-Type"
       }
     }
   );
-}
-
-
-// ========================================
-// CORS HEADERS
-// ========================================
-
-function corsHeaders() {
-
-  return {
-    "Access-Control-Allow-Origin":
-      "*",
-
-    "Access-Control-Allow-Methods":
-      "GET,POST,OPTIONS",
-
-    "Access-Control-Allow-Headers":
-      "Content-Type"
-  };
 }
