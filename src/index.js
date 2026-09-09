@@ -679,7 +679,7 @@ if (
 // PROGRESS
 // =====================================================
 if (
-  url.pathname ==/= "/api/progress" &&
+  url.pathname === "/api/progress" &&
   request.method === "GET"
 ) {
   try {
