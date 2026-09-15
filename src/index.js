@@ -2,60 +2,47 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    };
-
     if (request.method === "OPTIONS") {
       return new Response(null, {
         status: 204,
-        headers: corsHeaders
+        headers: corsHeaders()
       });
     }
 
     try {
 
-      // =====================================================
+      // ==============================
       // SIGNUP
-      // =====================================================
-      if (
-        url.pathname === "/api/signup" &&
-        request.method === "POST"
-      ) {
+      // ==============================
+      if (url.pathname === "/api/signup" && request.method === "POST") {
         await createUserTable(env);
 
         const body = await request.json();
 
         const name = String(body.name || "").trim();
-        const email = String(body.email || "")
-          .trim()
-          .toLowerCase();
+        const email = String(body.email || "").trim().toLowerCase();
         const password = String(body.password || "");
 
         if (!name || !email || !password) {
-          return json({
-            error: "All fields are required."
-          }, 400);
+          return json({ success: false, message: "All fields are required." }, 400);
         }
 
         if (password.length < 6) {
           return json({
-            error: "Password must be at least 6 characters."
+            success: false,
+            message: "Password must be at least 6 characters."
           }, 400);
         }
 
         const existing = await env.DB
-          .prepare(
-            "SELECT id FROM users WHERE email = ?"
-          )
+          .prepare("SELECT id FROM users WHERE email = ?")
           .bind(email)
           .first();
 
         if (existing) {
           return json({
-            error: "Email is already registered."
+            success: false,
+            message: "Email is already registered."
           }, 409);
         }
 
@@ -68,50 +55,35 @@ export default {
             (id, name, email, password_hash)
             VALUES (?, ?, ?, ?)
           `)
-          .bind(
-            id,
-            name,
-            email,
-            passwordHash
-          )
+          .bind(id, name, email, passwordHash)
           .run();
 
         return json({
           success: true,
-          user: {
-            id,
-            name,
-            email
-          }
+          user: { id, name, email }
         });
       }
 
 
-      // =====================================================
+      // ==============================
       // LOGIN
-      // =====================================================
-      if (
-        url.pathname === "/api/login" &&
-        request.method === "POST"
-      ) {
+      // ==============================
+      if (url.pathname === "/api/login" && request.method === "POST") {
         await createUserTable(env);
 
         const body = await request.json();
 
-        const email = String(body.email || "")
-          .trim()
-          .toLowerCase();
-
+        const email = String(body.email || "").trim().toLowerCase();
         const password = String(body.password || "");
 
         if (!email || !password) {
           return json({
-            error: "Email and password are required."
+            success: false,
+            message: "Email and password are required."
           }, 400);
         }
 
-        const passwordHash =
-          await hashPassword(password);
+        const passwordHash = await hashPassword(password);
 
         const user = await env.DB
           .prepare(`
@@ -120,15 +92,13 @@ export default {
             WHERE email = ?
             AND password_hash = ?
           `)
-          .bind(
-            email,
-            passwordHash
-          )
+          .bind(email, passwordHash)
           .first();
 
         if (!user) {
           return json({
-            error: "Invalid email or password."
+            success: false,
+            message: "Invalid email or password."
           }, 401);
         }
 
@@ -143,22 +113,21 @@ export default {
       }
 
 
-      // =====================================================
+      // ==============================
       // AI TUTOR
-      // =====================================================
-      if (
-        url.pathname === "/api/tutor" &&
-        request.method === "POST"
-      ) {
+      // ==============================
+      if (url.pathname === "/api/tutor" && request.method === "POST") {
         const body = await request.json();
 
+        // Supports both "question" and "message"
         const message = String(
-          body.message || ""
+          body.question || body.message || ""
         ).trim();
 
         if (!message) {
           return json({
-            error: "Please enter a question."
+            success: false,
+            message: "Please enter a question."
           }, 400);
         }
 
@@ -176,7 +145,8 @@ export default {
                 content: message
               }
             ],
-            max_tokens: 900
+            max_tokens: 900,
+            temperature: 0.4
           }
         );
 
@@ -187,7 +157,8 @@ export default {
 
         if (!answer) {
           return json({
-            error: "AI could not generate an answer."
+            success: false,
+            message: "AI could not generate an answer."
           }, 500);
         }
 
@@ -198,53 +169,34 @@ export default {
       }
 
 
-      // =====================================================
+      // ==============================
       // AI STUDY
-      // =====================================================
-      if (
-        url.pathname === "/api/study" &&
-        request.method === "POST"
-      ) {
+      // ==============================
+      if (url.pathname === "/api/study" && request.method === "POST") {
         const body = await request.json();
 
-        const topic = String(
-          body.topic || ""
-        ).trim();
-
-        const level = String(
-          body.level || "beginner"
-        ).trim();
+        const topic = String(body.topic || "").trim();
+        const level = String(body.level || "beginner").trim();
 
         if (!topic) {
           return json({
-            error: "Please enter a study topic."
+            success: false,
+            message: "Please enter a study topic."
           }, 400);
         }
 
         const studySchema = {
           type: "object",
           properties: {
-            title: {
-              type: "string"
-            },
-            introduction: {
-              type: "string"
-            },
-            explanation: {
-              type: "string"
-            },
+            title: { type: "string" },
+            introduction: { type: "string" },
+            explanation: { type: "string" },
             keyPoints: {
               type: "array",
-              items: {
-                type: "string"
-              }
+              items: { type: "string" }
             },
-            example: {
-              type: "string"
-            },
-            summary: {
-              type: "string"
-            }
+            example: { type: "string" },
+            summary: { type: "string" }
           },
           required: [
             "title",
@@ -263,18 +215,17 @@ Create a complete lesson about:
 
 ${topic}
 
-Difficulty level:
+Difficulty:
 ${level}
 
-Requirements:
-
-1. Explain the topic clearly.
-2. Use simple student-friendly language.
-3. Give one useful example.
-4. Give exactly 5 important key points.
-5. Give a useful summary.
-6. Do not use markdown.
-7. Return only JSON matching the required structure.
+Rules:
+- Explain clearly.
+- Use simple student-friendly language.
+- Give one useful example.
+- Give exactly 5 key points.
+- Give a useful summary.
+- Do not use markdown.
+- Return only JSON.
 `;
 
         const result = await env.AI.run(
@@ -283,34 +234,28 @@ Requirements:
             messages: [
               {
                 role: "system",
-                content:
-                  "You are PadhAI. Return only valid JSON."
+                content: "You are PadhAI. Return only valid JSON."
               },
               {
                 role: "user",
                 content: prompt
               }
             ],
-
             response_format: {
               type: "json_schema",
               json_schema: studySchema
             },
-
             max_tokens: 1800,
             temperature: 0.2
           }
         );
 
-        const lesson =
-          getAIJson(result);
+        const lesson = getAIJson(result);
 
-        if (
-          !lesson ||
-          typeof lesson !== "object"
-        ) {
+        if (!lesson || typeof lesson !== "object") {
           return json({
-            error: "Could not create lesson."
+            success: false,
+            message: "Could not create lesson."
           }, 500);
         }
 
@@ -324,44 +269,37 @@ Requirements:
           !lesson.summary
         ) {
           return json({
-            error: "AI returned an incomplete lesson."
+            success: false,
+            message: "AI returned an incomplete lesson."
           }, 500);
         }
 
-        lesson.keyPoints =
-          lesson.keyPoints.slice(0, 5);
+        lesson.keyPoints = lesson.keyPoints.slice(0, 5);
 
         return json({
           success: true,
-          lesson: lesson
+          lesson
         });
       }
 
 
-      // =====================================================
+      // ==============================
       // AI QUIZ
-      // =====================================================
-      if (
-        url.pathname === "/api/quiz" &&
-        request.method === "POST"
-      ) {
+      // ==============================
+      if (url.pathname === "/api/quiz" && request.method === "POST") {
         const body = await request.json();
 
-        const topic = String(
-          body.topic || ""
-        ).trim();
+        const topic = String(body.topic || "").trim();
 
         const count = Math.min(
-          Math.max(
-            Number(body.count) || 5,
-            1
-          ),
+          Math.max(Number(body.count) || 5, 1),
           10
         );
 
         if (!topic) {
           return json({
-            error: "Please enter a quiz topic."
+            success: false,
+            message: "Please enter a quiz topic."
           }, 400);
         }
 
@@ -373,21 +311,13 @@ Requirements:
               items: {
                 type: "object",
                 properties: {
-                  question: {
-                    type: "string"
-                  },
+                  question: { type: "string" },
                   options: {
                     type: "array",
-                    items: {
-                      type: "string"
-                    }
+                    items: { type: "string" }
                   },
-                  answer: {
-                    type: "integer"
-                  },
-                  explanation: {
-                    type: "string"
-                  }
+                  answer: { type: "integer" },
+                  explanation: { type: "string" }
                 },
                 required: [
                   "question",
@@ -398,9 +328,7 @@ Requirements:
               }
             }
           },
-          required: [
-            "questions"
-          ]
+          required: ["questions"]
         };
 
         const prompt = `
@@ -411,15 +339,13 @@ Create exactly ${count} multiple-choice questions about:
 ${topic}
 
 Rules:
-
 - Exactly ${count} questions.
-- Every question must have exactly 4 options.
-- "answer" must be the zero-based correct option number.
-- Therefore answer must be 0, 1, 2 or 3.
-- Every question needs a short explanation.
+- Exactly 4 options per question.
+- answer must be 0, 1, 2 or 3.
+- answer is the zero-based correct option.
+- Every question needs an explanation.
 - Questions must be educational and factually correct.
-- Do not use markdown.
-- Return only JSON matching the required structure.
+- Return only JSON.
 `;
 
         const result = await env.AI.run(
@@ -428,212 +354,156 @@ Rules:
             messages: [
               {
                 role: "system",
-                content:
-                  "You are PadhAI. Return only valid JSON."
+                content: "You are PadhAI. Return only valid JSON."
               },
               {
                 role: "user",
                 content: prompt
               }
             ],
-
             response_format: {
               type: "json_schema",
               json_schema: quizSchema
             },
-
             max_tokens: 2200,
             temperature: 0.2
           }
         );
 
-        const data =
-          getAIJson(result);
+        const data = getAIJson(result);
 
-        if (
-          !data ||
-          !Array.isArray(data.questions)
-        ) {
+        if (!data || !Array.isArray(data.questions)) {
           return json({
-            error: "Could not create quiz."
+            success: false,
+            message: "Could not create quiz."
           }, 500);
         }
 
-        const questions =
-          data.questions
-            .filter((q) => {
-              return (
-                q &&
-                typeof q.question === "string" &&
-                Array.isArray(q.options) &&
-                q.options.length === 4 &&
-                q.options.every(
-                  option =>
-                    typeof option === "string" &&
-                    option.trim().length > 0
-                ) &&
-                Number.isInteger(q.answer) &&
-                q.answer >= 0 &&
-                q.answer <= 3
-              );
-            })
-            .slice(0, count)
-            .map(q => ({
-              question:
-                q.question.trim(),
-
-              options:
-                q.options.map(
-                  option => option.trim()
-                ),
-
-              answer:
-                Number(q.answer),
-
-              explanation:
-                String(
-                  q.explanation || ""
-                ).trim()
-            }));
+        const questions = data.questions
+          .filter(q =>
+            q &&
+            typeof q.question === "string" &&
+            Array.isArray(q.options) &&
+            q.options.length === 4 &&
+            q.options.every(
+              option =>
+                typeof option === "string" &&
+                option.trim().length > 0
+            ) &&
+            Number.isInteger(q.answer) &&
+            q.answer >= 0 &&
+            q.answer <= 3
+          )
+          .slice(0, count)
+          .map(q => ({
+            question: q.question.trim(),
+            options: q.options.map(o => o.trim()),
+            answer: Number(q.answer),
+            explanation: String(q.explanation || "").trim()
+          }));
 
         if (questions.length !== count) {
           return json({
-            error:
+            success: false,
+            message:
               "Could not create enough valid questions. Please try again."
           }, 500);
         }
 
         return json({
           success: true,
-          topic: topic,
-          questions: questions
+          topic,
+          questions
         });
       }
 
 
-      // =====================================================
-// SAVE QUIZ SCORE
-// =====================================================
-if (
-  url.pathname === "/api/quiz-score" &&
-  request.method === "POST"
-) {
-  try {
-    const body = await request.json();
+      // ==============================
+      // SAVE QUIZ SCORE
+      // ==============================
+      if (
+        url.pathname === "/api/quiz-score" &&
+        request.method === "POST"
+      ) {
+        const body = await request.json();
 
-    const userId = String(
-      body.userId || ""
-    ).trim();
+        const userId = String(body.userId || "").trim();
+        const topic = String(body.topic || "General").trim();
 
-    const topic = String(
-      body.topic || "General"
-    ).trim();
+        const score = Number(body.score);
+        const total = Number(body.total);
 
-    const score = Number(body.score);
-    const total = Number(body.total);
+        if (!userId) {
+          return json({
+            success: false,
+            message: "User ID is missing."
+          }, 400);
+        }
 
-    if (!userId) {
-      return json(
-        {
-          error: "User ID is missing."
-        },
-        400
-      );
-    }
+        if (
+          !Number.isFinite(score) ||
+          !Number.isFinite(total) ||
+          total <= 0 ||
+          score < 0 ||
+          score > total
+        ) {
+          return json({
+            success: false,
+            message: "Invalid score data."
+          }, 400);
+        }
 
-    if (
-      !Number.isFinite(score) ||
-      !Number.isFinite(total) ||
-      total <= 0 ||
-      score < 0 ||
-      score > total
-    ) {
-      return json(
-        {
-          error: "Invalid score data."
-        },
-        400
-      );
-    }
+        await createProgressTables(env);
 
-    /*
-      IMPORTANT:
-      The existing D1 table uses:
+        const finalScore = Math.round(score);
+        const finalTotal = Math.round(total);
 
-      user_id
-      subject
-      quiz_name
-      score
-      total_questions
-      created_at
-      topic
-      total
+        /*
+          IMPORTANT:
+          We save into ALL compatible columns.
 
-      So we must insert into that existing schema.
-      We intentionally do NOT insert "id" because
-      the database already generates the INTEGER id.
-    */
+          This works with the current PadhAI schema
+          and the older quiz_scores schema.
+        */
 
-    await env.DB
-      .prepare(`
-        INSERT INTO quiz_scores
-        (
-          user_id,
-          subject,
-          quiz_name,
-          score,
-          total_questions,
-          created_at,
-          topic,
-          total
-        )
-        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
-      `)
-      .bind(
-        userId,
-        topic || "General",
-        "AI Quiz",
-        Math.round(score),
-        Math.round(total),
-        topic || "General",
-        Math.round(total)
-      )
-      .run();
-
-    return json({
-      success: true,
-      saved: true,
-      score: Math.round(score),
-      total: Math.round(total)
-    });
-
-  } catch (error) {
-
-    console.error(
-      "QUIZ SCORE SAVE ERROR:",
-      error
-    );
-
-    return json(
-      {
-        success: false,
-        saved: false,
-        error:
-          "Could not save quiz score.",
-        details:
-          String(
-            error?.message || error
+        await env.DB
+          .prepare(`
+            INSERT INTO quiz_scores
+            (
+              user_id,
+              subject,
+              quiz_name,
+              score,
+              total_questions,
+              created_at,
+              topic,
+              total
+            )
+            VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
+          `)
+          .bind(
+            userId,
+            topic,
+            "AI Quiz",
+            finalScore,
+            finalTotal,
+            topic,
+            finalTotal
           )
-      },
-      500
-    );
-  }
-}
+          .run();
+
+        return json({
+          success: true,
+          saved: true,
+          score: finalScore,
+          total: finalTotal
+        });
+      }
 
 
-      // =====================================================
+      // ==============================
       // QUIZ HISTORY
-      // =====================================================
+      // ==============================
       if (
         url.pathname === "/api/quiz-history" &&
         request.method === "GET"
@@ -646,164 +516,224 @@ if (
 
         if (!userId) {
           return json({
-            error: "User ID is required."
+            success: false,
+            message: "User ID is required."
           }, 400);
         }
 
-        const result =
-          await env.DB
-            .prepare(`
-              SELECT
-                id,
-                topic,
-                score,
-                total,
-                created_at
-              FROM quiz_scores
-              WHERE user_id = ?
-              ORDER BY created_at DESC
-              LIMIT 20
-            `)
-            .bind(userId)
-            .all();
+        const result = await env.DB
+          .prepare(`
+            SELECT
+              id,
+              topic,
+              score,
+              COALESCE(total_questions, total, 0) AS total,
+              created_at
+            FROM quiz_scores
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT 20
+          `)
+          .bind(userId)
+          .all();
 
         return json({
           success: true,
-          quizzes:
-            result.results || []
+          quizzes: result.results || []
         });
       }
 
 
-      // =====================================================
-// PROGRESS
-// =====================================================
-if (
-  url.pathname === "/api/progress" &&
-  request.method === "GET"
-) {
-  try {
-    const userId = String(
-      url.searchParams.get("userId") || ""
-    ).trim();
+      // ==============================
+      // PROGRESS
+      // ==============================
+      if (
+        url.pathname === "/api/progress" &&
+        request.method === "GET"
+      ) {
+        const userId = String(
+          url.searchParams.get("userId") || ""
+        ).trim();
 
-    if (!userId) {
-      return json(
-        {
-          error: "User ID is required."
-        },
-        400
-      );
-    }
+        if (!userId) {
+          return json({
+            success: false,
+            message: "User ID is required."
+          }, 400);
+        }
 
-    const stats = await env.DB
-      .prepare(`
-        SELECT
-          COUNT(*) AS total_quizzes,
-          COALESCE(SUM(score), 0) AS correct_answers,
-          COALESCE(SUM(total_questions), 0) AS total_questions,
-          COALESCE(
-            AVG(
-              CASE
-                WHEN total_questions > 0
-                THEN score * 100.0 / total_questions
-                ELSE 0
-              END
-            ),
-            0
-          ) AS average_percentage
-        FROM quiz_scores
-        WHERE user_id = ?
-      `)
-      .bind(userId)
-      .first();
+        await createProgressTables(env);
 
-    const topics = await env.DB
-      .prepare(`
-        SELECT
-          COALESCE(topic, subject, 'General') AS topic,
-          COALESCE(SUM(total_questions), 0) AS questions,
-          COALESCE(SUM(score), 0) AS correct
-        FROM quiz_scores
-        WHERE user_id = ?
-        GROUP BY COALESCE(topic, subject, 'General')
-        ORDER BY questions DESC
-      `)
-      .bind(userId)
-      .all();
+        const stats = await env.DB
+          .prepare(`
+            SELECT
+              COUNT(*) AS total_quizzes,
 
-    const recent = await env.DB
-      .prepare(`
-        SELECT
-          COALESCE(topic, subject, 'General') AS topic,
-          score,
-          COALESCE(total_questions, total, 0) AS total,
-          created_at
-        FROM quiz_scores
-        WHERE user_id = ?
-        ORDER BY created_at DESC
-        LIMIT 10
-      `)
-      .bind(userId)
-      .all();
+              COALESCE(
+                SUM(score),
+                0
+              ) AS correct_answers,
 
-    return json({
-      success: true,
+              COALESCE(
+                SUM(
+                  COALESCE(
+                    total_questions,
+                    total,
+                    0
+                  )
+                ),
+                0
+              ) AS total_questions,
 
-      progress: {
-        totalQuizzes:
-          Number(stats?.total_quizzes || 0),
+              COALESCE(
+                AVG(
+                  CASE
+                    WHEN COALESCE(
+                      total_questions,
+                      total,
+                      0
+                    ) > 0
 
-        averagePercentage:
-          Math.round(
-            Number(
-              stats?.average_percentage || 0
-            )
-          ),
+                    THEN
+                      score * 100.0 /
+                      COALESCE(
+                        total_questions,
+                        total
+                      )
 
-        correctAnswers:
-          Number(
-            stats?.correct_answers || 0
-          ),
+                    ELSE 0
+                  END
+                ),
+                0
+              ) AS average_percentage
 
-        totalQuestions:
-          Number(
-            stats?.total_questions || 0
-          ),
+            FROM quiz_scores
+            WHERE user_id = ?
+          `)
+          .bind(userId)
+          .first();
 
-        topics:
-          (topics.results || []).map(item => ({
-            topic: item.topic,
-            questions:
-              Number(item.questions || 0),
-            correct:
-              Number(item.correct || 0)
-          })),
 
-        recent:
-          recent.results || []
+        const topics = await env.DB
+          .prepare(`
+            SELECT
+              COALESCE(
+                topic,
+                subject,
+                'General'
+              ) AS topic,
+
+              COALESCE(
+                SUM(
+                  COALESCE(
+                    total_questions,
+                    total,
+                    0
+                  )
+                ),
+                0
+              ) AS questions,
+
+              COALESCE(
+                SUM(score),
+                0
+              ) AS correct
+
+            FROM quiz_scores
+
+            WHERE user_id = ?
+
+            GROUP BY
+              COALESCE(
+                topic,
+                subject,
+                'General'
+              )
+
+            ORDER BY questions DESC
+          `)
+          .bind(userId)
+          .all();
+
+
+        const recent = await env.DB
+          .prepare(`
+            SELECT
+              COALESCE(
+                topic,
+                subject,
+                'General'
+              ) AS topic,
+
+              score,
+
+              COALESCE(
+                total_questions,
+                total,
+                0
+              ) AS total,
+
+              created_at
+
+            FROM quiz_scores
+
+            WHERE user_id = ?
+
+            ORDER BY created_at DESC
+
+            LIMIT 10
+          `)
+          .bind(userId)
+          .all();
+
+
+        return json({
+          success: true,
+
+          progress: {
+
+            totalQuizzes:
+              Number(stats?.total_quizzes || 0),
+
+            averagePercentage:
+              Math.round(
+                Number(
+                  stats?.average_percentage || 0
+                )
+              ),
+
+            correctAnswers:
+              Number(
+                stats?.correct_answers || 0
+              ),
+
+            totalQuestions:
+              Number(
+                stats?.total_questions || 0
+              ),
+
+            topics:
+              (topics.results || []).map(item => ({
+                topic:
+                  item.topic || "General",
+
+                questions:
+                  Number(item.questions || 0),
+
+                correct:
+                  Number(item.correct || 0)
+              })),
+
+            recent:
+              recent.results || []
+          }
+        });
       }
-    });
-
-  } catch (error) {
-    console.error(
-      "PROGRESS ERROR:",
-      error
-    );
-
-    return json({
-      success: false,
-      error: "Could not load progress.",
-      details:
-        String(error?.message || error)
-    }, 500);
-  }
-}
 
 
-      // =====================================================
+      // ==============================
       // DATABASE TEST
-      // =====================================================
+      // ==============================
       if (
         url.pathname === "/api/test-db" &&
         request.method === "GET"
@@ -811,69 +741,91 @@ if (
         await createUserTable(env);
         await createProgressTables(env);
 
-        const tables =
-          await env.DB
-            .prepare(`
-              SELECT name
-              FROM sqlite_master
-              WHERE type = 'table'
-              ORDER BY name
-            `)
-            .all();
+        const tables = await env.DB
+          .prepare(`
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+            ORDER BY name
+          `)
+          .all();
 
-        const schema =
-          await env.DB
-            .prepare(`
-              PRAGMA table_info(quiz_scores)
-            `)
-            .all();
+        const schema = await env.DB
+          .prepare(`
+            PRAGMA table_info(quiz_scores)
+          `)
+          .all();
 
         return json({
           success: true,
-          tables:
-            tables.results || [],
-          quizScoresSchema:
-            schema.results || []
+          tables: tables.results || [],
+          quizScoresSchema: schema.results || []
         });
       }
 
 
-      // =====================================================
+      // ==============================
       // FRONTEND
-      // =====================================================
+      // ==============================
       if (env.ASSETS) {
         return env.ASSETS.fetch(request);
       }
 
       return json({
-        error:
-          "PadhAI frontend is unavailable."
+        success: false,
+        message: "PadhAI frontend is unavailable."
       }, 404);
+
 
     } catch (error) {
 
-      console.error(
-        "PADHAI ERROR:",
-        error
-      );
+      console.error("PADHAI ERROR:", error);
 
       return json({
-        error:
-          "Something went wrong on the server.",
-        details:
-          String(
-            error?.message ||
-            error
-          )
+        success: false,
+        message: "Something went wrong on the server.",
+        details: String(error?.message || error)
       }, 500);
     }
   }
 };
 
 
-// =========================================================
-// CREATE USERS TABLE
-// =========================================================
+// =====================================================
+// CORS
+// =====================================================
+
+function corsHeaders() {
+  return {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type"
+  };
+}
+
+
+// =====================================================
+// JSON RESPONSE
+// =====================================================
+
+function json(data, status = 200) {
+  return new Response(
+    JSON.stringify(data),
+    {
+      status,
+      headers: {
+        ...corsHeaders(),
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    }
+  );
+}
+
+
+// =====================================================
+// USERS TABLE
+// =====================================================
+
 async function createUserTable(env) {
 
   await env.DB
@@ -889,37 +841,44 @@ async function createUserTable(env) {
 }
 
 
-// =========================================================
-// CREATE QUIZ SCORE TABLE
-// =========================================================
+// =====================================================
+// QUIZ SCORE TABLE
+// =====================================================
+
 async function createProgressTables(env) {
 
+  // Create table if it doesn't exist.
   await env.DB
     .prepare(`
       CREATE TABLE IF NOT EXISTS quiz_scores (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL,
-        topic TEXT NOT NULL,
+        subject TEXT,
+        quiz_name TEXT,
         score INTEGER NOT NULL,
-        total INTEGER NOT NULL,
-        created_at TEXT NOT NULL
+        total_questions INTEGER,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        topic TEXT,
+        total INTEGER
       )
     `)
     .run();
 
-  // Check current database schema.
-  const result =
-    await env.DB
-      .prepare(`
-        PRAGMA table_info(quiz_scores)
-      `)
-      .all();
+
+  // Check existing schema.
+  const result = await env.DB
+    .prepare(`
+      PRAGMA table_info(quiz_scores)
+    `)
+    .all();
 
   const columns =
-    (result.results || [])
-      .map(column => column.name);
+    (result.results || []).map(
+      column => column.name
+    );
 
-  // Add missing columns from older versions.
+
+  // Add missing columns safely.
   if (!columns.includes("user_id")) {
     await env.DB
       .prepare(`
@@ -929,11 +888,20 @@ async function createProgressTables(env) {
       .run();
   }
 
-  if (!columns.includes("topic")) {
+  if (!columns.includes("subject")) {
     await env.DB
       .prepare(`
         ALTER TABLE quiz_scores
-        ADD COLUMN topic TEXT
+        ADD COLUMN subject TEXT
+      `)
+      .run();
+  }
+
+  if (!columns.includes("quiz_name")) {
+    await env.DB
+      .prepare(`
+        ALTER TABLE quiz_scores
+        ADD COLUMN quiz_name TEXT
       `)
       .run();
   }
@@ -947,11 +915,11 @@ async function createProgressTables(env) {
       .run();
   }
 
-  if (!columns.includes("total")) {
+  if (!columns.includes("total_questions")) {
     await env.DB
       .prepare(`
         ALTER TABLE quiz_scores
-        ADD COLUMN total INTEGER
+        ADD COLUMN total_questions INTEGER
       `)
       .run();
   }
@@ -965,25 +933,34 @@ async function createProgressTables(env) {
       .run();
   }
 
-  if (!columns.includes("id")) {
+  if (!columns.includes("topic")) {
     await env.DB
       .prepare(`
         ALTER TABLE quiz_scores
-        ADD COLUMN id TEXT
+        ADD COLUMN topic TEXT
+      `)
+      .run();
+  }
+
+  if (!columns.includes("total")) {
+    await env.DB
+      .prepare(`
+        ALTER TABLE quiz_scores
+        ADD COLUMN total INTEGER
       `)
       .run();
   }
 }
 
 
-// =========================================================
+// =====================================================
 // PASSWORD HASH
-// =========================================================
+// =====================================================
+
 async function hashPassword(password) {
 
   const data =
-    new TextEncoder()
-      .encode(password);
+    new TextEncoder().encode(password);
 
   const hash =
     await crypto.subtle.digest(
@@ -1003,16 +980,16 @@ async function hashPassword(password) {
 }
 
 
-// =========================================================
-// GET AI JSON
-// =========================================================
+// =====================================================
+// AI JSON PARSER
+// =====================================================
+
 function getAIJson(result) {
 
   if (!result) {
     return null;
   }
 
-  // JSON Mode can return an actual object.
   if (
     result.response &&
     typeof result.response === "object"
@@ -1025,6 +1002,7 @@ function getAIJson(result) {
     typeof result.result === "object" &&
     !Array.isArray(result.result)
   ) {
+
     if (
       result.result.response &&
       typeof result.result.response === "object"
@@ -1033,19 +1011,20 @@ function getAIJson(result) {
     }
   }
 
+
   let text = "";
 
-  if (
-    typeof result.response === "string"
-  ) {
+  if (typeof result.response === "string") {
     text = result.response;
-  } else if (
+  }
+
+  else if (
     result.result &&
     typeof result.result.response === "string"
   ) {
-    text =
-      result.result.response;
+    text = result.result.response;
   }
+
 
   if (!text) {
     return null;
@@ -1053,31 +1032,33 @@ function getAIJson(result) {
 
   text = text.trim();
 
-  // Remove markdown fences if AI adds them.
-  text =
-    text
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/\s*```$/i, "")
-      .trim();
 
+  // Remove markdown code fences.
+  text = text
+    .replace(/^```json\s*/i, "")
+    .replace(/^```\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+
+  // Try normal JSON.
   try {
     return JSON.parse(text);
   } catch (error) {
-    // Try extracting JSON object.
+    // Continue below.
   }
 
-  const first =
-    text.indexOf("{");
 
-  const last =
-    text.lastIndexOf("}");
+  // Try extracting JSON object.
+  const first = text.indexOf("{");
+  const last = text.lastIndexOf("}");
 
   if (
     first !== -1 &&
     last !== -1 &&
     last > first
   ) {
+
     try {
       return JSON.parse(
         text.slice(first, last + 1)
@@ -1088,32 +1069,4 @@ function getAIJson(result) {
   }
 
   return null;
-}
-
-
-// =========================================================
-// JSON RESPONSE
-// =========================================================
-function json(data, status = 200) {
-
-  return new Response(
-    JSON.stringify(data),
-    {
-      status: status,
-
-      headers: {
-        "Content-Type":
-          "application/json; charset=utf-8",
-
-        "Access-Control-Allow-Origin":
-          "*",
-
-        "Access-Control-Allow-Methods":
-          "GET, POST, OPTIONS",
-
-        "Access-Control-Allow-Headers":
-          "Content-Type"
-      }
-    }
-  );
 }
