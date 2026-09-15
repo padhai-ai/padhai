@@ -2011,6 +2011,20 @@ async function generateQuestionPaper(){
         data.instructions||
         "Answer all questions.";
 
+    document.getElementById("paperSubject")
+  .textContent = topic;
+
+document.getElementById("paperDifficulty")
+  .textContent =
+    level === "beginner"
+      ? "Easy"
+      : level === "intermediate"
+        ? "Medium"
+        : "Hard";
+
+document.getElementById("paperQuestionCount")
+  .textContent = `${count} Questions`;
+
     const container=
       document.getElementById("paperQuestions");
 
