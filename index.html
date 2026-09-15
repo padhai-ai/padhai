@@ -1811,6 +1811,26 @@ async function showQuizResult(){
     .textContent=
       `${percentage}%`;
 
+  const resultMessage =
+  document.getElementById("quizSaveMessage");
+
+if (percentage >= 90) {
+  resultMessage.textContent =
+    "🏆 Excellent! You have mastered this topic!";
+}
+else if (percentage >= 70) {
+  resultMessage.textContent =
+    "👏 Great job! Keep practicing to become even better.";
+}
+else if (percentage >= 50) {
+  resultMessage.textContent =
+    "👍 Good effort! A little more practice will help.";
+}
+else {
+  resultMessage.textContent =
+    "📚 Keep learning! Review the topic and try again.";
+}
+
   const saveMessage=
     document.getElementById("quizSaveMessage");
 
