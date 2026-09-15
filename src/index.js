@@ -120,8 +120,11 @@ export default {
       // =====================================================
       if (url.pathname === "/api/tutor" && request.method === "POST") {
         const body = await request.json();
-        const message = String(body.message || "").trim();
-
+        const message = String(
+  body.question ||
+  body.message ||
+  ""
+).trim();
         if (!message) {
           return json({
             error: "Please enter a question."
