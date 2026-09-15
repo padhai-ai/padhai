@@ -120,7 +120,6 @@ export default {
       // =====================================================
       if (url.pathname === "/api/tutor" && request.method === "POST") {
         const body = await request.json();
-
         const message = String(body.message || "").trim();
 
         if (!message) {
@@ -207,6 +206,7 @@ export default {
 You are PadhAI, an AI study teacher for PU students.
 
 Create a complete lesson about:
+
 ${topic}
 
 Difficulty:
@@ -218,7 +218,6 @@ Requirements:
 - Give one useful example.
 - Give exactly 5 important key points.
 - Give a useful summary.
-- Do not use markdown.
 - Return only JSON.
 `;
 
@@ -326,15 +325,15 @@ Requirements:
 You are PadhAI, an AI quiz generator for PU students.
 
 Create exactly ${count} multiple-choice questions about:
+
 ${topic}
 
 Rules:
 - Exactly ${count} questions.
 - Exactly 4 options per question.
 - answer must be 0, 1, 2 or 3.
-- answer is the zero-based correct option.
 - Include a short explanation.
-- Make questions educational and factually correct.
+- Questions must be educational and factually correct.
 - Return only JSON.
 `;
 
@@ -386,7 +385,7 @@ Rules:
           .slice(0, count)
           .map(q => ({
             question: q.question.trim(),
-            options: q.options.map(x => x.trim()),
+            options: q.options.map(o => o.trim()),
             answer: Number(q.answer),
             explanation: String(q.explanation || "").trim()
           }));
@@ -453,9 +452,7 @@ Rules:
                     }
                   }
                 },
-                required: [
-                  "question"
-                ]
+                required: ["question"]
               }
             }
           },
@@ -467,34 +464,30 @@ Rules:
         };
 
         const prompt = `
-You are PadhAI, an AI question-paper generator for PU students.
+You are PadhAI, an AI exam question-paper generator for PU students.
 
-Create an exam-style question paper.
+Create an exam-style question paper about:
 
-Subject/topic:
+SUBJECT/TOPIC:
 ${topic}
 
-Difficulty:
+DIFFICULTY:
 ${level}
 
-Number of questions:
+NUMBER OF QUESTIONS:
 ${count}
 
 Rules:
 
 1. Create exactly ${count} questions.
 2. Questions must be educational and relevant to the topic.
-3. Questions should match the requested difficulty.
-4. Mix conceptual and application-based questions.
-5. You may use multiple-choice questions when appropriate.
-6. If using multiple-choice, provide exactly 4 options.
-7. Do NOT provide answers.
-8. Do NOT provide explanations.
-9. Do not use markdown.
-10. Return only valid JSON matching the structure.
-
-The title should look professional.
-Instructions should be suitable for a student examination.
+3. Use a mixture of conceptual and application-based questions.
+4. Keep questions suitable for PU students.
+5. If appropriate, provide 4 options for MCQ questions.
+6. Do NOT provide answers.
+7. Do NOT provide explanations.
+8. Make the paper look suitable for an actual school/college examination.
+9. Return only valid JSON.
 `;
 
         const result = await env.AI.run(
@@ -515,24 +508,25 @@ Instructions should be suitable for a student examination.
               type: "json_schema",
               json_schema: paperSchema
             },
-            max_tokens: 3500,
+            max_tokens: 4000,
             temperature: 0.3
           }
         );
 
-        const data = getAIJson(result);
+        const paper = getAIJson(result);
 
         if (
-          !data ||
-          !Array.isArray(data.questions)
+          !paper ||
+          typeof paper !== "object" ||
+          !Array.isArray(paper.questions)
         ) {
           return json({
             error:
-              "Could not generate question paper."
+              "Could not generate question paper. Please try again."
           }, 500);
         }
 
-        const questions = data.questions
+        const questions = paper.questions
           .filter(q =>
             q &&
             typeof q.question === "string" &&
@@ -543,28 +537,32 @@ Instructions should be suitable for a student examination.
             question: q.question.trim(),
             options: Array.isArray(q.options)
               ? q.options
-                  .filter(x => typeof x === "string")
-                  .map(x => x.trim())
+                  .filter(
+                    option =>
+                      typeof option === "string" &&
+                      option.trim()
+                  )
                   .slice(0, 4)
-              : null
+                  .map(option => option.trim())
+              )
+              : []
           }));
 
         if (questions.length !== count) {
           return json({
             error:
-              "AI could not generate enough questions. Please try again."
+              "AI could not create enough questions. Please try again."
           }, 500);
         }
 
         return json({
           success: true,
           title:
-            String(data.title || `${topic} - Question Paper`),
+            paper.title ||
+            `${topic} - Question Paper`,
           instructions:
-            String(
-              data.instructions ||
-              "Answer all questions."
-            ),
+            paper.instructions ||
+            "Answer all questions.",
           questions
         });
       }
@@ -578,13 +576,10 @@ Instructions should be suitable for a student examination.
         request.method === "POST"
       ) {
         try {
-          await createProgressTables(env);
-
           const body = await request.json();
 
           const userId = String(body.userId || "").trim();
           const topic = String(body.topic || "General").trim();
-
           const score = Number(body.score);
           const total = Number(body.total);
 
@@ -605,6 +600,10 @@ Instructions should be suitable for a student examination.
               error: "Invalid score data."
             }, 400);
           }
+
+          await createProgressTables(env);
+
+          await ensureQuizScoreColumns(env);
 
           await env.DB
             .prepare(`
@@ -660,6 +659,7 @@ Instructions should be suitable for a student examination.
         request.method === "GET"
       ) {
         await createProgressTables(env);
+        await ensureQuizScoreColumns(env);
 
         const userId = String(
           url.searchParams.get("userId") || ""
@@ -677,7 +677,7 @@ Instructions should be suitable for a student examination.
               id,
               topic,
               score,
-              total,
+              COALESCE(total_questions, total, 0) AS total,
               created_at
             FROM quiz_scores
             WHERE user_id = ?
@@ -702,8 +702,6 @@ Instructions should be suitable for a student examination.
         request.method === "GET"
       ) {
         try {
-          await createProgressTables(env);
-
           const userId = String(
             url.searchParams.get("userId") || ""
           ).trim();
@@ -714,6 +712,9 @@ Instructions should be suitable for a student examination.
             }, 400);
           }
 
+          await createProgressTables(env);
+          await ensureQuizScoreColumns(env);
+
           const stats = await env.DB
             .prepare(`
               SELECT
@@ -721,11 +722,7 @@ Instructions should be suitable for a student examination.
                 COALESCE(SUM(score), 0) AS correct_answers,
                 COALESCE(
                   SUM(
-                    COALESCE(
-                      total_questions,
-                      total,
-                      0
-                    )
+                    COALESCE(total_questions, total, 0)
                   ),
                   0
                 ) AS total_questions,
@@ -737,12 +734,10 @@ Instructions should be suitable for a student examination.
                         total,
                         0
                       ) > 0
-                      THEN
-                        score * 100.0 /
+                      THEN score * 100.0 /
                         COALESCE(
                           total_questions,
-                          total,
-                          1
+                          total
                         )
                       ELSE 0
                     END
@@ -828,7 +823,6 @@ Instructions should be suitable for a student examination.
 
           return json({
             success: true,
-
             progress: {
               totalQuizzes:
                 Number(stats?.total_quizzes || 0),
@@ -885,6 +879,7 @@ Instructions should be suitable for a student examination.
       ) {
         await createUserTable(env);
         await createProgressTables(env);
+        await ensureQuizScoreColumns(env);
 
         const tables = await env.DB
           .prepare(`
@@ -936,7 +931,6 @@ Instructions should be suitable for a student examination.
 // USERS TABLE
 // =========================================================
 async function createUserTable(env) {
-
   await env.DB
     .prepare(`
       CREATE TABLE IF NOT EXISTS users (
@@ -951,47 +945,29 @@ async function createUserTable(env) {
 
 
 // =========================================================
-// QUIZ SCORE TABLE
+// QUIZ TABLE
 // =========================================================
 async function createProgressTables(env) {
-
-  /*
-    Do NOT recreate an existing table with the wrong schema.
-    First check whether quiz_scores already exists.
-  */
-
-  const table = await env.DB
+  await env.DB
     .prepare(`
-      SELECT name
-      FROM sqlite_master
-      WHERE type = 'table'
-      AND name = 'quiz_scores'
+      CREATE TABLE IF NOT EXISTS quiz_scores (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        topic TEXT,
+        score INTEGER,
+        total INTEGER,
+        created_at TEXT
+      )
     `)
-    .first();
-
-  if (!table) {
-
-    await env.DB
-      .prepare(`
-        CREATE TABLE quiz_scores (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          user_id TEXT NOT NULL,
-          subject TEXT,
-          quiz_name TEXT,
-          score INTEGER NOT NULL,
-          total_questions INTEGER,
-          created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-          topic TEXT,
-          total INTEGER
-        )
-      `)
-      .run();
-
-    return;
-  }
+    .run();
+}
 
 
-  // Check existing schema.
+// =========================================================
+// ENSURE OLD QUIZ SCHEMA WORKS
+// =========================================================
+async function ensureQuizScoreColumns(env) {
+
   const result = await env.DB
     .prepare(`
       PRAGMA table_info(quiz_scores)
@@ -999,15 +975,51 @@ async function createProgressTables(env) {
     .all();
 
   const columns =
-    (result.results || [])
-      .map(column => column.name);
-
+    (result.results || []).map(
+      column => column.name
+    );
 
   if (!columns.includes("user_id")) {
     await env.DB
       .prepare(`
         ALTER TABLE quiz_scores
         ADD COLUMN user_id TEXT
+      `)
+      .run();
+  }
+
+  if (!columns.includes("topic")) {
+    await env.DB
+      .prepare(`
+        ALTER TABLE quiz_scores
+        ADD COLUMN topic TEXT
+      `)
+      .run();
+  }
+
+  if (!columns.includes("score")) {
+    await env.DB
+      .prepare(`
+        ALTER TABLE quiz_scores
+        ADD COLUMN score INTEGER
+      `)
+      .run();
+  }
+
+  if (!columns.includes("total")) {
+    await env.DB
+      .prepare(`
+        ALTER TABLE quiz_scores
+        ADD COLUMN total INTEGER
+      `)
+      .run();
+  }
+
+  if (!columns.includes("created_at")) {
+    await env.DB
+      .prepare(`
+        ALTER TABLE quiz_scores
+        ADD COLUMN created_at TEXT
       `)
       .run();
   }
@@ -1030,47 +1042,11 @@ async function createProgressTables(env) {
       .run();
   }
 
-  if (!columns.includes("score")) {
-    await env.DB
-      .prepare(`
-        ALTER TABLE quiz_scores
-        ADD COLUMN score INTEGER
-      `)
-      .run();
-  }
-
   if (!columns.includes("total_questions")) {
     await env.DB
       .prepare(`
         ALTER TABLE quiz_scores
         ADD COLUMN total_questions INTEGER
-      `)
-      .run();
-  }
-
-  if (!columns.includes("created_at")) {
-    await env.DB
-      .prepare(`
-        ALTER TABLE quiz_scores
-        ADD COLUMN created_at TEXT
-      `)
-      .run();
-  }
-
-  if (!columns.includes("topic")) {
-    await env.DB
-      .prepare(`
-        ALTER TABLE quiz_scores
-        ADD COLUMN topic TEXT
-      `)
-      .run();
-  }
-
-  if (!columns.includes("total")) {
-    await env.DB
-      .prepare(`
-        ALTER TABLE quiz_scores
-        ADD COLUMN total INTEGER
       `)
       .run();
   }
@@ -1104,7 +1080,7 @@ async function hashPassword(password) {
 
 
 // =========================================================
-// GET AI JSON
+// AI JSON PARSER
 // =========================================================
 function getAIJson(result) {
 
@@ -1124,7 +1100,6 @@ function getAIJson(result) {
     typeof result.result === "object" &&
     !Array.isArray(result.result)
   ) {
-
     if (
       result.result.response &&
       typeof result.result.response === "object"
@@ -1137,9 +1112,7 @@ function getAIJson(result) {
 
   if (typeof result.response === "string") {
     text = result.response;
-  }
-
-  else if (
+  } else if (
     result.result &&
     typeof result.result.response === "string"
   ) {
@@ -1160,8 +1133,7 @@ function getAIJson(result) {
 
   try {
     return JSON.parse(text);
-  } catch (error) {
-  }
+  } catch (error) {}
 
   const first = text.indexOf("{");
   const last = text.lastIndexOf("}");
