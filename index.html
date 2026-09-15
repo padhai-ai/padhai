@@ -1634,11 +1634,22 @@ async function generateQuiz(){
         headers:{
           "Content-Type":"application/json"
         },
-        body:JSON.stringify({
-          topic,
-          count:5
-        })
-      });
+        const count =
+  Number(
+    document.getElementById("quizCount").value
+  );
+
+const response =
+  await fetch("/api/quiz", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      topic,
+      count
+    })
+  });
 
     const data=
       await response.json();
