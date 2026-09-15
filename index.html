@@ -854,27 +854,42 @@ button:hover{opacity:.92}
 
       <div class="paper-box">
 
-        <h2 id="paperTitle">
-          Question Paper
-        </h2>
+  <div class="paper-header">
 
-        <p id="paperInstructions"></p>
+    <h2>PadhAI</h2>
 
-        <div id="paperQuestions"></div>
+    <h2 id="paperTitle">
+      Question Paper
+    </h2>
 
-      </div>
+    <p id="paperInstructions">
+      Answer all questions.
+    </p>
 
-      <button onclick="window.print()">
-        🖨️ Print / Save Paper
-      </button>
+  </div>
 
-      <button class="secondary"
-        onclick="newQuestionPaper()">
-        🔄 Generate Another
-      </button>
+  <div class="paper-meta">
 
+    <div>
+      <strong>Subject:</strong>
+      <span id="paperSubject">—</span>
     </div>
 
+    <div>
+      <strong>Difficulty:</strong>
+      <span id="paperDifficulty">—</span>
+    </div>
+
+    <div>
+      <strong>Questions:</strong>
+      <span id="paperQuestionCount">—</span>
+    </div>
+
+  </div>
+
+  <div id="paperQuestions"></div>
+
+</div>
 
     <!-- FUTURE PREMIUM -->
 
