@@ -526,27 +526,33 @@ Rules:
           }, 500);
         }
 
-        const questions = paper.questions
-          .filter(q =>
-            q &&
-            typeof q.question === "string" &&
-            q.question.trim().length > 0
-          )
-          .slice(0, count)
-          .map(q => ({
-            question: q.question.trim(),
-            options: Array.isArray(q.options)
-              ? q.options
-                  .filter(
-                    option =>
-                      typeof option === "string" &&
-                      option.trim()
-                  )
-                  .slice(0, 4)
-                  .map(option => option.trim())
-              )
-              : []
-          }));
+         const questions = paper.questions
+  .filter((q) => {
+    return (
+      q &&
+      typeof q.question === "string" &&
+      q.question.trim().length > 0
+    );
+  })
+  .slice(0, count)
+  .map((q) => {
+    const options = Array.isArray(q.options)
+      ? q.options
+          .filter((option) => {
+            return (
+              typeof option === "string" &&
+              option.trim().length > 0
+            );
+          })
+          .slice(0, 4)
+          .map((option) => option.trim())
+      : [];
+
+    return {
+      question: q.question.trim(),
+      options: options
+    };
+  });
 
         if (questions.length !== count) {
           return json({
