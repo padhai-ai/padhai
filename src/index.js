@@ -406,172 +406,209 @@ Rules:
 
 
       // =====================================================
-      // AI QUESTION PAPER
-      // =====================================================
-      if (
-        url.pathname === "/api/question-paper" &&
-        request.method === "POST"
-      ) {
-        const body = await request.json();
+// AI QUESTION PAPER
+// Generates in batches so 10 / 20 / 30 all work
+// =====================================================
+if (
+  url.pathname === "/api/question-paper" &&
+  request.method === "POST"
+) {
+  try {
+    const body = await request.json();
 
-        const topic = String(body.topic || "").trim();
-        const level = String(body.level || "beginner").trim();
+    const topic = String(body.topic || "").trim();
 
-        const count = Math.min(
-          Math.max(Number(body.count) || 10, 1),
-          30
-        );
+    const level = String(
+      body.level || "beginner"
+    ).trim();
 
-        if (!topic) {
-          return json({
-            error: "Please enter a subject or topic."
-          }, 400);
-        }
+    let count = Number(body.count || 10);
 
-        const paperSchema = {
-          type: "object",
-          properties: {
-            title: {
-              type: "string"
-            },
-            instructions: {
-              type: "string"
-            },
-            questions: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  question: {
-                    type: "string"
-                  },
-                  options: {
-                    type: "array",
-                    items: {
-                      type: "string"
-                    }
-                  }
-                },
-                required: ["question"]
-              }
-            }
-          },
-          required: [
-            "title",
-            "instructions",
-            "questions"
-          ]
-        };
+    // Only allow 10, 20 or 30
+    if (![10, 20, 30].includes(count)) {
+      count = 10;
+    }
 
-        const prompt = `
-You are PadhAI, an AI exam question-paper generator for PU students.
+    if (!topic) {
+      return json({
+        error: "Please enter a subject or topic."
+      }, 400);
+    }
 
-Create an exam-style question paper about:
+    const difficultyMap = {
+      beginner: "Easy",
+      intermediate: "Medium",
+      advanced: "Hard"
+    };
 
-SUBJECT/TOPIC:
+    const difficulty =
+      difficultyMap[level] || "Easy";
+
+    const allQuestions = [];
+
+    // Generate maximum 10 questions per AI call
+    const batches = Math.ceil(count / 10);
+
+    for (let batch = 0; batch < batches; batch++) {
+
+      const remaining =
+        count - allQuestions.length;
+
+      const batchCount =
+        Math.min(10, remaining);
+
+      const prompt = `
+You are PadhAI, an AI question paper generator.
+
+Create exactly ${batchCount} high-quality exam questions.
+
+Subject / Topic:
 ${topic}
 
-DIFFICULTY:
-${level}
+Difficulty:
+${difficulty}
 
-NUMBER OF QUESTIONS:
-${count}
+Requirements:
+- Create EXACTLY ${batchCount} questions.
+- Questions must be relevant to the topic.
+- Questions must match the requested difficulty.
+- Avoid duplicate questions.
+- Make the questions clear and exam-style.
+- Use a mixture of conceptual and problem-solving questions when appropriate.
+- For Mathematics, include proper mathematical expressions.
+- Do not provide answers.
+- Do not provide explanations.
+- Return ONLY valid JSON.
+- No markdown.
+- No text outside the JSON.
 
-Rules:
+Return exactly this structure:
 
-1. Create exactly ${count} questions.
-2. Questions must be educational and relevant to the topic.
-3. Use a mixture of conceptual and application-based questions.
-4. Keep questions suitable for PU students.
-5. If appropriate, provide 4 options for MCQ questions.
-6. Do NOT provide answers.
-7. Do NOT provide explanations.
-8. Make the paper look suitable for an actual school/college examination.
-9. Return only valid JSON.
+{
+  "questions": [
+    {
+      "question": "Question text",
+      "options": [
+        "Option A",
+        "Option B",
+        "Option C",
+        "Option D"
+      ]
+    }
+  ]
+}
+
+For non-MCQ questions, use:
+
+{
+  "question": "Question text",
+  "options": []
+}
 `;
 
-        const result = await env.AI.run(
-          "@cf/meta/llama-3.1-8b-instruct-fast",
-          {
-            messages: [
-              {
-                role: "system",
-                content:
-                  "You are PadhAI. Return only valid JSON."
-              },
-              {
-                role: "user",
-                content: prompt
-              }
-            ],
-            response_format: {
-              type: "json_schema",
-              json_schema: paperSchema
+      const result = await env.AI.run(
+        "@cf/meta/llama-3.1-8b-instruct-fast",
+        {
+          messages: [
+            {
+              role: "system",
+              content:
+                "You generate accurate exam-style questions and return valid JSON only."
             },
-            max_tokens: 4000,
-            temperature: 0.3
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          max_tokens: 4000,
+          temperature: 0.2,
+          response_format: {
+            type: "json_object"
           }
-        );
+        }
+      );
 
-        const paper = getAIJson(result);
+      const paper = getAIJson(result);
+
+      if (
+        !paper ||
+        typeof paper !== "object" ||
+        !Array.isArray(paper.questions)
+      ) {
+        continue;
+      }
+
+      for (const q of paper.questions) {
 
         if (
-          !paper ||
-          typeof paper !== "object" ||
-          !Array.isArray(paper.questions)
+          !q ||
+          typeof q.question !== "string" ||
+          !q.question.trim()
         ) {
-          return json({
-            error:
-              "Could not generate question paper. Please try again."
-          }, 500);
+          continue;
         }
 
-         const questions = paper.questions
-  .filter((q) => {
-    return (
-      q &&
-      typeof q.question === "string" &&
-      q.question.trim().length > 0
-    );
-  })
-  .slice(0, count)
-  .map((q) => {
-    const options = Array.isArray(q.options)
-      ? q.options
-          .filter((option) => {
-            return (
-              typeof option === "string" &&
-              option.trim().length > 0
-            );
-          })
-          .slice(0, 4)
-          .map((option) => option.trim())
-      : [];
+        const cleanQuestion = {
+          question: q.question.trim(),
+          options: []
+        };
 
-    return {
-      question: q.question.trim(),
-      options: options
-    };
-  });
+        if (Array.isArray(q.options)) {
 
-        if (questions.length !== count) {
-          return json({
-            error:
-              "AI could not create enough questions. Please try again."
-          }, 500);
+          cleanQuestion.options =
+            q.options
+              .filter(
+                option =>
+                  typeof option === "string" &&
+                  option.trim().length > 0
+              )
+              .slice(0, 4)
+              .map(option => option.trim());
         }
 
-        return json({
-          success: true,
-          title:
-            paper.title ||
-            `${topic} - Question Paper`,
-          instructions:
-            paper.instructions ||
-            "Answer all questions.",
-          questions
-        });
+        allQuestions.push(cleanQuestion);
+
+        if (allQuestions.length >= count) {
+          break;
+        }
       }
+    }
+
+    // Final safety check
+    if (allQuestions.length < count) {
+
+      return json({
+        error:
+          `AI generated ${allQuestions.length} of ${count} questions. Please try again.`
+      }, 500);
+    }
+
+    return json({
+      success: true,
+
+      title:
+        `${topic} ${difficulty} Exam Question Paper`,
+
+      instructions:
+        `Attempt all questions. Difficulty: ${difficulty}.`,
+
+      questions:
+        allQuestions.slice(0, count)
+    });
+
+  } catch (error) {
+
+    console.error(
+      "QUESTION PAPER ERROR:",
+      error
+    );
+
+    return json({
+      error:
+        "Could not generate question paper. Please try again."
+    }, 500);
+  }
+}
 
 
       // =====================================================
