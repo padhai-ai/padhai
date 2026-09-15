@@ -194,9 +194,7 @@ button:hover{
   margin:15px 0;
 }
 
-/* ===============================
-   QUESTION PAPER
-================================ */
+/* QUESTION PAPER */
 
 .paper-box{
   background:#fff;
@@ -236,8 +234,6 @@ button:hover{
 .paper-question{
   background:#fff;
   padding:16px 5px;
-  margin:0;
-  border:none;
   border-bottom:1px solid #eee;
   page-break-inside:avoid;
 }
@@ -270,9 +266,19 @@ button:hover{
   margin-bottom:10px;
 }
 
-/* ===============================
-   MOBILE
-================================ */
+.progress-bar{
+  width:100%;
+  height:12px;
+  background:#ddd;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  height:100%;
+  background:#533df0;
+  border-radius:20px;
+}
 
 @media(max-width:650px){
 
@@ -302,9 +308,7 @@ button:hover{
   }
 }
 
-/* ===============================
-   PRINT
-================================ */
+/* PRINT */
 
 @media print{
 
@@ -361,7 +365,7 @@ button:hover{
 
 <div class="container">
 
-<!-- ================= AUTH ================= -->
+<!-- AUTH -->
 
 <div id="auth">
 
@@ -383,17 +387,11 @@ button:hover{
 
     <button onclick="login()">Login</button>
 
-    <div
-      id="loginMessage"
-      class="message hidden">
-    </div>
+    <div id="loginMessage" class="message hidden"></div>
 
     <p>
       Don't have an account?
-
-      <button
-        class="secondary"
-        onclick="showSignup()">
+      <button class="secondary" onclick="showSignup()">
         Create Account
       </button>
     </p>
@@ -423,17 +421,11 @@ button:hover{
       Sign Up
     </button>
 
-    <div
-      id="signupMessage"
-      class="message hidden">
-    </div>
+    <div id="signupMessage" class="message hidden"></div>
 
     <p>
       Already have an account?
-
-      <button
-        class="secondary"
-        onclick="showLogin()">
+      <button class="secondary" onclick="showLogin()">
         Login
       </button>
     </p>
@@ -443,32 +435,24 @@ button:hover{
 </div>
 
 
-<!-- ================= DASHBOARD ================= -->
+<!-- DASHBOARD -->
 
 <div id="dashboard" class="hidden">
 
   <div class="nav">
 
-    <button onclick="showHome()">
-      🏠 Home
-    </button>
+    <button onclick="showHome()">🏠 Home</button>
 
-    <button onclick="showProfile()">
-      👤 Profile
-    </button>
+    <button onclick="showProfile()">👤 Profile</button>
 
-    <button onclick="showProgress()">
-      📊 Progress
-    </button>
+    <button onclick="showProgress()">📊 Progress</button>
 
-    <button onclick="logout()">
-      🚪 Logout
-    </button>
+    <button onclick="logout()">🚪 Logout</button>
 
   </div>
 
 
-  <!-- ================= HOME ================= -->
+  <!-- HOME -->
 
   <div id="home" class="card">
 
@@ -483,63 +467,28 @@ button:hover{
 
     <div class="feature-grid">
 
-      <div
-        class="feature"
-        onclick="openTutor()">
-
+      <div class="feature" onclick="openTutor()">
         <div class="feature-icon">🤖</div>
-
         <h3>AI Tutor</h3>
-
-        <p>
-          Ask anything and learn step by step.
-        </p>
-
+        <p>Ask anything and learn step by step.</p>
       </div>
 
-
-      <div
-        class="feature"
-        onclick="openStudy()">
-
+      <div class="feature" onclick="openStudy()">
         <div class="feature-icon">📖</div>
-
         <h3>AI Study</h3>
-
-        <p>
-          Generate personalized lessons.
-        </p>
-
+        <p>Generate personalized lessons.</p>
       </div>
 
-
-      <div
-        class="feature"
-        onclick="openQuiz()">
-
+      <div class="feature" onclick="openQuiz()">
         <div class="feature-icon">📝</div>
-
         <h3>AI Quiz</h3>
-
-        <p>
-          Test your knowledge.
-        </p>
-
+        <p>Test your knowledge.</p>
       </div>
 
-
-      <div
-        class="feature"
-        onclick="openQuestionPaper()">
-
+      <div class="feature" onclick="openQuestionPaper()">
         <div class="feature-icon">📄</div>
-
         <h3>AI Question Paper</h3>
-
-        <p>
-          Generate exam-style papers with AI.
-        </p>
-
+        <p>Generate exam-style papers with AI.</p>
       </div>
 
     </div>
@@ -547,60 +496,45 @@ button:hover{
   </div>
 
 
-  <!-- ================= PROFILE ================= -->
+  <!-- PROFILE -->
 
   <div id="profile" class="card hidden">
 
-    <button
-      class="secondary"
-      onclick="showHome()">
+    <button class="secondary" onclick="showHome()">
       ← Back
     </button>
 
     <h1>👤 My Profile</h1>
 
     <div class="lesson-section">
-
       <h3>Name</h3>
-
       <p id="profileName"></p>
-
     </div>
 
     <div class="lesson-section">
-
       <h3>Email</h3>
-
       <p id="profileEmail"></p>
-
     </div>
 
     <div class="lesson-section">
-
       <h3>User ID</h3>
-
       <p id="profileId"></p>
-
     </div>
 
   </div>
 
 
-  <!-- ================= TUTOR ================= -->
+  <!-- TUTOR -->
 
   <div id="tutor" class="card hidden">
 
-    <button
-      class="secondary"
-      onclick="showHome()">
+    <button class="secondary" onclick="showHome()">
       ← Back
     </button>
 
     <h1>🤖 AI Tutor</h1>
 
-    <p>
-      Ask PadhAI anything.
-    </p>
+    <p>Ask PadhAI anything.</p>
 
     <div id="chat" class="chat"></div>
 
@@ -612,22 +546,18 @@ button:hover{
       Ask PadhAI
     </button>
 
-    <button
-      class="secondary"
-      onclick="clearChat()">
+    <button class="secondary" onclick="clearChat()">
       Clear Chat
     </button>
 
   </div>
 
 
-  <!-- ================= STUDY ================= -->
+  <!-- STUDY -->
 
   <div id="study" class="card hidden">
 
-    <button
-      class="secondary"
-      onclick="showHome()">
+    <button class="secondary" onclick="showHome()">
       ← Back
     </button>
 
@@ -640,17 +570,9 @@ button:hover{
 
     <select id="studyLevel">
 
-      <option value="beginner">
-        Beginner
-      </option>
-
-      <option value="intermediate">
-        Intermediate
-      </option>
-
-      <option value="advanced">
-        Advanced
-      </option>
+      <option value="beginner">Beginner</option>
+      <option value="intermediate">Intermediate</option>
+      <option value="advanced">Advanced</option>
 
     </select>
 
@@ -658,53 +580,33 @@ button:hover{
       Generate Lesson
     </button>
 
-    <div
-      id="studyMessage"
-      class="message hidden">
-    </div>
+    <div id="studyMessage" class="message hidden"></div>
 
     <div id="studyResult" class="hidden">
 
       <div class="lesson-section">
-
         <h2 id="lessonTitle"></h2>
-
         <p id="lessonIntroduction"></p>
-
       </div>
 
       <div class="lesson-section">
-
         <h3>📚 Explanation</h3>
-
         <p id="lessonExplanation"></p>
-
       </div>
 
       <div class="lesson-section">
-
         <h3>🔑 Key Points</h3>
-
         <ul id="lessonKeyPoints"></ul>
-
       </div>
 
-      <div
-        id="exampleSection"
-        class="lesson-section hidden">
-
+      <div id="exampleSection" class="lesson-section hidden">
         <h3>💡 Example</h3>
-
         <p id="lessonExample"></p>
-
       </div>
 
       <div class="lesson-section">
-
         <h3>✅ Summary</h3>
-
         <p id="lessonSummary"></p>
-
       </div>
 
       <button onclick="anotherStudy()">
@@ -716,13 +618,11 @@ button:hover{
   </div>
 
 
-  <!-- ================= QUIZ ================= -->
+  <!-- QUIZ -->
 
   <div id="quiz" class="card hidden">
 
-    <button
-      class="secondary"
-      onclick="showHome()">
+    <button class="secondary" onclick="showHome()">
       ← Back
     </button>
 
@@ -736,25 +636,16 @@ button:hover{
         placeholder="Enter quiz topic, e.g. Mathematics">
 
       <select id="quizCount">
-
-        <option value="5">
-          5 Questions
-        </option>
-
-        <option value="10">
-          10 Questions
-        </option>
-
+        <option value="5">5 Questions</option>
+        <option value="10">10 Questions</option>
+        <option value="20">20 Questions</option>
       </select>
 
       <button onclick="generateQuiz()">
         Generate Quiz
       </button>
 
-      <div
-        id="quizMessage"
-        class="message hidden">
-      </div>
+      <div id="quizMessage" class="message hidden"></div>
 
     </div>
 
@@ -772,9 +663,7 @@ button:hover{
 
       <div id="options"></div>
 
-      <button
-        id="nextButton"
-        onclick="nextQuestion()">
+      <button id="nextButton" onclick="nextQuestion()">
         Next
       </button>
 
@@ -787,9 +676,7 @@ button:hover{
 
       <div class="stat">
 
-        <div
-          id="quizScore"
-          class="stat-number">
+        <div id="quizScore" class="stat-number">
           0 / 0
         </div>
 
@@ -803,9 +690,7 @@ button:hover{
 
       <div class="stat">
 
-        <div
-          id="quizPercentage"
-          class="stat-number">
+        <div id="quizPercentage" class="stat-number">
           0%
         </div>
 
@@ -815,19 +700,14 @@ button:hover{
 
       </div>
 
-      <div
-        id="quizSaveMessage"
-        class="message">
+      <div id="quizSaveMessage" class="message">
       </div>
 
       <button onclick="showQuizReview()">
         📋 Review Answers
       </button>
 
-      <div
-        id="quizReview"
-        class="hidden">
-      </div>
+      <div id="quizReview" class="hidden"></div>
 
       <button onclick="restartQuiz()">
         🔄 Try Another Quiz
@@ -838,13 +718,11 @@ button:hover{
   </div>
 
 
-  <!-- ================= QUESTION PAPER ================= -->
+  <!-- QUESTION PAPER -->
 
   <div id="questionPaper" class="card hidden">
 
-    <button
-      class="secondary"
-      onclick="showHome()">
+    <button class="secondary" onclick="showHome()">
       ← Back
     </button>
 
@@ -867,17 +745,9 @@ button:hover{
 
       <select id="paperLevel">
 
-        <option value="beginner">
-          Easy
-        </option>
-
-        <option value="intermediate">
-          Medium
-        </option>
-
-        <option value="advanced">
-          Hard
-        </option>
+        <option value="beginner">Easy</option>
+        <option value="intermediate">Medium</option>
+        <option value="advanced">Hard</option>
 
       </select>
 
@@ -885,17 +755,9 @@ button:hover{
 
       <select id="paperCount">
 
-        <option value="10">
-          10 Questions
-        </option>
-
-        <option value="20">
-          20 Questions
-        </option>
-
-        <option value="30">
-          30 Questions
-        </option>
+        <option value="10">10 Questions</option>
+        <option value="20">20 Questions</option>
+        <option value="30">30 Questions</option>
 
       </select>
 
@@ -905,12 +767,7 @@ button:hover{
 
     </div>
 
-
-    <div
-      id="paperMessage"
-      class="message hidden">
-    </div>
-
+    <div id="paperMessage" class="message hidden"></div>
 
     <div id="paperResult" class="hidden">
 
@@ -983,13 +840,11 @@ button:hover{
   </div>
 
 
-  <!-- ================= PROGRESS ================= -->
+  <!-- PROGRESS -->
 
   <div id="progress" class="card hidden">
 
-    <button
-      class="secondary"
-      onclick="showHome()">
+    <button class="secondary" onclick="showHome()">
       ← Back
     </button>
 
@@ -999,18 +854,13 @@ button:hover{
       See how you're performing across your quizzes.
     </p>
 
-    <div
-      id="progressMessage"
-      class="message hidden">
-    </div>
+    <div id="progressMessage" class="message hidden"></div>
 
     <div class="stat-grid">
 
       <div class="stat">
 
-        <div
-          id="totalQuizzes"
-          class="stat-number">
+        <div id="totalQuizzes" class="stat-number">
           0
         </div>
 
@@ -1020,12 +870,9 @@ button:hover{
 
       </div>
 
-
       <div class="stat">
 
-        <div
-          id="averageScore"
-          class="stat-number">
+        <div id="averageScore" class="stat-number">
           0%
         </div>
 
@@ -1035,12 +882,9 @@ button:hover{
 
       </div>
 
-
       <div class="stat">
 
-        <div
-          id="correctAnswers"
-          class="stat-number">
+        <div id="correctAnswers" class="stat-number">
           0
         </div>
 
@@ -1050,12 +894,9 @@ button:hover{
 
       </div>
 
-
       <div class="stat">
 
-        <div
-          id="totalQuestions"
-          class="stat-number">
+        <div id="totalQuestions" class="stat-number">
           0
         </div>
 
@@ -1111,7 +952,7 @@ let quizTopic = "";
 
 
 /* ==========================================
-   PAGE HELPERS
+   HELPERS
 ========================================== */
 
 function hideAll(){
@@ -1126,13 +967,14 @@ function hideAll(){
     "progress"
   ].forEach(id=>{
 
-    const el=document.getElementById(id);
+    const element=document.getElementById(id);
 
-    if(el){
-      el.classList.add("hidden");
+    if(element){
+      element.classList.add("hidden");
     }
 
   });
+
 }
 
 
@@ -1142,6 +984,7 @@ function showHome(){
 
   document.getElementById("home")
     .classList.remove("hidden");
+
 }
 
 
@@ -1160,6 +1003,7 @@ function showProfile(){
 
   document.getElementById("profileId")
     .textContent=currentUser?.id||"";
+
 }
 
 
@@ -1169,6 +1013,7 @@ function openTutor(){
 
   document.getElementById("tutor")
     .classList.remove("hidden");
+
 }
 
 
@@ -1178,6 +1023,7 @@ function openStudy(){
 
   document.getElementById("study")
     .classList.remove("hidden");
+
 }
 
 
@@ -1196,6 +1042,7 @@ function openQuiz(){
 
   document.getElementById("quizResult")
     .classList.add("hidden");
+
 }
 
 
@@ -1208,22 +1055,7 @@ function openQuestionPaper(){
 
   document.getElementById("paperResult")
     .classList.add("hidden");
-}
 
-
-function newQuestionPaper(){
-
-  document.getElementById("paperResult")
-    .classList.add("hidden");
-
-  document.getElementById("paperMessage")
-    .classList.add("hidden");
-
-  document.getElementById("paperQuestions")
-    .innerHTML="";
-
-  document.getElementById("paperTopic")
-    .focus();
 }
 
 
@@ -1232,6 +1064,7 @@ function premiumComingSoon(){
   alert(
     "⭐ Premium Question Papers will be available before PadhAI launches!"
   );
+
 }
 
 
@@ -1251,6 +1084,7 @@ function showDashboard(){
     .textContent=currentUser?.name||"Student";
 
   showHome();
+
 }
 
 
@@ -1265,6 +1099,7 @@ function showSignup(){
 
   document.getElementById("signupBox")
     .classList.remove("hidden");
+
 }
 
 
@@ -1275,6 +1110,7 @@ function showLogin(){
 
   document.getElementById("loginBox")
     .classList.remove("hidden");
+
 }
 
 
@@ -1361,7 +1197,9 @@ async function createAccount(){
 
     message.textContent=
       "Connection error. Please try again.";
+
   }
+
 }
 
 
@@ -1443,7 +1281,9 @@ async function login(){
 
     message.textContent=
       "Connection error. Please try again.";
+
   }
+
 }
 
 
@@ -1460,6 +1300,7 @@ function logout(){
     .classList.remove("hidden");
 
   showLogin();
+
 }
 
 
@@ -1475,7 +1316,24 @@ async function askTutor(){
   const question=
     input.value.trim();
 
-  if(!question)return;
+  if(!question){
+
+    const chat=
+      document.getElementById("chat");
+
+    const warning=
+      document.createElement("div");
+
+    warning.className=
+      "chat-message ai-message";
+
+    warning.textContent=
+      "Please enter a question.";
+
+    chat.appendChild(warning);
+
+    return;
+  }
 
   const chat=
     document.getElementById("chat");
@@ -1486,7 +1344,8 @@ async function askTutor(){
   userMessage.className=
     "chat-message user-message";
 
-  userMessage.textContent=question;
+  userMessage.textContent=
+    question;
 
   chat.appendChild(userMessage);
 
@@ -1503,7 +1362,8 @@ async function askTutor(){
 
   chat.appendChild(loading);
 
-  chat.scrollTop=chat.scrollHeight;
+  chat.scrollTop=
+    chat.scrollHeight;
 
   try{
 
@@ -1516,11 +1376,14 @@ async function askTutor(){
           "Content-Type":"application/json"
         },
 
+        /*
+          IMPORTANT:
+          Backend expects "question",
+          not "message".
+        */
+
         body:JSON.stringify({
-
-          /* Backend expects question */
           question:question
-
         })
 
       });
@@ -1528,11 +1391,22 @@ async function askTutor(){
     const data=
       await response.json();
 
-    loading.textContent=
-      data.answer||
-      data.error||
-      data.message||
-      "Sorry, I couldn't answer.";
+    if(!response.ok){
+
+      loading.textContent=
+        data.error||
+        data.message||
+        "Sorry, something went wrong.";
+
+    }else{
+
+      loading.textContent=
+        data.answer||
+        data.response||
+        data.message||
+        "Sorry, I couldn't answer.";
+
+    }
 
   }catch(error){
 
@@ -1540,9 +1414,12 @@ async function askTutor(){
 
     loading.textContent=
       "Connection error. Please try again.";
+
   }
 
-  chat.scrollTop=chat.scrollHeight;
+  chat.scrollTop=
+    chat.scrollHeight;
+
 }
 
 
@@ -1550,6 +1427,7 @@ function clearChat(){
 
   document.getElementById("chat")
     .innerHTML="";
+
 }
 
 
@@ -1621,16 +1499,20 @@ async function generateStudyLesson(){
       return;
     }
 
-    const lesson=data.lesson||{};
+    const lesson=
+      data.lesson||{};
 
     document.getElementById("lessonTitle")
-      .textContent=lesson.title||topic;
+      .textContent=
+        lesson.title||"Lesson";
 
     document.getElementById("lessonIntroduction")
-      .textContent=lesson.introduction||"";
+      .textContent=
+        lesson.introduction||"";
 
     document.getElementById("lessonExplanation")
-      .textContent=lesson.explanation||"";
+      .textContent=
+        lesson.explanation||"";
 
     const list=
       document.getElementById("lessonKeyPoints");
@@ -1639,11 +1521,13 @@ async function generateStudyLesson(){
 
     (lesson.keyPoints||[]).forEach(point=>{
 
-      const li=document.createElement("li");
+      const li=
+        document.createElement("li");
 
       li.textContent=point;
 
       list.appendChild(li);
+
     });
 
     const exampleSection=
@@ -1654,15 +1538,18 @@ async function generateStudyLesson(){
       exampleSection.classList.remove("hidden");
 
       document.getElementById("lessonExample")
-        .textContent=lesson.example;
+        .textContent=
+          lesson.example;
 
     }else{
 
       exampleSection.classList.add("hidden");
+
     }
 
     document.getElementById("lessonSummary")
-      .textContent=lesson.summary||"";
+      .textContent=
+        lesson.summary||"";
 
     message.classList.add("hidden");
 
@@ -1674,7 +1561,9 @@ async function generateStudyLesson(){
 
     message.textContent=
       "Connection error. Please try again.";
+
   }
+
 }
 
 
@@ -1685,6 +1574,7 @@ function anotherStudy(){
 
   document.getElementById("studyTopic")
     .focus();
+
 }
 
 
@@ -1761,7 +1651,7 @@ async function generateQuiz(){
     if(quizQuestions.length===0){
 
       message.textContent=
-        "AI did not return any questions.";
+        "No questions were generated.";
 
       return;
     }
@@ -1770,7 +1660,9 @@ async function generateQuiz(){
 
     currentQuestion=0;
 
-    quizTopic=data.topic||topic;
+    quizTopic=
+      data.topic||
+      topic;
 
     message.classList.add("hidden");
 
@@ -1784,7 +1676,8 @@ async function generateQuiz(){
       .classList.add("hidden");
 
     document.getElementById("questionTotal")
-      .textContent=quizQuestions.length;
+      .textContent=
+        quizQuestions.length;
 
     showQuestion();
 
@@ -1794,7 +1687,9 @@ async function generateQuiz(){
 
     message.textContent=
       "Connection error. Please try again.";
+
   }
+
 }
 
 
@@ -1806,10 +1701,12 @@ function showQuestion(){
   if(!q)return;
 
   document.getElementById("questionNumber")
-    .textContent=currentQuestion+1;
+    .textContent=
+      currentQuestion+1;
 
   document.getElementById("questionText")
-    .textContent=q.question||"Question";
+    .textContent=
+      q.question||"";
 
   const options=
     document.getElementById("options");
@@ -1826,7 +1723,8 @@ function showQuestion(){
     const button=
       document.createElement("button");
 
-    button.className="option";
+    button.className=
+      "option";
 
     button.textContent=
       `${String.fromCharCode(65+index)}. ${option}`;
@@ -1835,19 +1733,23 @@ function showQuestion(){
       ()=>selectOption(index);
 
     options.appendChild(button);
+
   });
 
   document.getElementById("nextButton")
     .textContent=
-      currentQuestion===quizQuestions.length-1
+      currentQuestion===
+      quizQuestions.length-1
         ?"Finish Quiz"
         :"Next";
+
 }
 
 
 function selectOption(index){
 
-  quizAnswers[currentQuestion]=index;
+  quizAnswers[currentQuestion]=
+    index;
 
   const buttons=
     document.querySelectorAll(
@@ -1862,13 +1764,15 @@ function selectOption(index){
     );
 
   });
+
 }
 
 
 function nextQuestion(){
 
   if(
-    quizAnswers[currentQuestion]===undefined
+    quizAnswers[currentQuestion]===
+    undefined
   ){
 
     alert("Please select an answer.");
@@ -1888,7 +1792,9 @@ function nextQuestion(){
   }else{
 
     showQuizResult();
+
   }
+
 }
 
 
@@ -1904,6 +1810,7 @@ async function showQuizResult(){
     ){
 
       correct++;
+
     }
 
   });
@@ -1977,28 +1884,30 @@ async function showQuizResult(){
       if(percentage>=90){
 
         saveMessage.textContent=
-          "🏆 Excellent! Score saved successfully!";
+          "🏆 Excellent! You have mastered this topic! Score saved successfully!";
 
       }else if(percentage>=70){
 
         saveMessage.textContent=
-          "👏 Great job! Score saved successfully!";
+          "👏 Great job! Keep practicing to become even better. Score saved successfully!";
 
       }else if(percentage>=50){
 
         saveMessage.textContent=
-          "👍 Good effort! Score saved successfully!";
+          "👍 Good effort! A little more practice will help. Score saved successfully!";
 
       }else{
 
         saveMessage.textContent=
-          "📚 Keep learning! Your score was saved.";
+          "📚 Keep learning! Review the topic and try again. Score saved successfully!";
+
       }
 
     }else{
 
       saveMessage.textContent=
         "⚠️ Score could not be saved.";
+
     }
 
   }catch(error){
@@ -2007,7 +1916,9 @@ async function showQuizResult(){
 
     saveMessage.textContent=
       "⚠️ Could not connect to save your score.";
+
   }
+
 }
 
 
@@ -2044,35 +1955,41 @@ function showQuizReview(){
         <b>Your answer:</b>
         ${
           selected!==undefined
-            ?escapeHtml(q.options[selected])
+            ?escapeHtml(
+                q.options[selected]||
+                "Unknown"
+              )
             :"Not answered"
         }
       </p>
 
       <p>
         <b>Correct answer:</b>
-        ${
-          q.options&&q.options[correct]
-            ?escapeHtml(q.options[correct])
-            :"Unavailable"
-        }
+        ${escapeHtml(
+          q.options[correct]||
+          "Unknown"
+        )}
       </p>
 
       ${
         q.explanation
-          ?`<p>
+          ?`
+            <p>
               <b>Explanation:</b>
               ${escapeHtml(q.explanation)}
-            </p>`
+            </p>
+          `
           :""
       }
 
     `;
 
     review.appendChild(div);
+
   });
 
   review.classList.remove("hidden");
+
 }
 
 
@@ -2097,6 +2014,7 @@ function restartQuiz(){
 
   document.getElementById("quizTopic")
     .value="";
+
 }
 
 
@@ -2186,7 +2104,8 @@ async function generateQuestionPaper(){
         "Answer all questions.";
 
     document.getElementById("paperSubject")
-      .textContent=topic;
+      .textContent=
+        topic;
 
     document.getElementById("paperDifficulty")
       .textContent=
@@ -2196,26 +2115,27 @@ async function generateQuestionPaper(){
             ?"Medium"
             :"Hard";
 
+    const questions=
+      Array.isArray(data.questions)
+        ?data.questions
+        :[];
+
     document.getElementById("paperQuestionCount")
       .textContent=
-        `${count} Questions`;
+        `${questions.length} Questions`;
 
     const container=
       document.getElementById("paperQuestions");
 
     container.innerHTML="";
 
-    const questions=
-      Array.isArray(data.questions)
-        ?data.questions
-        :[];
-
     questions.forEach((q,index)=>{
 
       const div=
         document.createElement("div");
 
-      div.className="paper-question";
+      div.className=
+        "paper-question";
 
       let html=
         `<strong>
@@ -2242,11 +2162,13 @@ async function generateQuestionPaper(){
             Answer: ______________________________
           </div>
         `;
+
       }
 
       div.innerHTML=html;
 
       container.appendChild(div);
+
     });
 
     message.classList.add("hidden");
@@ -2259,14 +2181,29 @@ async function generateQuestionPaper(){
 
     message.textContent=
       "Connection error. Please try again.";
+
   }
+
 }
 
 
 /* ==========================================
    PROGRESS
-   IMPORTANT FIX
 ========================================== */
+
+/*
+  This is the important fixed section.
+
+  It first tries /api/progress.
+
+  If that endpoint fails because of the
+  database column mismatch, it automatically
+  tries /api/quiz-history.
+
+  Progress is then calculated in the browser,
+  so the page can still work with the current
+  quiz_scores table.
+*/
 
 async function showProgress(){
 
@@ -2283,103 +2220,117 @@ async function showProgress(){
   message.textContent=
     "Loading your progress...";
 
+  if(!currentUser||!currentUser.id){
+
+    message.textContent=
+      "Please log in again.";
+
+    return;
+  }
+
   try{
 
-    if(!currentUser||!currentUser.id){
+    const userId=
+      String(currentUser.id);
 
-      message.textContent=
-        "Please log in again.";
-
-      return;
-    }
+    let progressData=null;
 
     /*
-      First try the dedicated progress endpoint.
+      STEP 1
+      Try the existing progress endpoint.
     */
-
-    let history=[];
-
-    let progressLoaded=false;
 
     try{
 
       const response=
         await fetch(
-          `/api/progress?userId=${encodeURIComponent(currentUser.id)}`
+          `/api/progress?userId=${encodeURIComponent(userId)}`
         );
 
       const data=
         await response.json();
 
       if(
-        response.ok &&
-        data.success &&
-        data.progress
+        response.ok&&
+        data&&
+        data.success
       ){
 
-        renderProgress(data.progress);
+        progressData=
+          normalizeProgress(data);
 
-        progressLoaded=true;
       }
 
     }catch(error){
 
       console.log(
-        "Progress endpoint unavailable, using quiz history."
+        "Progress endpoint failed:",
+        error
       );
 
     }
 
 
     /*
-      FALLBACK:
-      Use /api/quiz-history and calculate
-      everything directly in the browser.
-
-      This works with BOTH:
-      topic + total
-
-      and
-
-      subject + total_questions
+      STEP 2
+      If /api/progress didn't work,
+      use quiz history instead.
     */
 
-    if(!progressLoaded){
+    if(!progressData){
 
-      const historyResponse=
-        await fetch(
-          `/api/quiz-history?userId=${encodeURIComponent(currentUser.id)}`
+      try{
+
+        const response=
+          await fetch(
+            `/api/quiz-history?userId=${encodeURIComponent(userId)}`
+          );
+
+        const data=
+          await response.json();
+
+        if(
+          response.ok&&
+          data
+        ){
+
+          const history=
+            extractHistory(data);
+
+          progressData=
+            calculateProgressFromHistory(
+              history
+            );
+
+        }
+
+      }catch(error){
+
+        console.log(
+          "Quiz history fallback failed:",
+          error
         );
 
-      const historyData=
-        await historyResponse.json();
-
-      if(
-        !historyResponse.ok||
-        !historyData.success
-      ){
-
-        throw new Error(
-          historyData.error||
-          historyData.message||
-          "Could not load quiz history."
-        );
       }
 
-      history=
-        Array.isArray(historyData.history)
-          ?historyData.history
-          :Array.isArray(historyData.quizzes)
-            ?historyData.quizzes
-            :Array.isArray(historyData.data)
-              ?historyData.data
-              :[];
-
-      const calculated=
-        calculateProgressFromHistory(history);
-
-      renderProgress(calculated);
     }
+
+
+    /*
+      STEP 3
+      If nothing worked, show a useful error.
+    */
+
+    if(!progressData){
+
+      message.textContent=
+        "Could not load progress. Please try again.";
+
+      return;
+    }
+
+
+    renderProgress(progressData);
 
     message.classList.add("hidden");
 
@@ -2392,107 +2343,220 @@ async function showProgress(){
 
     message.textContent=
       "Could not load progress. Please try again.";
+
   }
+
 }
 
 
-/* ==========================================
-   CALCULATE PROGRESS FROM HISTORY
-========================================== */
+/*
+  Convert different possible /api/progress
+  response formats into one common format.
+*/
+
+function normalizeProgress(data){
+
+  const p=
+    data.progress||
+    data.data||
+    {};
+
+  return {
+
+    totalQuizzes:
+      Number(
+        p.totalQuizzes||
+        p.quizCount||
+        p.total||
+        0
+      ),
+
+    averagePercentage:
+      Number(
+        p.averagePercentage||
+        p.averageScore||
+        p.average||
+        0
+      ),
+
+    correctAnswers:
+      Number(
+        p.correctAnswers||
+        p.correct||
+        0
+      ),
+
+    totalQuestions:
+      Number(
+        p.totalQuestions||
+        p.questions||
+        0
+      ),
+
+    topics:
+      Array.isArray(p.topics)
+        ?p.topics
+        :[],
+
+    recent:
+      Array.isArray(p.recent)
+        ?p.recent
+        :[]
+
+  };
+
+}
+
+
+/*
+  Extract history from possible backend shapes.
+*/
+
+function extractHistory(data){
+
+  if(Array.isArray(data)){
+    return data;
+  }
+
+  if(Array.isArray(data.history)){
+    return data.history;
+  }
+
+  if(Array.isArray(data.quizzes)){
+    return data.quizzes;
+  }
+
+  if(Array.isArray(data.results)){
+    return data.results;
+  }
+
+  if(
+    data.data&&
+    Array.isArray(data.data)
+  ){
+
+    return data.data;
+
+  }
+
+  return [];
+
+}
+
+
+/*
+  Handles BOTH:
+
+  topic / total
+
+  and
+
+  subject / total_questions
+*/
+
+function getHistoryTopic(item){
+
+  return String(
+    item.topic||
+    item.subject||
+    item.quiz_name||
+    "General Quiz"
+  );
+
+}
+
+
+function getHistoryTotal(item){
+
+  const value=
+    item.total||
+    item.total_questions||
+    item.questions||
+    0;
+
+  return Number(value)||0;
+
+}
+
+
+function getHistoryScore(item){
+
+  return Number(
+    item.score||0
+  )||0;
+
+}
+
+
+/*
+  Calculate all progress from quiz history.
+*/
 
 function calculateProgressFromHistory(history){
 
-  let totalQuizzes=0;
+  let totalQuizzes=
+    history.length;
 
   let totalQuestions=0;
 
   let correctAnswers=0;
 
-  let totalPercentage=0;
+  let percentageSum=0;
 
   const topicMap={};
 
-  const recent=[];
-
   history.forEach(item=>{
 
-    /*
-      Support both database formats:
-
-      New:
-      topic
-      total
-
-      Old:
-      subject
-      total_questions
-    */
-
     const topic=
-      String(
-        item.topic||
-        item.subject||
-        item.quiz_name||
-        "Unknown Topic"
-      );
-
-    const score=
-      Number(
-        item.score||
-        0
-      );
+      getHistoryTopic(item);
 
     const total=
-      Number(
-        item.total||
-        item.total_questions||
-        0
-      );
+      getHistoryTotal(item);
 
-    totalQuizzes++;
+    const score=
+      getHistoryScore(item);
 
-    totalQuestions+=total;
+    totalQuestions+=
+      total;
 
-    correctAnswers+=score;
+    correctAnswers+=
+      score;
 
     const percentage=
       total>0
-        ?Math.round(score/total*100)
+        ?(score/total)*100
         :0;
 
-    totalPercentage+=percentage;
+    percentageSum+=
+      percentage;
 
 
     if(!topicMap[topic]){
 
       topicMap[topic]={
         topic:topic,
-        correct:0,
-        questions:0
+        questions:0,
+        correct:0
       };
 
     }
 
-    topicMap[topic].correct+=score;
+    topicMap[topic].questions+=
+      total;
 
-    topicMap[topic].questions+=total;
-
-
-    recent.push({
-
-      topic:topic,
-
-      score:score,
-
-      total:total,
-
-      created_at:
-        item.created_at||
-        ""
-
-    });
+    topicMap[topic].correct+=
+      score;
 
   });
+
+
+  const averagePercentage=
+    totalQuizzes>0
+      ?Math.round(
+          percentageSum/
+          totalQuizzes
+        )
+      :0;
 
 
   const topics=
@@ -2501,82 +2565,58 @@ function calculateProgressFromHistory(history){
 
   return {
 
-    totalQuizzes:
+    totalQuizzes,
 
-      totalQuizzes,
+    averagePercentage,
 
-    averagePercentage:
+    correctAnswers,
 
-      totalQuizzes>0
-        ?Math.round(
-            totalPercentage/
-            totalQuizzes
-          )
-        :0,
+    totalQuestions,
 
-    correctAnswers:
-
-      correctAnswers,
-
-    totalQuestions:
-
-      totalQuestions,
-
-    topics:
-
-      topics,
+    topics,
 
     recent:
-
-      recent.slice(0,20)
+      history.slice(0,20)
 
   };
+
 }
 
 
-/* ==========================================
-   RENDER PROGRESS
-========================================== */
+/*
+  Draw progress on screen.
+*/
 
 function renderProgress(progress){
-
-  progress=
-    progress||{};
 
   document.getElementById("totalQuizzes")
     .textContent=
       Number(
-        progress.totalQuizzes||
-        progress.quizCount||
-        0
+        progress.totalQuizzes||0
       );
 
   document.getElementById("averageScore")
     .textContent=
       `${Number(
-        progress.averagePercentage||
-        progress.averageScore||
-        0
+        progress.averagePercentage||0
       )}%`;
 
   document.getElementById("correctAnswers")
     .textContent=
       Number(
-        progress.correctAnswers||
-        progress.correct||
-        0
+        progress.correctAnswers||0
       );
 
   document.getElementById("totalQuestions")
     .textContent=
       Number(
-        progress.totalQuestions||
-        progress.questions||
-        0
+        progress.totalQuestions||0
       );
 
 
-  /* ================= TOPICS ================= */
+  /*
+    TOPICS
+  */
 
   const topicContainer=
     document.getElementById("topicProgress");
@@ -2588,14 +2628,13 @@ function renderProgress(progress){
       ?progress.topics
       :[];
 
+
   if(topics.length===0){
 
     topicContainer.innerHTML=`
-
       <div class="topic-item">
         Complete a quiz to start building your progress.
       </div>
-
     `;
 
   }else{
@@ -2605,7 +2644,6 @@ function renderProgress(progress){
       const questions=
         Number(
           topic.questions||
-          topic.total||
           topic.total_questions||
           0
         );
@@ -2620,15 +2658,11 @@ function renderProgress(progress){
       const percentage=
         questions>0
           ?Math.round(
-              correct/questions*100
+              correct/
+              questions*
+              100
             )
           :0;
-
-      const topicName=
-        topic.topic||
-        topic.subject||
-        topic.quiz_name||
-        "Unknown Topic";
 
       const div=
         document.createElement("div");
@@ -2639,7 +2673,11 @@ function renderProgress(progress){
       div.innerHTML=`
 
         <strong>
-          ${escapeHtml(topicName)}
+          ${escapeHtml(
+            topic.topic||
+            topic.subject||
+            "General Quiz"
+          )}
         </strong>
 
         <p>
@@ -2647,22 +2685,15 @@ function renderProgress(progress){
           correct • ${percentage}%
         </p>
 
-        <div style="
-          width:100%;
-          height:12px;
-          background:#ddd;
-          border-radius:20px;
-          overflow:hidden;
-        ">
+        <div class="progress-bar">
 
-          <div style="
-            height:100%;
-            background:#533df0;
-            width:${Math.min(
+          <div
+            class="progress-fill"
+            style="width:${Math.min(
               100,
               Math.max(0,percentage)
-            )}%;
-          "></div>
+            )}%">
+          </div>
 
         </div>
 
@@ -2675,54 +2706,58 @@ function renderProgress(progress){
   }
 
 
-  /* ================= RECENT ================= */
+  /*
+    RECENT QUIZZES
+  */
 
   const recentContainer=
-    document.getElementById("recentProgress");
+    document.getElementById(
+      "recentProgress"
+    );
 
   recentContainer.innerHTML="";
 
   const recent=
     Array.isArray(progress.recent)
       ?progress.recent
-      :Array.isArray(progress.history)
-        ?progress.history
-        :[];
+      :[];
+
 
   if(recent.length===0){
 
     recentContainer.innerHTML=`
-
       <div class="recent-item">
         No quiz history yet.
       </div>
-
     `;
 
   }else{
 
-    recent.slice(0,20).forEach(item=>{
+    recent.forEach(item=>{
 
       const score=
-        Number(item.score||0);
+        getHistoryScore(item);
 
       const total=
-        Number(
-          item.total||
-          item.total_questions||
-          0
-        );
+        getHistoryTotal(item);
 
       const percentage=
         total>0
-          ?Math.round(score/total*100)
+          ?Math.round(
+              score/
+              total*
+              100
+            )
           :0;
 
       const topic=
-        item.topic||
-        item.subject||
-        item.quiz_name||
-        "Quiz";
+        getHistoryTopic(item);
+
+      const date=
+        item.created_at||
+        item.createdAt||
+        item.date||
+        "";
 
       const div=
         document.createElement("div");
@@ -2742,11 +2777,15 @@ function renderProgress(progress){
           (${percentage}%)
         </p>
 
-        <small>
-          ${escapeHtml(
-            item.created_at||""
-          )}
-        </small>
+        ${
+          date
+            ?`
+              <small>
+                ${escapeHtml(date)}
+              </small>
+            `
+            :""
+        }
 
       `;
 
@@ -2755,6 +2794,7 @@ function renderProgress(progress){
     });
 
   }
+
 }
 
 
@@ -2770,6 +2810,7 @@ function escapeHtml(value){
     .replace(/>/g,"&gt;")
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
+
 }
 
 
@@ -2782,7 +2823,9 @@ document.addEventListener(
   ()=>{
 
     const saved=
-      localStorage.getItem("padhaiUser");
+      localStorage.getItem(
+        "padhaiUser"
+      );
 
     if(saved){
 
@@ -2803,10 +2846,14 @@ document.addEventListener(
 
       }catch(error){
 
+        console.error(error);
+
         localStorage.removeItem(
           "padhaiUser"
         );
+
       }
+
     }
 
     document.getElementById("auth")
