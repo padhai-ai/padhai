@@ -691,9 +691,15 @@ button:hover{opacity:.92}
         type="text"
         placeholder="Enter quiz topic, e.g. Mathematics">
 
-      <button onclick="generateQuiz()">
-        Generate 5 Question Quiz
-      </button>
+      <select id="quizCount">
+  <option value="5">5 Questions</option>
+  <option value="10">10 Questions</option>
+  <option value="20">20 Questions</option>
+</select>
+
+<button onclick="generateQuiz()">
+  Generate Quiz
+</button>
 
       <div id="quizMessage"
         class="message hidden"></div>
