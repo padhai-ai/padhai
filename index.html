@@ -6,232 +6,229 @@
 <title>PadhAI - AI Learning Platform</title>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f5f6fb;
+  color:#222;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f6fb;
-  color: #222;
+.hidden{display:none!important}
+
+header{
+  background:#11121a;
+  color:white;
+  padding:18px 20px;
+  font-size:24px;
+  font-weight:bold;
 }
 
-.hidden {
-  display: none !important;
+.container{
+  width:92%;
+  max-width:900px;
+  margin:25px auto;
 }
 
-header {
-  background: #11121a;
-  color: white;
-  padding: 18px 20px;
-  font-size: 24px;
-  font-weight: bold;
+.card{
+  background:white;
+  padding:25px;
+  border-radius:22px;
+  box-shadow:0 5px 20px rgba(0,0,0,.07);
+  margin-bottom:20px;
 }
 
-.container {
-  width: 92%;
-  max-width: 900px;
-  margin: 25px auto;
+h1,h2,h3{margin-top:0}
+
+input,select,textarea{
+  width:100%;
+  padding:14px;
+  margin:8px 0;
+  border:1px solid #ddd;
+  border-radius:12px;
+  font-size:16px;
 }
 
-.card {
-  background: white;
-  padding: 25px;
-  border-radius: 22px;
-  box-shadow: 0 5px 20px rgba(0,0,0,.07);
-  margin-bottom: 20px;
+textarea{
+  min-height:100px;
+  resize:vertical;
 }
 
-h1, h2, h3 {
-  margin-top: 0;
+button{
+  width:100%;
+  padding:14px;
+  margin:7px 0;
+  border:none;
+  border-radius:12px;
+  background:#533df0;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-input, select, textarea {
-  width: 100%;
-  padding: 14px;
-  margin: 8px 0;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  font-size: 16px;
+button.secondary{
+  background:#eee;
+  color:#222;
 }
 
-textarea {
-  min-height: 100px;
-  resize: vertical;
+button:hover{opacity:.92}
+
+.message{
+  padding:12px;
+  border-radius:10px;
+  margin:10px 0;
+  background:#f0f1ff;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  margin: 7px 0;
-  border: none;
-  border-radius: 12px;
-  background: #533df0;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
+.nav{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:20px;
 }
 
-button.secondary {
-  background: #eee;
-  color: #222;
+.nav button{
+  font-size:13px;
+  padding:12px 5px;
 }
 
-button.danger {
-  background: #e53935;
+.feature-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
 }
 
-button:hover {
-  opacity: .92;
+.feature{
+  padding:25px 15px;
+  background:#f0efff;
+  border-radius:18px;
+  text-align:center;
+  cursor:pointer;
 }
 
-.message {
-  padding: 12px;
-  border-radius: 10px;
-  margin: 10px 0;
-  background: #f0f1ff;
+.feature-icon{font-size:40px}
+
+.option{
+  background:#f5f5f8;
+  color:#222;
+  text-align:left;
+  margin:10px 0;
+  border:2px solid transparent;
 }
 
-.nav {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 20px;
+.option.selected{
+  border-color:#533df0;
+  background:#ece9ff;
 }
 
-.nav button {
-  font-size: 13px;
-  padding: 12px 5px;
+.stat-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
 }
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 15px;
+.stat{
+  background:#f8f8fc;
+  border:1px solid #e7e7e7;
+  border-radius:22px;
+  padding:28px 15px;
+  text-align:center;
 }
 
-.feature {
-  padding: 25px 15px;
-  background: #f0efff;
-  border-radius: 18px;
-  text-align: center;
-  cursor: pointer;
+.stat-number{
+  color:#533df0;
+  font-size:44px;
+  font-weight:bold;
 }
 
-.feature-icon {
-  font-size: 40px;
-}
-
-.option {
-  background: #f5f5f8;
-  color: #222;
-  text-align: left;
-  margin: 10px 0;
-  border: 2px solid transparent;
-}
-
-.option.selected {
-  border-color: #533df0;
-  background: #ece9ff;
-}
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
-}
-
-.stat {
-  background: #f8f8fc;
-  border: 1px solid #e7e7e7;
-  border-radius: 22px;
-  padding: 28px 15px;
-  text-align: center;
-}
-
-.stat-number {
-  color: #533df0;
-  font-size: 44px;
-  font-weight: bold;
-}
-
-.stat-label {
-  font-size: 18px;
-  color: #666;
-  margin-top: 8px;
+.stat-label{
+  font-size:18px;
+  color:#666;
+  margin-top:8px;
 }
 
 .topic-item,
-.recent-item {
-  background: #f8f8fc;
-  padding: 18px;
-  border-radius: 15px;
-  margin: 10px 0;
+.recent-item,
+.history-item{
+  background:#f8f8fc;
+  padding:18px;
+  border-radius:15px;
+  margin:10px 0;
 }
 
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background: #ddd;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-top: 10px;
+.history-score{
+  font-size:24px;
+  font-weight:bold;
+  color:#533df0;
 }
 
-.progress-fill {
-  height: 100%;
-  background: #533df0;
-  width: 0%;
+.small{
+  color:#666;
+  font-size:14px;
 }
 
-.chat {
-  max-height: 500px;
-  overflow-y: auto;
-  margin-bottom: 15px;
+.progress-bar{
+  width:100%;
+  height:12px;
+  background:#ddd;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:10px;
 }
 
-.chat-message {
-  padding: 15px;
-  border-radius: 15px;
-  margin: 10px 0;
-  white-space: pre-wrap;
+.progress-fill{
+  height:100%;
+  background:#533df0;
+  width:0%;
 }
 
-.user-message {
-  background: #533df0;
-  color: white;
-  margin-left: 15%;
+.chat{
+  max-height:500px;
+  overflow-y:auto;
+  margin-bottom:15px;
 }
 
-.ai-message {
-  background: #eeeef5;
-  margin-right: 10%;
+.chat-message{
+  padding:15px;
+  border-radius:15px;
+  margin:10px 0;
+  white-space:pre-wrap;
 }
 
-.lesson-section {
-  background: #f8f8fc;
-  padding: 18px;
-  border-radius: 15px;
-  margin: 15px 0;
+.user-message{
+  background:#533df0;
+  color:white;
+  margin-left:15%;
 }
 
-li {
-  margin: 8px 0;
+.ai-message{
+  background:#eeeef5;
+  margin-right:10%;
 }
 
-@media(max-width:650px) {
-  .feature-grid {
-    grid-template-columns: 1fr;
+.lesson-section{
+  background:#f8f8fc;
+  padding:18px;
+  border-radius:15px;
+  margin:15px 0;
+}
+
+li{margin:8px 0}
+
+@media(max-width:650px){
+
+  .feature-grid{
+    grid-template-columns:1fr;
   }
 
-  .nav {
-    grid-template-columns: repeat(2, 1fr);
+  .nav{
+    grid-template-columns:repeat(2,1fr);
   }
 
-  .stat-grid {
-    grid-template-columns: 1fr;
+  .stat-grid{
+    grid-template-columns:1fr;
   }
 }
 </style>
@@ -247,39 +244,79 @@ li {
 
 <div id="auth">
 
-  <div id="loginBox" class="card">
-    <h1>Welcome to PadhAI 👋</h1>
-    <p>Your AI-powered learning companion.</p>
+<div id="loginBox" class="card">
 
-    <input id="loginEmail" type="email" placeholder="Email">
-    <input id="loginPassword" type="password" placeholder="Password">
+<h1>Welcome to PadhAI 👋</h1>
 
-    <button onclick="login()">Login</button>
+<p>Your AI-powered learning companion.</p>
 
-    <div id="loginMessage" class="message hidden"></div>
+<input
+id="loginEmail"
+type="email"
+placeholder="Email">
 
-    <p>
-      Don't have an account?
-      <button class="secondary" onclick="showSignup()">Create Account</button>
-    </p>
-  </div>
+<input
+id="loginPassword"
+type="password"
+placeholder="Password">
 
-  <div id="signupBox" class="card hidden">
-    <h1>Create Account 🚀</h1>
+<button onclick="login()">Login</button>
 
-    <input id="signupName" type="text" placeholder="Your name">
-    <input id="signupEmail" type="email" placeholder="Email">
-    <input id="signupPassword" type="password" placeholder="Password">
+<div
+id="loginMessage"
+class="message hidden">
+</div>
 
-    <button onclick="createAccount()">Sign Up</button>
+<p>
+Don't have an account?
+<button
+class="secondary"
+onclick="showSignup()">
+Create Account
+</button>
+</p>
 
-    <div id="signupMessage" class="message hidden"></div>
+</div>
 
-    <p>
-      Already have an account?
-      <button class="secondary" onclick="showLogin()">Login</button>
-    </p>
-  </div>
+
+<div id="signupBox" class="card hidden">
+
+<h1>Create Account 🚀</h1>
+
+<input
+id="signupName"
+type="text"
+placeholder="Your name">
+
+<input
+id="signupEmail"
+type="email"
+placeholder="Email">
+
+<input
+id="signupPassword"
+type="password"
+placeholder="Password">
+
+<button onclick="createAccount()">
+Sign Up
+</button>
+
+<div
+id="signupMessage"
+class="message hidden">
+</div>
+
+<p>
+Already have an account?
+<button
+class="secondary"
+onclick="showLogin()">
+Login
+</button>
+</p>
+
+</div>
 
 </div>
 
@@ -288,289 +325,556 @@ li {
 
 <div id="dashboard" class="hidden">
 
-  <div class="nav">
-    <button onclick="showHome()">🏠 Home</button>
-    <button onclick="showProfile()">👤 Profile</button>
-    <button onclick="showProgress()">📊 Progress</button>
-    <button onclick="logout()">🚪 Logout</button>
-  </div>
 
+<div class="nav">
 
-  <!-- HOME -->
+<button onclick="showHome()">
+🏠 Home
+</button>
 
-  <div id="home" class="card">
-    <h1>Welcome, <span id="welcomeName"></span>! 👋</h1>
+<button onclick="showProfile()">
+👤 Profile
+</button>
 
-    <p>
-      Learn smarter with AI-powered tools.
-    </p>
+<button onclick="showProgress()">
+📊 Progress
+</button>
 
-    <div class="feature-grid">
+<button onclick="showHistory()">
+🕘 History
+</button>
 
-      <div class="feature" onclick="openTutor()">
-        <div class="feature-icon">🤖</div>
-        <h3>AI Tutor</h3>
-        <p>Ask anything and learn step by step.</p>
-      </div>
-
-      <div class="feature" onclick="openStudy()">
-        <div class="feature-icon">📖</div>
-        <h3>AI Study</h3>
-        <p>Generate personalized lessons.</p>
-      </div>
-
-      <div class="feature" onclick="openQuiz()">
-        <div class="feature-icon">📝</div>
-        <h3>AI Quiz</h3>
-        <p>Test your knowledge.</p>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- PROFILE -->
-
-  <div id="profile" class="card hidden">
-    <button class="secondary" onclick="showHome()">← Back</button>
-
-    <h1>👤 My Profile</h1>
-
-    <div class="lesson-section">
-      <h3>Name</h3>
-      <p id="profileName"></p>
-    </div>
-
-    <div class="lesson-section">
-      <h3>Email</h3>
-      <p id="profileEmail"></p>
-    </div>
-
-    <div class="lesson-section">
-      <h3>User ID</h3>
-      <p id="profileId"></p>
-    </div>
-  </div>
-
-
-  <!-- ================= TUTOR ================= -->
-
-  <div id="tutor" class="card hidden">
-
-    <button class="secondary" onclick="showHome()">← Back</button>
-
-    <h1>🤖 AI Tutor</h1>
-    <p>Ask PadhAI anything.</p>
-
-    <div id="chat" class="chat"></div>
-
-    <textarea id="tutorQuestion"
-      placeholder="Ask your question..."></textarea>
-
-    <button onclick="askTutor()">Ask PadhAI</button>
-    <button class="secondary" onclick="clearChat()">Clear Chat</button>
-
-  </div>
-
-
-  <!-- ================= STUDY ================= -->
-
-  <div id="study" class="card hidden">
-
-    <button class="secondary" onclick="showHome()">← Back</button>
-
-    <h1>📖 AI Study</h1>
-
-    <input
-      id="studyTopic"
-      type="text"
-      placeholder="Enter a topic, e.g. Photosynthesis">
-
-    <select id="studyLevel">
-      <option value="beginner">Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="advanced">Advanced</option>
-    </select>
-
-    <button onclick="generateStudyLesson()">
-      Generate Lesson
-    </button>
-
-    <div id="studyMessage" class="message hidden"></div>
-
-    <div id="studyResult" class="hidden">
-
-      <div class="lesson-section">
-        <h2 id="lessonTitle"></h2>
-        <p id="lessonIntroduction"></p>
-      </div>
-
-      <div class="lesson-section">
-        <h3>📚 Explanation</h3>
-        <p id="lessonExplanation"></p>
-      </div>
-
-      <div class="lesson-section">
-        <h3>🔑 Key Points</h3>
-        <ul id="lessonKeyPoints"></ul>
-      </div>
-
-      <div id="exampleSection" class="lesson-section hidden">
-        <h3>💡 Example</h3>
-        <p id="lessonExample"></p>
-      </div>
-
-      <div class="lesson-section">
-        <h3>✅ Summary</h3>
-        <p id="lessonSummary"></p>
-      </div>
-
-      <button onclick="anotherStudy()">
-        Generate Another Lesson
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- ================= QUIZ ================= -->
-
-  <div id="quiz" class="card hidden">
-
-    <button class="secondary" onclick="showHome()">← Back</button>
-
-    <h1>📝 AI Quiz</h1>
-
-    <div id="quizSetup">
-
-      <input
-        id="quizTopic"
-        type="text"
-        placeholder="Enter quiz topic, e.g. Mathematics">
-
-      <button onclick="generateQuiz()">
-        Generate 5 Question Quiz
-      </button>
-
-      <div id="quizMessage" class="message hidden"></div>
-
-    </div>
-
-
-    <div id="quizContainer" class="hidden">
-
-      <p>
-        Question <span id="questionNumber">1</span>
-        of <span id="questionTotal">5</span>
-      </p>
-
-      <h2 id="questionText"></h2>
-
-      <div id="options"></div>
-
-      <button id="nextButton" onclick="nextQuestion()">
-        Next
-      </button>
-
-    </div>
-
-
-    <div id="quizResult" class="hidden">
-
-      <h1>🎉 Quiz Complete!</h1>
-
-      <div class="stat">
-        <div id="quizScore" class="stat-number">0 / 0</div>
-        <div class="stat-label">Score</div>
-      </div>
-
-      <br>
-
-      <div class="stat">
-        <div id="quizPercentage" class="stat-number">0%</div>
-        <div class="stat-label">Percentage</div>
-      </div>
-
-      <div id="quizSaveMessage" class="message"></div>
-
-      <button onclick="showQuizReview()">
-        📋 Review Answers
-      </button>
-
-      <div id="quizReview" class="hidden"></div>
-
-      <button onclick="restartQuiz()">
-        🔄 Try Another Quiz
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <!-- ================= PROGRESS ================= -->
-
-  <div id="progress" class="card hidden">
-
-    <button class="secondary" onclick="showHome()">← Back</button>
-
-    <h1>📊 My Progress</h1>
-
-    <p>See how you're performing across your quizzes.</p>
-
-    <div id="progressMessage" class="message hidden"></div>
-
-    <div class="stat-grid">
-
-      <div class="stat">
-        <div id="totalQuizzes" class="stat-number">0</div>
-        <div class="stat-label">Quizzes Taken</div>
-      </div>
-
-      <div class="stat">
-        <div id="averageScore" class="stat-number">0%</div>
-        <div class="stat-label">Average Score</div>
-      </div>
-
-      <div class="stat">
-        <div id="correctAnswers" class="stat-number">0</div>
-        <div class="stat-label">Correct Answers</div>
-      </div>
-
-      <div class="stat">
-        <div id="totalQuestions" class="stat-number">0</div>
-        <div class="stat-label">Questions Answered</div>
-      </div>
-
-    </div>
-
-    <br>
-
-    <h2>📚 Topics</h2>
-
-    <div id="topicProgress">
-      <div class="topic-item">
-        Complete a quiz to start building your progress.
-      </div>
-    </div>
-
-    <h2>🕘 Recent Quizzes</h2>
-
-    <div id="recentProgress">
-      <div class="recent-item">
-        No quiz history yet.
-      </div>
-    </div>
-
-    <button onclick="showProgress()">
-      🔄 Refresh Progress
-    </button>
-
-  </div>
+<button onclick="logout()">
+🚪 Logout
+</button>
 
 </div>
 
+
+<!-- ================= HOME ================= -->
+
+<div id="home" class="card">
+
+<h1>
+Welcome,
+<span id="welcomeName"></span>! 👋
+</h1>
+
+<p>
+Learn smarter with AI-powered tools.
+</p>
+
+<div class="feature-grid">
+
+
+<div
+class="feature"
+onclick="openTutor()">
+
+<div class="feature-icon">
+🤖
+</div>
+
+<h3>AI Tutor</h3>
+
+<p>
+Ask anything and learn step by step.
+</p>
+
+</div>
+
+
+<div
+class="feature"
+onclick="openStudy()">
+
+<div class="feature-icon">
+📖
+</div>
+
+<h3>AI Study</h3>
+
+<p>
+Generate personalized lessons.
+</p>
+
+</div>
+
+
+<div
+class="feature"
+onclick="openQuiz()">
+
+<div class="feature-icon">
+📝
+</div>
+
+<h3>AI Quiz</h3>
+
+<p>
+Test your knowledge.
+</p>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- ================= PROFILE ================= -->
+
+<div id="profile" class="card hidden">
+
+<button
+class="secondary"
+onclick="showHome()">
+← Back
+</button>
+
+<h1>👤 My Profile</h1>
+
+<div class="lesson-section">
+
+<h3>Name</h3>
+
+<p id="profileName"></p>
+
+</div>
+
+<div class="lesson-section">
+
+<h3>Email</h3>
+
+<p id="profileEmail"></p>
+
+</div>
+
+<div class="lesson-section">
+
+<h3>User ID</h3>
+
+<p id="profileId"></p>
+
+</div>
+
+</div>
+
+
+<!-- ================= AI TUTOR ================= -->
+
+<div id="tutor" class="card hidden">
+
+<button
+class="secondary"
+onclick="showHome()">
+← Back
+</button>
+
+<h1>🤖 AI Tutor</h1>
+
+<p>
+Ask PadhAI anything.
+</p>
+
+<div id="chat" class="chat"></div>
+
+<textarea
+id="tutorQuestion"
+placeholder="Ask your question...">
+</textarea>
+
+<button onclick="askTutor()">
+Ask PadhAI
+</button>
+
+<button
+class="secondary"
+onclick="clearChat()">
+Clear Chat
+</button>
+
+</div>
+
+
+<!-- ================= AI STUDY ================= -->
+
+<div id="study" class="card hidden">
+
+<button
+class="secondary"
+onclick="showHome()">
+← Back
+</button>
+
+<h1>📖 AI Study</h1>
+
+<input
+id="studyTopic"
+type="text"
+placeholder="Enter a topic, e.g. Photosynthesis">
+
+<select id="studyLevel">
+
+<option value="beginner">
+Beginner
+</option>
+
+<option value="intermediate">
+Intermediate
+</option>
+
+<option value="advanced">
+Advanced
+</option>
+
+</select>
+
+<button onclick="generateStudyLesson()">
+Generate Lesson
+</button>
+
+<div
+id="studyMessage"
+class="message hidden">
+</div>
+
+
+<div id="studyResult" class="hidden">
+
+<div class="lesson-section">
+
+<h2 id="lessonTitle"></h2>
+
+<p id="lessonIntroduction"></p>
+
+</div>
+
+
+<div class="lesson-section">
+
+<h3>📚 Explanation</h3>
+
+<p id="lessonExplanation"></p>
+
+</div>
+
+
+<div class="lesson-section">
+
+<h3>🔑 Key Points</h3>
+
+<ul id="lessonKeyPoints"></ul>
+
+</div>
+
+
+<div
+id="exampleSection"
+class="lesson-section hidden">
+
+<h3>💡 Example</h3>
+
+<p id="lessonExample"></p>
+
+</div>
+
+
+<div class="lesson-section">
+
+<h3>✅ Summary</h3>
+
+<p id="lessonSummary"></p>
+
+</div>
+
+
+<button onclick="anotherStudy()">
+Generate Another Lesson
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ================= AI QUIZ ================= -->
+
+<div id="quiz" class="card hidden">
+
+<button
+class="secondary"
+onclick="showHome()">
+← Back
+</button>
+
+<h1>📝 AI Quiz</h1>
+
+
+<div id="quizSetup">
+
+<input
+id="quizTopic"
+type="text"
+placeholder="Enter quiz topic, e.g. Mathematics">
+
+<button onclick="generateQuiz()">
+Generate 5 Question Quiz
+</button>
+
+<div
+id="quizMessage"
+class="message hidden">
+</div>
+
+</div>
+
+
+<div id="quizContainer" class="hidden">
+
+<p>
+
+Question
+<span id="questionNumber">
+1
+</span>
+
+of
+
+<span id="questionTotal">
+5
+</span>
+
+</p>
+
+<h2 id="questionText"></h2>
+
+<div id="options"></div>
+
+<button
+id="nextButton"
+onclick="nextQuestion()">
+Next
+</button>
+
+</div>
+
+
+<div id="quizResult" class="hidden">
+
+<h1>🎉 Quiz Complete!</h1>
+
+<div class="stat">
+
+<div
+id="quizScore"
+class="stat-number">
+0 / 0
+</div>
+
+<div class="stat-label">
+Score
+</div>
+
+</div>
+
+<br>
+
+<div class="stat">
+
+<div
+id="quizPercentage"
+class="stat-number">
+0%
+</div>
+
+<div class="stat-label">
+Percentage
+</div>
+
+</div>
+
+
+<div
+id="quizSaveMessage"
+class="message">
+</div>
+
+
+<button onclick="showQuizReview()">
+📋 Review Answers
+</button>
+
+<div
+id="quizReview"
+class="hidden">
+</div>
+
+
+<button onclick="restartQuiz()">
+🔄 Try Another Quiz
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ================= PROGRESS ================= -->
+
+<div id="progress" class="card hidden">
+
+<button
+class="secondary"
+onclick="showHome()">
+← Back
+</button>
+
+<h1>📊 My Progress</h1>
+
+<p>
+See how you're performing across your quizzes.
+</p>
+
+<div
+id="progressMessage"
+class="message hidden">
+</div>
+
+
+<div class="stat-grid">
+
+<div class="stat">
+
+<div
+id="totalQuizzes"
+class="stat-number">
+0
+</div>
+
+<div class="stat-label">
+Quizzes Taken
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+id="averageScore"
+class="stat-number">
+0%
+</div>
+
+<div class="stat-label">
+Average Score
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+id="correctAnswers"
+class="stat-number">
+0
+</div>
+
+<div class="stat-label">
+Correct Answers
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div
+id="totalQuestions"
+class="stat-number">
+0
+</div>
+
+<div class="stat-label">
+Questions Answered
+</div>
+
+</div>
+
+</div>
+
+
+<br>
+
+<h2>📚 Topics</h2>
+
+<div id="topicProgress">
+
+<div class="topic-item">
+Complete a quiz to start building your progress.
+</div>
+
+</div>
+
+
+<h2>🕘 Recent Quizzes</h2>
+
+<div id="recentProgress">
+
+<div class="recent-item">
+No quiz history yet.
+</div>
+
+</div>
+
+
+<button onclick="showProgress()">
+🔄 Refresh Progress
+</button>
+
+</div>
+
+
+<!-- ================= QUIZ HISTORY ================= -->
+
+<div id="history" class="card hidden">
+
+<button
+class="secondary"
+onclick="showHome()">
+← Back
+</button>
+
+<h1>🕘 Quiz History</h1>
+
+<p>
+See your recent quiz results.
+</p>
+
+<div
+id="historyMessage"
+class="message hidden">
+</div>
+
+<div id="historyList">
+
+<div class="history-item">
+Loading history...
+</div>
+
+</div>
+
+<button onclick="showHistory()">
+🔄 Refresh History
+</button>
+
+</div>
+
+
+</div>
 </div>
 
 
@@ -579,8 +883,11 @@ li {
 let currentUser = null;
 
 let quizQuestions = [];
+
 let quizAnswers = [];
+
 let currentQuestion = 0;
+
 let quizTopic = "";
 
 
@@ -588,77 +895,129 @@ let quizTopic = "";
 // PAGE HELPERS
 // ==========================================
 
-function hideAll() {
+function hideAll(){
 
-  document.getElementById("home").classList.add("hidden");
-  document.getElementById("profile").classList.add("hidden");
-  document.getElementById("tutor").classList.add("hidden");
-  document.getElementById("study").classList.add("hidden");
-  document.getElementById("quiz").classList.add("hidden");
-  document.getElementById("progress").classList.add("hidden");
+  document
+    .getElementById("home")
+    .classList.add("hidden");
+
+  document
+    .getElementById("profile")
+    .classList.add("hidden");
+
+  document
+    .getElementById("tutor")
+    .classList.add("hidden");
+
+  document
+    .getElementById("study")
+    .classList.add("hidden");
+
+  document
+    .getElementById("quiz")
+    .classList.add("hidden");
+
+  document
+    .getElementById("progress")
+    .classList.add("hidden");
+
+  document
+    .getElementById("history")
+    .classList.add("hidden");
 }
 
 
-function showHome() {
+function showHome(){
 
   hideAll();
 
-  document.getElementById("home").classList.remove("hidden");
+  document
+    .getElementById("home")
+    .classList.remove("hidden");
 }
 
 
-function showProfile() {
+function showProfile(){
 
   hideAll();
 
-  document.getElementById("profile").classList.remove("hidden");
+  document
+    .getElementById("profile")
+    .classList.remove("hidden");
 
-  document.getElementById("profileName").textContent =
-    currentUser?.name || "";
+  document
+    .getElementById("profileName")
+    .textContent =
+      currentUser?.name || "";
 
-  document.getElementById("profileEmail").textContent =
-    currentUser?.email || "";
+  document
+    .getElementById("profileEmail")
+    .textContent =
+      currentUser?.email || "";
 
-  document.getElementById("profileId").textContent =
-    currentUser?.id || "";
+  document
+    .getElementById("profileId")
+    .textContent =
+      currentUser?.id || "";
 }
 
 
-function openTutor() {
+function openTutor(){
 
   hideAll();
 
-  document.getElementById("tutor").classList.remove("hidden");
+  document
+    .getElementById("tutor")
+    .classList.remove("hidden");
 }
 
 
-function openStudy() {
+function openStudy(){
 
   hideAll();
 
-  document.getElementById("study").classList.remove("hidden");
+  document
+    .getElementById("study")
+    .classList.remove("hidden");
 }
 
 
-function openQuiz() {
+function openQuiz(){
 
   hideAll();
 
-  document.getElementById("quiz").classList.remove("hidden");
+  document
+    .getElementById("quiz")
+    .classList.remove("hidden");
 
-  document.getElementById("quizSetup").classList.remove("hidden");
-  document.getElementById("quizContainer").classList.add("hidden");
-  document.getElementById("quizResult").classList.add("hidden");
+  document
+    .getElementById("quizSetup")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("quizContainer")
+    .classList.add("hidden");
+
+  document
+    .getElementById("quizResult")
+    .classList.add("hidden");
 }
 
 
-function showDashboard() {
+function showDashboard(){
 
-  document.getElementById("auth").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
+  document
+    .getElementById("auth")
+    .classList.add("hidden");
 
-  document.getElementById("welcomeName").textContent =
-    currentUser?.name || "Student";
+  document
+    .getElementById("dashboard")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("welcomeName")
+    .textContent =
+      currentUser?.name || "Student";
 
   showHome();
 }
@@ -668,81 +1027,133 @@ function showDashboard() {
 // AUTH
 // ==========================================
 
-function showSignup() {
+function showSignup(){
 
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("signupBox").classList.remove("hidden");
+  document
+    .getElementById("loginBox")
+    .classList.add("hidden");
+
+  document
+    .getElementById("signupBox")
+    .classList.remove("hidden");
 }
 
 
-function showLogin() {
+function showLogin(){
 
-  document.getElementById("signupBox").classList.add("hidden");
-  document.getElementById("loginBox").classList.remove("hidden");
+  document
+    .getElementById("signupBox")
+    .classList.add("hidden");
+
+  document
+    .getElementById("loginBox")
+    .classList.remove("hidden");
 }
 
 
-async function createAccount() {
+async function createAccount(){
 
   const name =
-    document.getElementById("signupName").value.trim();
+    document
+      .getElementById("signupName")
+      .value
+      .trim();
 
   const email =
-    document.getElementById("signupEmail").value.trim();
+    document
+      .getElementById("signupEmail")
+      .value
+      .trim();
 
   const password =
-    document.getElementById("signupPassword").value;
+    document
+      .getElementById("signupPassword")
+      .value;
 
   const message =
     document.getElementById("signupMessage");
 
   message.classList.remove("hidden");
 
-  if (!name || !email || !password) {
-    message.textContent = "Please fill all fields.";
+  if(!name || !email || !password){
+
+    message.textContent =
+      "Please fill all fields.";
+
     return;
   }
 
-  message.textContent = "Creating account...";
+  message.textContent =
+    "Creating account...";
 
-  try {
+  try{
 
-    const response = await fetch("/api/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        password
-      })
-    });
+    const response =
+      await fetch("/api/signup",{
 
-    const data = await response.json();
+        method:"POST",
 
-    if (!response.ok || !data.success) {
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+          name,
+          email,
+          password
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !data.success
+    ){
+
       message.textContent =
-        data.message || "Could not create account.";
+        data.error ||
+        data.message ||
+        "Could not create account.";
+
       return;
     }
 
-    const user = data.user || {};
+
+    const user =
+      data.user || {};
+
 
     currentUser = {
-      id: user.id || null,
-      name: user.name || name,
-      email: user.email || email
+
+      id:user.id || null,
+
+      name:
+        user.name ||
+        name,
+
+      email:
+        user.email ||
+        email
+
     };
+
 
     localStorage.setItem(
       "padhaiUser",
       JSON.stringify(currentUser)
     );
 
+
     showDashboard();
 
-  } catch (error) {
+
+  }catch(error){
 
     message.textContent =
       "Connection error. Please try again.";
@@ -750,64 +1161,108 @@ async function createAccount() {
 }
 
 
-async function login() {
+async function login(){
 
   const email =
-    document.getElementById("loginEmail").value.trim();
+    document
+      .getElementById("loginEmail")
+      .value
+      .trim();
 
   const password =
-    document.getElementById("loginPassword").value;
+    document
+      .getElementById("loginPassword")
+      .value;
 
   const message =
     document.getElementById("loginMessage");
 
+
   message.classList.remove("hidden");
 
-  if (!email || !password) {
+
+  if(!email || !password){
+
     message.textContent =
       "Please enter email and password.";
+
     return;
   }
 
-  message.textContent = "Logging in...";
 
-  try {
+  message.textContent =
+    "Logging in...";
 
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email,
-        password
-      })
-    });
 
-    const data = await response.json();
+  try{
 
-    if (!response.ok || !data.success) {
+    const response =
+      await fetch("/api/login",{
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+          email,
+          password
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !data.success
+    ){
+
       message.textContent =
-        data.message || "Login failed.";
+        data.error ||
+        data.message ||
+        "Login failed.";
+
       return;
     }
 
-    const user = data.user || {};
+
+    const user =
+      data.user || {};
+
 
     currentUser = {
-      id: user.id || null,
-      name: user.name || "",
-      email: user.email || email
+
+      id:
+        user.id ||
+        null,
+
+      name:
+        user.name ||
+        "",
+
+      email:
+        user.email ||
+        email
+
     };
+
 
     localStorage.setItem(
       "padhaiUser",
       JSON.stringify(currentUser)
     );
 
+
     showDashboard();
 
-  } catch (error) {
+
+  }catch(error){
 
     message.textContent =
       "Connection error. Please try again.";
@@ -815,14 +1270,21 @@ async function login() {
 }
 
 
-function logout() {
+function logout(){
 
   currentUser = null;
 
-  localStorage.removeItem("padhaiUser");
+  localStorage.removeItem(
+    "padhaiUser"
+  );
 
-  document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("auth").classList.remove("hidden");
+  document
+    .getElementById("dashboard")
+    .classList.add("hidden");
+
+  document
+    .getElementById("auth")
+    .classList.remove("hidden");
 
   showLogin();
 }
@@ -832,75 +1294,116 @@ function logout() {
 // AI TUTOR
 // ==========================================
 
-async function askTutor() {
+async function askTutor(){
 
   const input =
     document.getElementById("tutorQuestion");
 
-  const question = input.value.trim();
+  const question =
+    input.value.trim();
 
-  if (!question) return;
+
+  if(!question)return;
+
 
   const chat =
     document.getElementById("chat");
 
+
   const userMessage =
     document.createElement("div");
+
 
   userMessage.className =
     "chat-message user-message";
 
-  userMessage.textContent = question;
 
-  chat.appendChild(userMessage);
+  userMessage.textContent =
+    question;
+
+
+  chat.appendChild(
+    userMessage
+  );
+
 
   input.value = "";
+
 
   const loading =
     document.createElement("div");
 
+
   loading.className =
     "chat-message ai-message";
+
 
   loading.textContent =
     "PadhAI is thinking...";
 
-  chat.appendChild(loading);
 
-  chat.scrollTop = chat.scrollHeight;
+  chat.appendChild(
+    loading
+  );
 
-  try {
 
-    const response = await fetch("/api/tutor", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        question
-      })
-    });
+  chat.scrollTop =
+    chat.scrollHeight;
 
-    const data = await response.json();
+
+  try{
+
+    const response =
+      await fetch("/api/tutor",{
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          /*
+           Backend expects "message"
+          */
+
+          message:question
+
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
 
     loading.textContent =
       data.answer ||
+      data.error ||
       data.message ||
       "Sorry, I couldn't answer.";
 
-  } catch (error) {
+
+  }catch(error){
 
     loading.textContent =
       "Connection error. Please try again.";
   }
 
-  chat.scrollTop = chat.scrollHeight;
+
+  chat.scrollTop =
+    chat.scrollHeight;
 }
 
 
-function clearChat() {
+function clearChat(){
 
-  document.getElementById("chat").innerHTML = "";
+  document
+    .getElementById("chat")
+    .innerHTML = "";
 }
 
 
@@ -908,109 +1411,185 @@ function clearChat() {
 // AI STUDY
 // ==========================================
 
-async function generateStudyLesson() {
+async function generateStudyLesson(){
 
   const topic =
-    document.getElementById("studyTopic")
-      .value.trim();
+    document
+      .getElementById("studyTopic")
+      .value
+      .trim();
+
 
   const level =
-    document.getElementById("studyLevel").value;
+    document
+      .getElementById("studyLevel")
+      .value;
+
 
   const message =
-    document.getElementById("studyMessage");
+    document
+      .getElementById("studyMessage");
+
 
   const result =
-    document.getElementById("studyResult");
+    document
+      .getElementById("studyResult");
 
-  if (!topic) {
+
+  if(!topic){
 
     message.textContent =
       "Please enter a study topic.";
 
-    message.classList.remove("hidden");
+    message.classList.remove(
+      "hidden"
+    );
 
     return;
   }
 
-  message.classList.remove("hidden");
+
+  message.classList.remove(
+    "hidden"
+  );
+
+
   message.textContent =
     "Generating your lesson...";
 
-  result.classList.add("hidden");
 
-  try {
+  result.classList.add(
+    "hidden"
+  );
 
-    const response = await fetch("/api/study", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        topic,
-        level
-      })
-    });
 
-    const data = await response.json();
+  try{
 
-    if (!response.ok || !data.success) {
+    const response =
+      await fetch("/api/study",{
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+          topic,
+          level
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !data.success
+    ){
 
       message.textContent =
+        data.error ||
         data.message ||
         "Could not create lesson.";
 
       return;
     }
 
-    const lesson = data.lesson;
 
-    document.getElementById("lessonTitle")
-      .textContent = lesson.title;
+    const lesson =
+      data.lesson;
 
-    document.getElementById("lessonIntroduction")
-      .textContent = lesson.introduction;
 
-    document.getElementById("lessonExplanation")
-      .textContent = lesson.explanation;
+    document
+      .getElementById("lessonTitle")
+      .textContent =
+        lesson.title;
+
+
+    document
+      .getElementById("lessonIntroduction")
+      .textContent =
+        lesson.introduction;
+
+
+    document
+      .getElementById("lessonExplanation")
+      .textContent =
+        lesson.explanation;
+
 
     const list =
-      document.getElementById("lessonKeyPoints");
+      document
+        .getElementById("lessonKeyPoints");
+
 
     list.innerHTML = "";
 
-    lesson.keyPoints.forEach(point => {
 
-      const li =
-        document.createElement("li");
+    (
+      lesson.keyPoints || []
+    )
+      .slice(0,5)
+      .forEach(point => {
 
-      li.textContent = point;
+        const li =
+          document.createElement("li");
 
-      list.appendChild(li);
-    });
+        li.textContent =
+          point;
+
+        list.appendChild(li);
+
+      });
+
 
     const exampleSection =
-      document.getElementById("exampleSection");
+      document
+        .getElementById("exampleSection");
 
-    if (lesson.example) {
 
-      exampleSection.classList.remove("hidden");
+    if(lesson.example){
 
-      document.getElementById("lessonExample")
-        .textContent = lesson.example;
+      exampleSection
+        .classList
+        .remove("hidden");
 
-    } else {
 
-      exampleSection.classList.add("hidden");
+      document
+        .getElementById("lessonExample")
+        .textContent =
+          lesson.example;
+
+    }else{
+
+      exampleSection
+        .classList
+        .add("hidden");
     }
 
-    document.getElementById("lessonSummary")
-      .textContent = lesson.summary;
 
-    message.classList.add("hidden");
-    result.classList.remove("hidden");
+    document
+      .getElementById("lessonSummary")
+      .textContent =
+        lesson.summary;
 
-  } catch (error) {
+
+    message
+      .classList
+      .add("hidden");
+
+
+    result
+      .classList
+      .remove("hidden");
+
+
+  }catch(error){
 
     message.textContent =
       "Connection error. Please try again.";
@@ -1018,12 +1597,15 @@ async function generateStudyLesson() {
 }
 
 
-function anotherStudy() {
+function anotherStudy(){
 
-  document.getElementById("studyResult")
-    .classList.add("hidden");
+  document
+    .getElementById("studyResult")
+    .classList
+    .add("hidden");
 
-  document.getElementById("studyTopic")
+  document
+    .getElementById("studyTopic")
     .focus();
 }
 
@@ -1032,75 +1614,131 @@ function anotherStudy() {
 // QUIZ
 // ==========================================
 
-async function generateQuiz() {
+async function generateQuiz(){
 
   const topic =
-    document.getElementById("quizTopic")
-      .value.trim();
+    document
+      .getElementById("quizTopic")
+      .value
+      .trim();
+
 
   const message =
-    document.getElementById("quizMessage");
+    document
+      .getElementById("quizMessage");
 
-  if (!topic) {
+
+  if(!topic){
 
     message.textContent =
       "Please enter a quiz topic.";
 
-    message.classList.remove("hidden");
+    message.classList.remove(
+      "hidden"
+    );
 
     return;
   }
 
-  message.classList.remove("hidden");
+
+  message.classList.remove(
+    "hidden"
+  );
+
+
   message.textContent =
     "Creating your quiz...";
 
-  try {
 
-    const response = await fetch("/api/quiz", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        topic,
-        count: 5
-      })
-    });
+  try{
 
-    const data = await response.json();
+    const response =
+      await fetch("/api/quiz",{
 
-    if (!response.ok || !data.success) {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+          topic,
+
+          count:5
+
+        })
+
+      });
+
+
+    const data =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !data.success
+    ){
 
       message.textContent =
+        data.error ||
         data.message ||
         "Could not create quiz.";
 
       return;
     }
 
-    quizQuestions = data.questions;
+
+    quizQuestions =
+      data.questions || [];
+
+
     quizAnswers = [];
+
+
     currentQuestion = 0;
-    quizTopic = data.topic || topic;
 
-    message.classList.add("hidden");
 
-    document.getElementById("quizSetup")
-      .classList.add("hidden");
+    quizTopic =
+      data.topic ||
+      topic;
 
-    document.getElementById("quizContainer")
-      .classList.remove("hidden");
 
-    document.getElementById("quizResult")
-      .classList.add("hidden");
+    message
+      .classList
+      .add("hidden");
 
-    document.getElementById("questionTotal")
-      .textContent = quizQuestions.length;
+
+    document
+      .getElementById("quizSetup")
+      .classList
+      .add("hidden");
+
+
+    document
+      .getElementById("quizContainer")
+      .classList
+      .remove("hidden");
+
+
+    document
+      .getElementById("quizResult")
+      .classList
+      .add("hidden");
+
+
+    document
+      .getElementById("questionTotal")
+      .textContent =
+        quizQuestions.length;
+
 
     showQuestion();
 
-  } catch (error) {
+
+  }catch(error){
 
     message.textContent =
       "Connection error. Please try again.";
@@ -1108,82 +1746,123 @@ async function generateQuiz() {
 }
 
 
-function showQuestion() {
+function showQuestion(){
 
   const q =
     quizQuestions[currentQuestion];
 
-  document.getElementById("questionNumber")
-    .textContent = currentQuestion + 1;
 
-  document.getElementById("questionText")
-    .textContent = q.question;
+  if(!q)return;
+
+
+  document
+    .getElementById("questionNumber")
+    .textContent =
+      currentQuestion + 1;
+
+
+  document
+    .getElementById("questionText")
+    .textContent =
+      q.question;
+
 
   const options =
-    document.getElementById("options");
+    document
+      .getElementById("options");
+
 
   options.innerHTML = "";
 
-  q.options.forEach((option, index) => {
 
-    const button =
-      document.createElement("button");
+  q.options.forEach(
+    (option,index)=>{
 
-    button.className = "option";
+      const button =
+        document.createElement("button");
 
-    button.textContent =
-      `${String.fromCharCode(65 + index)}. ${option}`;
 
-    button.onclick = () => selectOption(index);
+      button.className =
+        "option";
 
-    options.appendChild(button);
-  });
 
-  document.getElementById("nextButton")
+      button.textContent =
+        `${String.fromCharCode(
+          65 + index
+        )}. ${option}`;
+
+
+      button.onclick =
+        () => selectOption(index);
+
+
+      options.appendChild(
+        button
+      );
+
+    }
+  );
+
+
+  document
+    .getElementById("nextButton")
     .textContent =
-      currentQuestion === quizQuestions.length - 1
+      currentQuestion ===
+      quizQuestions.length - 1
         ? "Finish Quiz"
         : "Next";
 }
 
 
-function selectOption(index) {
+function selectOption(index){
 
-  quizAnswers[currentQuestion] = index;
+  quizAnswers[
+    currentQuestion
+  ] = index;
 
-  const buttons =
-    document.querySelectorAll("#options .option");
 
-  buttons.forEach((button, i) => {
+  document
+    .querySelectorAll(
+      "#options .option"
+    )
+    .forEach(
+      (button,i)=>{
 
-    button.classList.toggle(
-      "selected",
-      i === index
+        button.classList.toggle(
+          "selected",
+          i === index
+        );
+
+      }
     );
-  });
 }
 
 
-function nextQuestion() {
+function nextQuestion(){
 
-  if (
-    quizAnswers[currentQuestion] === undefined
-  ) {
+  if(
+    quizAnswers[currentQuestion]
+    === undefined
+  ){
 
-    alert("Please select an answer.");
+    alert(
+      "Please select an answer."
+    );
+
     return;
   }
 
-  if (
+
+  if(
     currentQuestion <
     quizQuestions.length - 1
-  ) {
+  ){
 
     currentQuestion++;
 
     showQuestion();
 
-  } else {
+  }else{
 
     showQuizResult();
   }
@@ -1191,115 +1870,146 @@ function nextQuestion() {
 
 
 // ==========================================
-// IMPORTANT: SAVE QUIZ SCORE
+// SAVE QUIZ SCORE
 // ==========================================
 
-async function showQuizResult() {
+async function showQuizResult(){
 
   let correct = 0;
 
-  quizQuestions.forEach((q, index) => {
 
-    if (
-      quizAnswers[index] ===
-      Number(q.answer)
-    ) {
-      correct++;
+  quizQuestions.forEach(
+    (q,index)=>{
+
+      if(
+        quizAnswers[index] ===
+        Number(q.answer)
+      ){
+
+        correct++;
+      }
+
     }
-  });
+  );
+
 
   const total =
     quizQuestions.length;
 
+
   const percentage =
-    Math.round((correct / total) * 100);
+    total
+      ? Math.round(
+          correct / total * 100
+        )
+      : 0;
 
-  document.getElementById("quizContainer")
-    .classList.add("hidden");
 
-  document.getElementById("quizResult")
-    .classList.remove("hidden");
+  document
+    .getElementById("quizContainer")
+    .classList
+    .add("hidden");
 
-  document.getElementById("quizScore")
+
+  document
+    .getElementById("quizResult")
+    .classList
+    .remove("hidden");
+
+
+  document
+    .getElementById("quizScore")
     .textContent =
       `${correct} / ${total}`;
 
-  document.getElementById("quizPercentage")
+
+  document
+    .getElementById("quizPercentage")
     .textContent =
       `${percentage}%`;
 
+
   const saveMessage =
-    document.getElementById("quizSaveMessage");
+    document
+      .getElementById(
+        "quizSaveMessage"
+      );
+
 
   saveMessage.textContent =
     "Saving your score...";
 
-  // ========================================
-  // SAVE TO CLOUDFLARE D1
-  // ========================================
 
-  try {
+  try{
 
-    if (!currentUser || !currentUser.id) {
+    if(
+      !currentUser ||
+      !currentUser.id
+    ){
 
       saveMessage.textContent =
         "⚠️ Score could not be saved because you're not logged in.";
 
-      console.error(
-        "Missing currentUser:",
-        currentUser
-      );
-
       return;
     }
 
+
     const response =
-      await fetch("/api/quiz-score", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userId: Number(currentUser.id),
-          topic: String(quizTopic),
-          score: Number(correct),
-          total: Number(total)
-        })
-      });
+      await fetch(
+        "/api/quiz-score",
+        {
+
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:JSON.stringify({
+
+            userId:
+              String(
+                currentUser.id
+              ),
+
+            topic:
+              String(
+                quizTopic
+              ),
+
+            score:
+              Number(correct),
+
+            total:
+              Number(total)
+
+          })
+
+        }
+      );
+
 
     const data =
       await response.json();
 
-    console.log(
-      "Quiz score save response:",
-      data
-    );
 
-    if (
+    if(
       response.ok &&
       data.success
-    ) {
+    ){
 
       saveMessage.textContent =
         "✅ Score saved successfully!";
 
-    } else {
+    }else{
 
       saveMessage.textContent =
         "⚠️ Score could not be saved.";
-
-      console.error(
-        "Save failed:",
-        data
-      );
     }
 
-  } catch (error) {
 
-    console.error(
-      "Quiz score save error:",
-      error
-    );
+  }catch(error){
 
     saveMessage.textContent =
       "⚠️ Could not connect to save your score.";
@@ -1311,71 +2021,167 @@ async function showQuizResult() {
 // QUIZ REVIEW
 // ==========================================
 
-function showQuizReview() {
+function showQuizReview(){
 
   const review =
-    document.getElementById("quizReview");
+    document
+      .getElementById("quizReview");
+
 
   review.innerHTML = "";
 
-  quizQuestions.forEach((q, index) => {
 
-    const div =
-      document.createElement("div");
+  quizQuestions.forEach(
+    (q,index)=>{
 
-    div.className =
-      "lesson-section";
+      const div =
+        document.createElement("div");
 
-    const selected =
-      quizAnswers[index];
 
-    const correct =
-      Number(q.answer);
+      div.className =
+        "lesson-section";
 
-    let text =
-      `<h3>Question ${index + 1}</h3>`;
 
-    text +=
-      `<p>${escapeHtml(q.question)}</p>`;
+      const selected =
+        quizAnswers[index];
 
-    text +=
-      `<p><b>Your answer:</b> ${
-        selected !== undefined
-          ? escapeHtml(q.options[selected])
-          : "Not answered"
-      }</p>`;
 
-    text +=
-      `<p><b>Correct answer:</b> ${
-        escapeHtml(q.options[correct])
-      }</p>`;
+      const correct =
+        Number(q.answer);
 
-    div.innerHTML = text;
 
-    review.appendChild(div);
-  });
+      const title =
+        document.createElement("h3");
 
-  review.classList.remove("hidden");
+
+      title.textContent =
+        `Question ${index + 1}`;
+
+
+      div.appendChild(title);
+
+
+      const question =
+        document.createElement("p");
+
+
+      question.textContent =
+        q.question;
+
+
+      div.appendChild(question);
+
+
+      const yourAnswer =
+        document.createElement("p");
+
+
+      yourAnswer.innerHTML =
+        "<b>Your answer:</b> ";
+
+
+      yourAnswer.appendChild(
+        document.createTextNode(
+          selected !== undefined
+            ? q.options[selected]
+            : "Not answered"
+        )
+      );
+
+
+      div.appendChild(
+        yourAnswer
+      );
+
+
+      const correctAnswer =
+        document.createElement("p");
+
+
+      correctAnswer.innerHTML =
+        "<b>Correct answer:</b> ";
+
+
+      correctAnswer.appendChild(
+        document.createTextNode(
+          q.options[correct]
+        )
+      );
+
+
+      div.appendChild(
+        correctAnswer
+      );
+
+
+      if(q.explanation){
+
+        const explanation =
+          document.createElement("p");
+
+
+        explanation.innerHTML =
+          "<b>Explanation:</b> ";
+
+
+        explanation.appendChild(
+          document.createTextNode(
+            q.explanation
+          )
+        );
+
+
+        div.appendChild(
+          explanation
+        );
+      }
+
+
+      review.appendChild(
+        div
+      );
+
+    }
+  );
+
+
+  review
+    .classList
+    .remove("hidden");
 }
 
 
-function restartQuiz() {
+function restartQuiz(){
 
   quizQuestions = [];
+
   quizAnswers = [];
+
   currentQuestion = 0;
+
   quizTopic = "";
 
-  document.getElementById("quizResult")
-    .classList.add("hidden");
 
-  document.getElementById("quizReview")
-    .classList.add("hidden");
+  document
+    .getElementById("quizResult")
+    .classList
+    .add("hidden");
 
-  document.getElementById("quizSetup")
-    .classList.remove("hidden");
 
-  document.getElementById("quizTopic")
+  document
+    .getElementById("quizReview")
+    .classList
+    .add("hidden");
+
+
+  document
+    .getElementById("quizSetup")
+    .classList
+    .remove("hidden");
+
+
+  document
+    .getElementById("quizTopic")
     .value = "";
 }
 
@@ -1384,23 +2190,39 @@ function restartQuiz() {
 // PROGRESS
 // ==========================================
 
-async function showProgress() {
+async function showProgress(){
 
   hideAll();
 
-  document.getElementById("progress")
-    .classList.remove("hidden");
+
+  document
+    .getElementById("progress")
+    .classList
+    .remove("hidden");
+
 
   const message =
-    document.getElementById("progressMessage");
+    document
+      .getElementById(
+        "progressMessage"
+      );
 
-  message.classList.remove("hidden");
+
+  message
+    .classList
+    .remove("hidden");
+
+
   message.textContent =
     "Loading your progress...";
 
-  try {
 
-    if (!currentUser || !currentUser.id) {
+  try{
+
+    if(
+      !currentUser ||
+      !currentUser.id
+    ){
 
       message.textContent =
         "Please log in again.";
@@ -1408,172 +2230,243 @@ async function showProgress() {
       return;
     }
 
+
     const response =
       await fetch(
-        `/api/progress?userId=${encodeURIComponent(currentUser.id)}`
+        `/api/progress?userId=${
+          encodeURIComponent(
+            currentUser.id
+          )
+        }`
       );
+
 
     const data =
       await response.json();
 
-    if (
+
+    if(
       !response.ok ||
       !data.success
-    ) {
+    ){
 
       message.textContent =
+        data.error ||
         data.message ||
         "Could not load progress.";
 
       return;
     }
 
+
     const progress =
       data.progress || {};
 
-    document.getElementById("totalQuizzes")
+
+    document
+      .getElementById(
+        "totalQuizzes"
+      )
       .textContent =
-        Number(progress.totalQuizzes || 0);
+        Number(
+          progress.totalQuizzes || 0
+        );
 
-    document.getElementById("averageScore")
+
+    document
+      .getElementById(
+        "averageScore"
+      )
       .textContent =
-        `${Number(progress.averagePercentage || 0)}%`;
+        `${Number(
+          progress.averagePercentage || 0
+        )}%`;
 
-    document.getElementById("correctAnswers")
+
+    document
+      .getElementById(
+        "correctAnswers"
+      )
       .textContent =
-        Number(progress.correctAnswers || 0);
+        Number(
+          progress.correctAnswers || 0
+        );
 
-    document.getElementById("totalQuestions")
+
+    document
+      .getElementById(
+        "totalQuestions"
+      )
       .textContent =
-        Number(progress.totalQuestions || 0);
+        Number(
+          progress.totalQuestions || 0
+        );
 
 
-    // ======================================
     // TOPICS
-    // ======================================
 
     const topicContainer =
-      document.getElementById("topicProgress");
+      document
+        .getElementById(
+          "topicProgress"
+        );
 
-    topicContainer.innerHTML = "";
+
+    topicContainer.innerHTML =
+      "";
+
 
     const topics =
       progress.topics || [];
 
-    if (topics.length === 0) {
 
-      topicContainer.innerHTML = `
+    if(!topics.length){
+
+      topicContainer.innerHTML =
+        `
         <div class="topic-item">
           Complete a quiz to start building your progress.
         </div>
-      `;
+        `;
 
-    } else {
+    }else{
 
-      topics.forEach(topic => {
+      topics.forEach(topic=>{
 
         const questions =
-          Number(topic.questions || 0);
+          Number(
+            topic.questions || 0
+          );
+
 
         const correct =
-          Number(topic.correct || 0);
+          Number(
+            topic.correct || 0
+          );
+
 
         const percentage =
-          questions > 0
+          questions
             ? Math.round(
-                correct / questions * 100
+                correct /
+                questions *
+                100
               )
             : 0;
 
+
         const div =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
+
 
         div.className =
           "topic-item";
 
-        div.innerHTML = `
-          <strong>${escapeHtml(topic.topic)}</strong>
+
+        div.innerHTML =
+          `
+          <strong>
+            ${escapeHtml(topic.topic)}
+          </strong>
+
           <p>
             ${correct} / ${questions}
-            correct
-            • ${percentage}%
+            correct • ${percentage}%
           </p>
 
           <div class="progress-bar">
+
             <div
               class="progress-fill"
               style="width:${percentage}%">
             </div>
-          </div>
-        `;
 
-        topicContainer.appendChild(div);
+          </div>
+          `;
+
+
+        topicContainer.appendChild(
+          div
+        );
+
       });
+
     }
 
 
-    // ======================================
-    // RECENT QUIZZES
-    // ======================================
+    // RECENT
 
     const recentContainer =
-      document.getElementById("recentProgress");
+      document
+        .getElementById(
+          "recentProgress"
+        );
 
-    recentContainer.innerHTML = "";
+
+    recentContainer.innerHTML =
+      "";
+
 
     const recent =
       progress.recent || [];
 
-    if (recent.length === 0) {
 
-      recentContainer.innerHTML = `
+    if(!recent.length){
+
+      recentContainer.innerHTML =
+        `
         <div class="recent-item">
           No quiz history yet.
         </div>
-      `;
+        `;
 
-    } else {
+    }else{
 
-      recent.forEach(item => {
+      recent.forEach(item=>{
 
         const score =
-          Number(item.score || 0);
+          Number(
+            item.score || 0
+          );
+
 
         const total =
-          Number(item.total || 0);
+          Number(
+            item.total ||
+            item.total_questions ||
+            0
+          );
+
 
         const percentage =
-          total > 0
+          total
             ? Math.round(
-                score / total * 100
+                score /
+                total *
+                100
               )
             : 0;
 
+
         const div =
-          document.createElement("div");
+          document.createElement(
+            "div"
+          );
+
 
         div.className =
           "recent-item";
 
-        let dateText = "";
 
-        if (item.created_at) {
-
-          const date =
-            new Date(
-              item.created_at.replace(" ", "T") + "Z"
-            );
-
-          if (!isNaN(date.getTime())) {
-
-            dateText =
-              date.toLocaleString();
-          }
-        }
-
-        div.innerHTML = `
+        div.innerHTML =
+          `
           <strong>
-            ${escapeHtml(item.topic)}
+            ${escapeHtml(
+              item.topic ||
+              "General"
+            )}
           </strong>
 
           <p>
@@ -1583,22 +2476,36 @@ async function showProgress() {
           </p>
 
           <small>
-            ${escapeHtml(dateText)}
+            ${escapeHtml(
+              formatDate(
+                item.created_at
+              )
+            )}
           </small>
-        `;
+          `;
 
-        recentContainer.appendChild(div);
+
+        recentContainer.appendChild(
+          div
+        );
+
       });
+
     }
 
-    message.classList.add("hidden");
 
-  } catch (error) {
+    message
+      .classList
+      .add("hidden");
+
+
+  }catch(error){
 
     console.error(
       "Progress error:",
       error
     );
+
 
     message.textContent =
       "Could not load progress. Please try again.";
@@ -1607,17 +2514,273 @@ async function showProgress() {
 
 
 // ==========================================
-// SECURITY HELPER
+// QUIZ HISTORY
 // ==========================================
 
-function escapeHtml(value) {
+async function showHistory(){
 
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  hideAll();
+
+
+  document
+    .getElementById("history")
+    .classList
+    .remove("hidden");
+
+
+  const message =
+    document
+      .getElementById(
+        "historyMessage"
+      );
+
+
+  const list =
+    document
+      .getElementById(
+        "historyList"
+      );
+
+
+  message
+    .classList
+    .remove("hidden");
+
+
+  message.textContent =
+    "Loading quiz history...";
+
+
+  list.innerHTML = "";
+
+
+  try{
+
+    if(
+      !currentUser ||
+      !currentUser.id
+    ){
+
+      message.textContent =
+        "Please log in again.";
+
+      return;
+    }
+
+
+    const response =
+      await fetch(
+        `/api/quiz-history?userId=${
+          encodeURIComponent(
+            currentUser.id
+          )
+        }`
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if(
+      !response.ok ||
+      !data.success
+    ){
+
+      message.textContent =
+        data.error ||
+        data.message ||
+        "Could not load quiz history.";
+
+      return;
+    }
+
+
+    const quizzes =
+      data.quizzes || [];
+
+
+    if(!quizzes.length){
+
+      list.innerHTML =
+        `
+        <div class="history-item">
+
+          No quiz history yet.
+
+          <br><br>
+
+          Complete a quiz to see
+          your results here.
+
+        </div>
+        `;
+
+
+      message
+        .classList
+        .add("hidden");
+
+
+      return;
+    }
+
+
+    quizzes.forEach(
+      quiz=>{
+
+        const score =
+          Number(
+            quiz.score || 0
+          );
+
+
+        const total =
+          Number(
+            quiz.total ||
+            quiz.total_questions ||
+            0
+          );
+
+
+        const percentage =
+          total
+            ? Math.round(
+                score /
+                total *
+                100
+              )
+            : 0;
+
+
+        const div =
+          document.createElement(
+            "div"
+          );
+
+
+        div.className =
+          "history-item";
+
+
+        div.innerHTML =
+          `
+          <strong>
+            📝
+            ${escapeHtml(
+              quiz.topic ||
+              "General"
+            )}
+          </strong>
+
+          <p class="history-score">
+
+            ${score}/${total}
+
+            — ${percentage}%
+
+          </p>
+
+          <div class="small">
+
+            ${escapeHtml(
+              formatDate(
+                quiz.created_at
+              )
+            )}
+
+          </div>
+          `;
+
+
+        list.appendChild(
+          div
+        );
+
+      }
+    );
+
+
+    message
+      .classList
+      .add("hidden");
+
+
+  }catch(error){
+
+    console.error(
+      "History error:",
+      error
+    );
+
+
+    message.textContent =
+      "Could not load quiz history. Please try again.";
+  }
+}
+
+
+// ==========================================
+// HELPERS
+// ==========================================
+
+function formatDate(value){
+
+  if(!value)return "";
+
+
+  const date =
+    new Date(
+      String(value)
+        .replace(" ","T") +
+      "Z"
+    );
+
+
+  if(
+    isNaN(
+      date.getTime()
+    )
+  ){
+
+    return String(value);
+  }
+
+
+  return date.toLocaleString();
+}
+
+
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  )
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 }
 
 
@@ -1627,29 +2790,34 @@ function escapeHtml(value) {
 
 document.addEventListener(
   "DOMContentLoaded",
-  () => {
+  ()=>{
 
     const saved =
-      localStorage.getItem("padhaiUser");
+      localStorage.getItem(
+        "padhaiUser"
+      );
 
-    if (saved) {
 
-      try {
+    if(saved){
+
+      try{
 
         currentUser =
           JSON.parse(saved);
 
-        if (
+
+        if(
           currentUser &&
           currentUser.id
-        ) {
+        ){
 
           showDashboard();
 
           return;
         }
 
-      } catch (error) {
+
+      }catch(error){
 
         localStorage.removeItem(
           "padhaiUser"
@@ -1657,11 +2825,18 @@ document.addEventListener(
       }
     }
 
-    document.getElementById("auth")
-      .classList.remove("hidden");
 
-    document.getElementById("dashboard")
-      .classList.add("hidden");
+    document
+      .getElementById("auth")
+      .classList
+      .remove("hidden");
+
+
+    document
+      .getElementById("dashboard")
+      .classList
+      .add("hidden");
+
   }
 );
 
